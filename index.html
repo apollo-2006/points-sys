@@ -191,7 +191,10 @@
       <div class="brand-eyebrow">Season 2 · Fall 26</div>
       <h1>Battle For The Top</h1>
     </div>
-    <div class="ranking-tag" id="rankingTag">Loading ranking…</div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+      <div class="ranking-tag" id="rankingTag">Loading ranking…</div>
+      <div id="authStatus" style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-muted);"></div>
+    </div>
   </div>
 
   <div class="shared-note">
@@ -199,6 +202,16 @@
   </div>
 
   <div id="setupGate" style="display:none;"></div>
+
+  <div id="loginGate" style="display:none;max-width:360px;margin:40px auto;">
+    <div class="card" style="display:block;">
+      <div class="panel-title" style="margin-top:0;">Sign in</div>
+      <input id="loginEmail" type="email" placeholder="Email" class="bet-form-input" style="width:100%;margin-bottom:8px;background:var(--panel-light);border:1px solid var(--border);color:var(--text);padding:9px 10px;font-family:'Inter',sans-serif;font-size:13px;">
+      <input id="loginPassword" type="password" placeholder="Password" style="width:100%;margin-bottom:10px;background:var(--panel-light);border:1px solid var(--border);color:var(--text);padding:9px 10px;font-family:'Inter',sans-serif;font-size:13px;">
+      <button class="btn-flame" style="width:100%;" onclick="__auth.signIn()">Sign In</button>
+      <div id="loginError" style="color:var(--danger);font-size:12px;margin-top:8px;"></div>
+    </div>
+  </div>
 
   <div id="app" style="display:none;">
   <div class="banners" id="banners"></div>
@@ -225,23 +238,15 @@
 // Get this from: Firebase Console > Project Settings > General >
 // "Your apps" > SDK setup and configuration > Config
 // =====================================================================
-    const firebaseConfig = {
-
-        apiKey: "AIzaSyAPDL1kF7BoXfxxoNsaZtvM2sNk75Vg_ZI",
-
-        authDomain: "point-tracker-fd222.firebaseapp.com",
-
-        projectId: "point-tracker-fd222",
-
-        storageBucket: "point-tracker-fd222.firebasestorage.app",
-
-        messagingSenderId: "985175072746",
-
-        appId: "1:985175072746:web:6d1b60323a2c7f2853dc93",
-
-        measurementId: "G-7CXZSL0ZJF"
-
-    };
+const firebaseConfig = {
+  apiKey: "AIzaSyAPDL1kF7BoXfxxoNsaZtvM2sNk75Vg_ZI",
+  authDomain: "point-tracker-fd222.firebaseapp.com",
+  projectId: "point-tracker-fd222",
+  storageBucket: "point-tracker-fd222.firebasestorage.app",
+  messagingSenderId: "985175072746",
+  appId: "1:985175072746:web:6d1b60323a2c7f2853dc93",
+  measurementId: "G-7CXZSL0ZJF"
+};
 // =====================================================================
 
 const NEEDS_SETUP = firebaseConfig.apiKey === "YOUR_API_KEY";
@@ -261,12 +266,44 @@ if (NEEDS_SETUP) {
 } else {
   const { initializeApp } = await import("https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js");
   const { getFirestore, doc, onSnapshot, setDoc } = await import("https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js");
+  const { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } =
+    await import("https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js");
 
   const fbApp = initializeApp(firebaseConfig);
   const db = getFirestore(fbApp);
   const stateRef = doc(db, "apex_tracker", "state");
+  const auth = getAuth(fbApp);
 
-  runApp({ doc, onSnapshot, setDoc, db, stateRef });
+  window.__auth = {
+    signIn(){
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      document.getElementById('loginError').textContent = '';
+      signInWithEmailAndPassword(auth, email, password).catch(e=>{
+        document.getElementById('loginError').textContent = 'Sign in failed — check your email and password.';
+      });
+    },
+    signOut(){
+      signOut(auth);
+    }
+  };
+
+  let started = false;
+  onAuthStateChanged(auth, (user)=>{
+    if(user){
+      document.getElementById('loginGate').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      document.getElementById('authStatus').innerHTML = 'Signed in as ' + user.email + ' · <button class="link-btn" onclick="__auth.signOut()">Sign out</button>';
+      if(!started){
+        started = true;
+        runApp({ onSnapshot, setDoc, stateRef });
+      }
+    } else {
+      document.getElementById('app').style.display = 'none';
+      document.getElementById('loginGate').style.display = 'block';
+      document.getElementById('authStatus').textContent = '';
+    }
+  });
 }
 
 function runApp({ onSnapshot, setDoc, stateRef }){
@@ -360,6 +397,9 @@ function defaultState(){
     names: {abir:'Abir', jade:'Jade'},
     points: {abir:34000, jade:32000},
     counts: {abir:{}, jade:{}}, // key -> times claimed (for display only)
+    customDaily: [], // {id,label,pts}
+    customQuests: {abir:[], jade:[]},
+    customShop: {abir:[], jade:[]}, // {id,label,pts,note}
     bets: [], // {id,title,stake,status,winner,ts}
     history: [] // {ts, party, delta, reason, key}
   };
@@ -371,6 +411,9 @@ function mergeState(parsed){
   state.points = Object.assign(d.points, parsed.points||{});
   state.names = Object.assign(d.names, parsed.names||{});
   state.counts = Object.assign({abir:{},jade:{}}, parsed.counts||{});
+  state.customDaily = parsed.customDaily || [];
+  state.customQuests = Object.assign({abir:[],jade:[]}, parsed.customQuests||{});
+  state.customShop = Object.assign({abir:[],jade:[]}, parsed.customShop||{});
   state.bets = parsed.bets || [];
   state.history = parsed.history || [];
 }
@@ -443,7 +486,7 @@ function undoLast(key, party){
 }
 
 function redeemShop(party, id, customCost){
-  const item = SHOP[party].find(i=>i.id===id);
+  const item = SHOP[party].find(i=>i.id===id) || state.customShop[party].find(i=>i.id===id);
   const cost = customCost != null ? customCost : item.pts;
   if(cost != null){
     if(state.points[party] < cost){
@@ -454,6 +497,34 @@ function redeemShop(party, id, customCost){
   } else {
     claim('shop:'+id, party, 0, 'Claimed: '+item.label);
   }
+}
+
+function addCustomDaily(label, pts){
+  if(!label || !pts) return;
+  state.customDaily.push({id:'c_'+Date.now(), label, pts});
+  saveState(); renderAll();
+}
+function removeCustomDaily(id){
+  state.customDaily = state.customDaily.filter(i=>i.id!==id);
+  saveState(); renderAll();
+}
+function addCustomQuest(party, label, pts){
+  if(!label || !pts) return;
+  state.customQuests[party].push({id:'c_'+Date.now(), label, pts});
+  saveState(); renderAll();
+}
+function removeCustomQuest(party, id){
+  state.customQuests[party] = state.customQuests[party].filter(i=>i.id!==id);
+  saveState(); renderAll();
+}
+function addCustomShop(party, label, pts, note){
+  if(!label || !pts) return;
+  state.customShop[party].push({id:'c_'+Date.now(), label, pts, note: note||'custom'});
+  saveState(); renderAll();
+}
+function removeCustomShop(party, id){
+  state.customShop[party] = state.customShop[party].filter(i=>i.id!==id);
+  saveState(); renderAll();
 }
 
 function renameParty(party){
@@ -502,7 +573,7 @@ function renderBanners(){
   }
 }
 
-function claimCard(key, label, pts, note){
+function claimCard(key, label, pts, note, removeAction){
   const cA = state.counts.abir[key]||0;
   const cJ = state.counts.jade[key]||0;
   const ptsClass = pts>0?'pos':(pts<0?'neg':'');
@@ -516,12 +587,29 @@ function claimCard(key, label, pts, note){
       ${cA?`<button class="pill ghost" title="Undo ${state.names.abir}'s last claim" onclick="__app.undo('${key}','abir')">↺</button>`:''}
       <button class="pill jade" onclick="__app.claim('${key}','jade',${pts},'${label.replace(/'/g,"\\'")}')">${state.names.jade}${cJ?' ('+cJ+')':''}</button>
       ${cJ?`<button class="pill ghost" title="Undo ${state.names.jade}'s last claim" onclick="__app.undo('${key}','jade')">↺</button>`:''}
+      ${removeAction?`<button class="pill ghost" title="Remove this item" onclick="${removeAction}">✕</button>`:''}
     </div>
   </div>`;
 }
 
+function addForm(labelPh, ptsPh, onClick){
+  return `<div class="bet-form" style="margin-top:10px;">
+    <input id="${labelPh.id}" placeholder="${labelPh.text}">
+    <input id="${ptsPh.id}" type="number" placeholder="${ptsPh.text}" style="max-width:110px;">
+    <button class="btn-flame" onclick="${onClick}">Add</button>
+  </div>`;
+}
+
 function renderDaily(){
-  return DAILY.map(item=>claimCard('daily:'+item.id, item.label, item.pts)).join('');
+  const base = DAILY.map(item=>claimCard('daily:'+item.id, item.label, item.pts)).join('');
+  const custom = state.customDaily.map(item=>
+    claimCard('daily:'+item.id, item.label, item.pts, 'custom', `__app.removeDaily('${item.id}')`)
+  ).join('');
+  return base + custom + addForm(
+    {id:'newDailyLabel', text:'New daily habit'},
+    {id:'newDailyPts', text:'Points'},
+    `__app.addDaily()`
+  );
 }
 
 function renderAchievements(){
@@ -529,7 +617,18 @@ function renderAchievements(){
 }
 
 function renderQuests(){
-  const col = (party)=>QUESTS[party].map(item=>claimCard('quest:'+party+':'+item.id, item.label, item.pts)).join('');
+  const col = (party)=>{
+    const base = QUESTS[party].map(item=>claimCard('quest:'+party+':'+item.id, item.label, item.pts)).join('');
+    const custom = state.customQuests[party].map(item=>
+      claimCard('quest:'+party+':'+item.id, item.label, item.pts, 'custom', `__app.removeQuest('${party}','${item.id}')`)
+    ).join('');
+    const form = addForm(
+      {id:'newQuestLabel_'+party, text:'New goal'},
+      {id:'newQuestPts_'+party, text:'Points'},
+      `__app.addQuest('${party}')`
+    );
+    return base + custom + form;
+  };
   return `<div class="col2">
     <div>
       <div class="panel-title">${state.names.abir}'s Goals</div>
@@ -546,9 +645,10 @@ function renderPenalties(){
   return PENALTIES.map(item=>claimCard('pen:'+item.id, item.label, item.pts)).join('');
 }
 
-function shopCard(item, party){
+function shopCard(item, party, removeAction){
   const balance = state.points[party];
   const cA = state.counts[party]['shop:'+item.id]||0;
+  const removeBtn = removeAction?`<button class="pill ghost" title="Remove this item" onclick="${removeAction}">✕</button>`:'';
   if(item.pts == null){
     return `<div class="card">
       <div class="card-info">
@@ -558,6 +658,7 @@ function shopCard(item, party){
       <div class="card-actions">
         <button class="pill ${party}" onclick="__app.redeemShop('${party}','${item.id}')">Claim</button>
         ${cA?`<button class="pill ghost" onclick="__app.undo('shop:${item.id}','${party}')">↺</button>`:''}
+        ${removeBtn}
       </div>
     </div>`;
   }
@@ -571,6 +672,7 @@ function shopCard(item, party){
         <input class="num-input" type="number" id="flex-${party}-${item.id}" placeholder="${item.pts}">
         <button class="pill ${party}" onclick="__app.redeemFlexShop('${party}','${item.id}')">Redeem</button>
         ${cA?`<button class="pill ghost" onclick="__app.undo('shop:${item.id}','${party}')">↺</button>`:''}
+        ${removeBtn}
       </div>
     </div>`;
   }
@@ -583,19 +685,31 @@ function shopCard(item, party){
     <div class="card-actions">
       <button class="pill ${party}" ${affordable?'':'disabled'} onclick="__app.redeemShop('${party}','${item.id}')">Redeem</button>
       ${cA?`<button class="pill ghost" onclick="__app.undo('shop:${item.id}','${party}')">↺</button>`:''}
+      ${removeBtn}
     </div>
   </div>`;
 }
 
 function renderShop(){
+  const col = (party)=>{
+    const base = SHOP[party].map(i=>shopCard(i,party)).join('');
+    const custom = state.customShop[party].map(i=>shopCard(i,party,`__app.removeShopItem('${party}','${i.id}')`)).join('');
+    const form = `<div class="bet-form" style="margin-top:10px;">
+      <input id="newShopLabel_${party}" placeholder="Wanted item">
+      <input id="newShopPts_${party}" type="number" placeholder="Points" style="max-width:100px;">
+      <input id="newShopNote_${party}" placeholder="Note (optional)" style="max-width:120px;">
+      <button class="btn-flame" onclick="__app.addShopItem('${party}')">Add</button>
+    </div>`;
+    return base + custom + form;
+  };
   return `<div class="col2">
     <div>
       <div class="panel-title">${state.names.abir}'s Shop</div>
-      ${SHOP.abir.map(i=>shopCard(i,'abir')).join('')}
+      ${col('abir')}
     </div>
     <div>
       <div class="panel-title">${state.names.jade}'s Shop</div>
-      ${SHOP.jade.map(i=>shopCard(i,'jade')).join('')}
+      ${col('jade')}
     </div>
   </div>`;
 }
@@ -701,6 +815,28 @@ const __app = {
     if(!val || val<=0){ alert('Enter a point cost first.'); return; }
     redeemShop(party, id, val);
   },
+  addDaily(){
+    const label = document.getElementById('newDailyLabel').value.trim();
+    const pts = parseInt(document.getElementById('newDailyPts').value,10);
+    if(!label || !pts){ alert('Give it a name and a positive point value.'); return; }
+    addCustomDaily(label, pts);
+  },
+  removeDaily(id){ removeCustomDaily(id); },
+  addQuest(party){
+    const label = document.getElementById('newQuestLabel_'+party).value.trim();
+    const pts = parseInt(document.getElementById('newQuestPts_'+party).value,10);
+    if(!label || !pts){ alert('Give it a name and a positive point value.'); return; }
+    addCustomQuest(party, label, pts);
+  },
+  removeQuest(party,id){ removeCustomQuest(party, id); },
+  addShopItem(party){
+    const label = document.getElementById('newShopLabel_'+party).value.trim();
+    const pts = parseInt(document.getElementById('newShopPts_'+party).value,10);
+    const note = document.getElementById('newShopNote_'+party).value.trim();
+    if(!label || !pts){ alert('Give it a name and a positive point cost.'); return; }
+    addCustomShop(party, label, pts, note);
+  },
+  removeShopItem(party,id){ removeCustomShop(party, id); },
   addBet(){
     const title = document.getElementById('betTitle').value.trim();
     const stake = parseInt(document.getElementById('betStake').value,10);
