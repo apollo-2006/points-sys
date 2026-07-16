@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SEASON 2 · BATTLE FOR THE TOP</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#0A0C0F;
+    --panel:#14171D;
+    --panel-light:#1C2028;
+    --border:#272C35;
+    --flame:#FF5A1F;
+    --flame-dim:#7A2E14;
+    --cyan:#3EC6E0;
+    --purple:#B463FF;
+    --gold:#FFC94A;
+    --white-evo:#E9ECEF;
+    --text:#EDEFF2;
+    --text-muted:#868C96;
+    --danger:#FF5252;
+    --success:#4CD97B;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(255,90,31,0.10), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 0%, rgba(62,198,224,0.08), transparent 60%),
+      var(--void);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+  }
+  ::selection{background:var(--flame);color:#0A0C0F;}
+
+  .wrap{max-width:920px;margin:0 auto;padding:20px 16px 60px;}
+
+  /* ---------- HEADER ---------- */
+  .topbar{
+    display:flex;justify-content:space-between;align-items:flex-end;
+    border-bottom:2px solid var(--border);padding-bottom:14px;margin-bottom:14px;
+    gap:12px;flex-wrap:wrap;
+  }
+  .brand-eyebrow{
+    font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;
+    color:var(--flame);text-transform:uppercase;
+  }
+  h1{
+    font-family:'Rajdhani',sans-serif;font-weight:700;font-size:clamp(24px,5vw,34px);
+    margin:2px 0 0;letter-spacing:1px;text-transform:uppercase;
+    text-shadow:0 0 20px rgba(255,90,31,0.25);
+  }
+  .ranking-tag{
+    font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--text-muted);
+    background:var(--panel);border:1px solid var(--border);padding:6px 12px;
+    clip-path:polygon(8px 0,100% 0,100% 100%,0 100%,0 8px);
+  }
+  .ranking-tag b{color:var(--gold);}
+
+  .shared-note{
+    font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-muted);
+    border:1px dashed var(--border);padding:8px 12px;margin-bottom:20px;
+    display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;
+  }
+  .shared-note b{color:var(--cyan);}
+
+  /* ---------- EVO BANNERS ---------- */
+  .banners{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px;}
+  @media (max-width:560px){.banners{grid-template-columns:1fr;}}
+
+  .banner{
+    position:relative;background:linear-gradient(180deg,var(--panel-light),var(--panel));
+    border:1px solid var(--border);padding:18px 18px 16px;
+    clip-path:polygon(0 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%);
+    overflow:hidden;
+  }
+  .banner::before{
+    content:'';position:absolute;top:0;left:0;right:0;height:3px;
+    background:var(--tier-color,var(--cyan));
+    box-shadow:0 0 14px var(--tier-color,var(--cyan));
+  }
+  .banner-head{display:flex;justify-content:space-between;align-items:center;}
+  .banner-name{
+    font-family:'Rajdhani',sans-serif;font-weight:700;font-size:20px;letter-spacing:0.5px;
+    cursor:pointer;text-transform:uppercase;
+  }
+  .banner-name:hover{color:var(--flame);}
+  .evo-hex{
+    width:34px;height:34px;
+    clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+    background:var(--tier-color,var(--cyan));
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;color:#0A0C0F;
+    box-shadow:0 0 16px var(--tier-color,var(--cyan));
+  }
+  .banner-points{
+    font-family:'Share Tech Mono',monospace;font-size:32px;font-weight:700;margin:10px 0 2px;
+    letter-spacing:1px;
+  }
+  .banner-tier-label{
+    font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-muted);
+    letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;
+  }
+  .evo-track{height:6px;background:#0A0C0F;border:1px solid var(--border);position:relative;overflow:hidden;}
+  .evo-fill{height:100%;background:var(--tier-color,var(--cyan));transition:width .6s ease;
+    box-shadow:0 0 10px var(--tier-color,var(--cyan));}
+
+  /* ---------- TABS ---------- */
+  .tabs{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap;}
+  .tab-btn{
+    font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14px;letter-spacing:1px;
+    text-transform:uppercase;background:var(--panel);border:1px solid var(--border);
+    color:var(--text-muted);padding:9px 16px;cursor:pointer;
+    clip-path:polygon(8px 0,100% 0,100% 100%,0 100%,0 8px);
+    transition:all .15s ease;
+  }
+  .tab-btn:hover{color:var(--text);border-color:var(--flame-dim);}
+  .tab-btn.active{background:var(--flame);color:#0A0C0F;border-color:var(--flame);}
+
+  /* ---------- CONTENT ---------- */
+  .panel-title{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;
+    letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin:22px 0 10px;}
+  .panel-title:first-child{margin-top:0;}
+  .col2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  @media (max-width:640px){.col2{grid-template-columns:1fr;}}
+
+  .card{
+    background:var(--panel);border:1px solid var(--border);
+    padding:12px 14px;margin-bottom:8px;
+    display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;
+  }
+  .card-info{flex:1;min-width:150px;}
+  .card-label{font-size:14px;font-weight:500;}
+  .card-pts{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--text-muted);margin-top:2px;}
+  .card-pts.neg{color:var(--danger);}
+  .card-pts.pos{color:var(--success);}
+  .card-actions{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+
+  .pill{
+    font-family:'Rajdhani',sans-serif;font-weight:600;font-size:12.5px;letter-spacing:0.5px;
+    text-transform:uppercase;border:1px solid var(--border);background:var(--panel-light);
+    color:var(--text);padding:7px 12px;cursor:pointer;transition:all .12s ease;
+  }
+  .pill:hover:not(:disabled){border-color:var(--flame);color:var(--flame);}
+  .pill:disabled{opacity:0.35;cursor:not-allowed;}
+  .pill.abir{border-color:#2b4a56;}
+  .pill.abir:hover:not(:disabled){border-color:var(--cyan);color:var(--cyan);}
+  .pill.jade{border-color:#5a3a2b;}
+  .pill.jade:hover:not(:disabled){border-color:var(--gold);color:var(--gold);}
+  .pill.danger:hover:not(:disabled){border-color:var(--danger);color:var(--danger);}
+  .pill.ghost{background:none;color:var(--text-muted);padding:7px 9px;font-size:14px;}
+  .pill.ghost:hover:not(:disabled){color:var(--danger);border-color:var(--danger);}
+
+  .count-tag{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-muted);}
+
+  .empty-note{color:var(--text-muted);font-size:13px;font-style:italic;padding:10px 2px;}
+
+  /* forms */
+  .bet-form{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+  .bet-form input{
+    background:var(--panel-light);border:1px solid var(--border);color:var(--text);
+    padding:9px 10px;font-family:'Inter',sans-serif;font-size:13px;flex:1;min-width:120px;
+  }
+  .bet-form input:focus{outline:none;border-color:var(--flame);}
+  .btn-flame{
+    font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+    background:var(--flame);color:#0A0C0F;border:none;padding:9px 18px;cursor:pointer;
+  }
+  .btn-flame:hover{background:#ff7440;}
+
+  /* history */
+  .hist-row{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
+  .hist-meta{color:var(--text-muted);font-family:'Share Tech Mono',monospace;font-size:11px;}
+  .hist-delta{font-family:'Share Tech Mono',monospace;font-weight:600;white-space:nowrap;}
+
+  .top-actions{display:flex;justify-content:flex-end;gap:8px;margin-bottom:10px;}
+  .link-btn{background:none;border:none;color:var(--text-muted);font-size:12px;cursor:pointer;text-decoration:underline;font-family:'Inter',sans-serif;}
+  .link-btn:hover{color:var(--flame);}
+
+  .num-input{width:70px;background:var(--panel-light);border:1px solid var(--border);color:var(--text);padding:6px;font-family:'Share Tech Mono',monospace;font-size:12px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div>
+      <div class="brand-eyebrow">Season 2 · Fall 26</div>
+      <h1>Battle For The Top</h1>
+    </div>
+    <div class="ranking-tag" id="rankingTag">Loading ranking…</div>
+  </div>
+
+  <div class="shared-note">
+    <span><b>Live shared board.</b> Backed by a real database — open this page from either of your phones or laptops and you'll both see the same points update instantly.</span>
+  </div>
+
+  <div id="setupGate" style="display:none;"></div>
+
+  <div id="app" style="display:none;">
+  <div class="banners" id="banners"></div>
+
+  <div class="tabs" id="tabs">
+    <button class="tab-btn" data-tab="daily">Daily</button>
+    <button class="tab-btn" data-tab="achievements">Achievements</button>
+    <button class="tab-btn" data-tab="quests">Quest Log</button>
+    <button class="tab-btn" data-tab="penalties">Penalties</button>
+    <button class="tab-btn" data-tab="shop">Point Shop</button>
+    <button class="tab-btn" data-tab="bets">Bets</button>
+    <button class="tab-btn" data-tab="history">Log</button>
+  </div>
+
+  <div id="content">Loading squad data…</div>
+  </div>
+
+</div>
+
+<script type="module">
+
+// =====================================================================
+// FIREBASE CONFIG — paste your own project's config object here.
+// Get this from: Firebase Console > Project Settings > General >
+// "Your apps" > SDK setup and configuration > Config
+// =====================================================================
+    const firebaseConfig = {
+
+        apiKey: "AIzaSyAPDL1kF7BoXfxxoNsaZtvM2sNk75Vg_ZI",
+
+        authDomain: "point-tracker-fd222.firebaseapp.com",
+
+        projectId: "point-tracker-fd222",
+
+        storageBucket: "point-tracker-fd222.firebasestorage.app",
+
+        messagingSenderId: "985175072746",
+
+        appId: "1:985175072746:web:6d1b60323a2c7f2853dc93",
+
+        measurementId: "G-7CXZSL0ZJF"
+
+    };
+// =====================================================================
+
+const NEEDS_SETUP = firebaseConfig.apiKey === "YOUR_API_KEY";
+
+if (NEEDS_SETUP) {
+  document.getElementById('setupGate').style.display = 'block';
+  document.getElementById('setupGate').innerHTML = `
+    <div class="card" style="display:block;">
+      <div class="panel-title" style="margin-top:0;">Connect your database</div>
+      <p style="font-size:14px;line-height:1.6;color:var(--text);">
+        This page isn't connected to a database yet. Open <code>apex_points_tracker_web.html</code>
+        in a text editor, find the <code>firebaseConfig</code> block near the top of the
+        <code>&lt;script&gt;</code> tag, and paste in your own Firebase project's config
+        (see SETUP_GUIDE.md for exact steps). Once that's saved, reload this page.
+      </p>
+    </div>`;
+} else {
+  const { initializeApp } = await import("https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js");
+  const { getFirestore, doc, onSnapshot, setDoc } = await import("https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js");
+
+  const fbApp = initializeApp(firebaseConfig);
+  const db = getFirestore(fbApp);
+  const stateRef = doc(db, "apex_tracker", "state");
+
+  runApp({ doc, onSnapshot, setDoc, db, stateRef });
+}
+
+function runApp({ onSnapshot, setDoc, stateRef }){
+document.getElementById('app').style.display = 'block';
+
+const DAILY = [
+  {id:'workout', label:'Workout completed', pts:2000},
+  {id:'skincare', label:'Skincare routine done', pts:1000},
+  {id:'meals', label:'Ate 3 balanced meals', pts:1500},
+  {id:'sleep_on_time', label:'Slept on time (before 1am)', pts:2000},
+  {id:'wake_on_time', label:'Woke up on time (before 11am)', pts:2000},
+  {id:'studied', label:'Studied / worked productively (2+ hrs)', pts:2500},
+  {id:'chores', label:'Chores completed', pts:1500},
+  {id:'pomodoro', label:'Completed a Pomodoro cycle (60/15)', pts:2500},
+];
+
+const ACHIEVEMENTS = [
+  {id:'pr_gym', label:'Hit a PR in the gym', pts:3000},
+  {id:'aced_assignment', label:'Aced a major assignment', pts:5000},
+  {id:'perfect_sleep_week', label:'One full week of perfect sleep', pts:5000},
+  {id:'meals_tracked_week', label:'One full week of meals tracked', pts:5000},
+  {id:'assignments_on_time', label:'Assignments on time all week', pts:5000},
+];
+
+const PENALTIES = [
+  {id:'forgot_tracking', label:'Forgetting to keep track of points', pts:-5000},
+  {id:'junk_food', label:'Ate junk food / binge meal', pts:-2000},
+  {id:'skipped_skincare', label:'Skipped skincare', pts:-1000},
+  {id:'stayed_up', label:'Stayed up past midnight–1am', pts:-3000},
+  {id:'slept_in', label:'Slept in past 9am', pts:-2500},
+  {id:'ignored_chores', label:'Ignored chores (2+ days)', pts:-2000},
+  {id:'laziness', label:'Laziness / procrastination', pts:-1500},
+  {id:'skipped_workout', label:'Skipped workout', pts:-2500},
+  {id:'downplaying', label:'Downplaying events', pts:-1500},
+  {id:'feeling_bad_ex', label:'Feeling bad for ex', pts:-1500},
+];
+
+const QUESTS = {
+  abir: [
+    {id:'organize_room_a', label:'Organize room', pts:2000},
+    {id:'leetcode_easy', label:'LeetCode: 2 easy solved', pts:1000},
+    {id:'leetcode_med', label:'LeetCode: 1 medium solved', pts:2000},
+    {id:'leetcode_hard', label:'LeetCode: 1 hard solved', pts:3000},
+    {id:'git_commits', label:'3–5 Git commits today', pts:4000},
+    {id:'move_out', label:'Move-out finalization', pts:2500},
+    {id:'moto_license', label:'Get motorcycle license', pts:3000},
+  ],
+  jade: [
+    {id:'criminology', label:'Read criminology textbook (45 min)', pts:2500},
+    {id:'forensic', label:'Read forensic textbook', pts:2000},
+    {id:'career_textbook', label:'Read career textbook (45 min, notes = bonus)', pts:2000},
+    {id:'organize_room_j', label:'Organize room', pts:2000},
+    {id:'cook_meal', label:'Cook meal (2x this week)', pts:2500},
+    {id:'journaling', label:'Journaling', pts:3000},
+    {id:'french', label:'French practice', pts:2000},
+    {id:'permit_test', label:'Permit test', pts:3000},
+    {id:'license_j', label:'License', pts:3000},
+    {id:'online_desk_job', label:'Look into online desk job', pts:3000},
+    {id:'flower_language', label:'Flower language', pts:1000},
+  ]
+};
+
+const SHOP = {
+  jade: [
+    {id:'bookshelf', label:'Rotating bookshelf', pts:60000, note:'$60'},
+    {id:'upgrade_bp', label:'Battle Pass upgrade', pts:20000, note:'$20'},
+    {id:'apex_coins_j', label:'Apex coin pack · 2150', pts:20000, note:'$20'},
+    {id:'exotic_shard_j', label:'Exotic shard pack · 50', pts:40000, note:'$40'},
+    {id:'wishlist_j', label:'Amazon wishlist pick', pts:20000, note:'up to $20+', flexible:true},
+    {id:'candle', label:'A candle :)', pts:null, note:'priceless'},
+  ],
+  abir: [
+    {id:'apex_coins_a', label:'Apex coin pack · 2150', pts:20000, note:'$20'},
+    {id:'exotic_shard_a', label:'Exotic shard pack · 50', pts:40000, note:'$40'},
+    {id:'mousepad', label:'Mousepad', pts:29000, note:'$29'},
+    {id:'wishlist_a', label:'Amazon wishlist pick', pts:20000, note:'flexible', flexible:true},
+    {id:'nessie_plush', label:'Nessie plush', pts:null, note:'priceless'},
+  ]
+};
+
+const TIER_COLORS = ['#E9ECEF','#3EC6E0','#B463FF','#FFC94A']; // white, blue, purple, gold
+const TIER_NAMES = ['White','Blue','Purple','Gold'];
+const TIER_SPAN = 15000;
+const STORAGE_KEY = 'apex_tracker_state';
+
+let state = null;
+let activeTab = 'daily';
+
+function defaultState(){
+  return {
+    names: {abir:'Abir', jade:'Jade'},
+    points: {abir:34000, jade:32000},
+    counts: {abir:{}, jade:{}}, // key -> times claimed (for display only)
+    bets: [], // {id,title,stake,status,winner,ts}
+    history: [] // {ts, party, delta, reason, key}
+  };
+}
+
+function mergeState(parsed){
+  const d = defaultState();
+  state = Object.assign(d, parsed);
+  state.points = Object.assign(d.points, parsed.points||{});
+  state.names = Object.assign(d.names, parsed.names||{});
+  state.counts = Object.assign({abir:{},jade:{}}, parsed.counts||{});
+  state.bets = parsed.bets || [];
+  state.history = parsed.history || [];
+}
+
+let applyingRemote = false;
+
+function subscribeState(){
+  onSnapshot(stateRef, (snap)=>{
+    applyingRemote = true;
+    if(snap.exists()){
+      mergeState(snap.data());
+    } else {
+      state = defaultState();
+      setDoc(stateRef, state).catch(e=>console.error('init write failed', e));
+    }
+    renderAll();
+    applyingRemote = false;
+  }, (err)=>{
+    console.error('listen failed', err);
+    document.getElementById('content').innerHTML =
+      '<div class="empty-note">Could not reach the database. Double-check your Firebase config and Firestore security rules.</div>';
+  });
+}
+
+async function saveState(){
+  if(applyingRemote) return;
+  try{
+    await setDoc(stateRef, state);
+  }catch(e){
+    console.error('save failed', e);
+  }
+}
+
+function fmt(n){
+  const sign = n < 0 ? '-' : (n > 0 ? '+' : '');
+  return sign + Math.abs(n).toLocaleString();
+}
+
+function tierInfo(points){
+  const idx = Math.max(0, Math.floor(points / TIER_SPAN));
+  const color = TIER_COLORS[idx % 4];
+  const name = TIER_NAMES[idx % 4];
+  const level = idx + 1;
+  const progress = ((points % TIER_SPAN) + TIER_SPAN) % TIER_SPAN / TIER_SPAN;
+  return {color, name, level, progress};
+}
+
+function addHistory(party, delta, reason, key){
+  state.history.unshift({ts: Date.now(), party, delta, reason, key});
+  if(state.history.length > 400) state.history.length = 400;
+}
+
+function claim(key, party, delta, reason){
+  state.points[party] = (state.points[party]||0) + delta;
+  state.counts[party][key] = (state.counts[party][key]||0) + 1;
+  addHistory(party, delta, reason, key);
+  saveState();
+  renderAll();
+}
+
+function undoLast(key, party){
+  const idx = state.history.findIndex(h=>h.party===party && h.key===key);
+  if(idx===-1) return;
+  const entry = state.history[idx];
+  state.points[party] = (state.points[party]||0) - entry.delta;
+  state.counts[party][key] = Math.max(0,(state.counts[party][key]||1) - 1);
+  state.history.splice(idx,1);
+  saveState();
+  renderAll();
+}
+
+function redeemShop(party, id, customCost){
+  const item = SHOP[party].find(i=>i.id===id);
+  const cost = customCost != null ? customCost : item.pts;
+  if(cost != null){
+    if(state.points[party] < cost){
+      alert((state.names[party]||party) + " doesn't have enough points for this yet.");
+      return;
+    }
+    claim('shop:'+id, party, -cost, 'Redeemed: '+item.label);
+  } else {
+    claim('shop:'+id, party, 0, 'Claimed: '+item.label);
+  }
+}
+
+function renameParty(party){
+  const current = state.names[party];
+  const next = prompt('Rename '+current, current);
+  if(next && next.trim()){
+    state.names[party] = next.trim();
+    saveState();
+    renderAll();
+  }
+}
+
+function resetSeason(){
+  if(!confirm('Reset all points, claims, quests and history back to season start? This cannot be undone.')) return;
+  state = defaultState();
+  saveState();
+  renderAll();
+}
+
+/* ---------------- RENDER ---------------- */
+
+function renderBanners(){
+  const el = document.getElementById('banners');
+  el.innerHTML = ['abir','jade'].map(p=>{
+    const pts = state.points[p];
+    const t = tierInfo(pts);
+    return `
+    <div class="banner" style="--tier-color:${t.color}">
+      <div class="banner-head">
+        <div class="banner-name" onclick="__app.renameParty('${p}')">${state.names[p]}</div>
+        <div class="evo-hex">${t.level}</div>
+      </div>
+      <div class="banner-points">${pts.toLocaleString()}</div>
+      <div class="banner-tier-label">${t.name} Evo · Tier ${t.level}</div>
+      <div class="evo-track"><div class="evo-fill" style="width:${(t.progress*100).toFixed(1)}%"></div></div>
+    </div>`;
+  }).join('');
+
+  const a = state.points.abir, j = state.points.jade;
+  const rt = document.getElementById('rankingTag');
+  if(a===j){ rt.innerHTML = 'Dead even'; }
+  else{
+    const leader = a>j ? state.names.abir : state.names.jade;
+    const diff = Math.abs(a-j);
+    rt.innerHTML = '<b>'+leader+'</b> leads by '+diff.toLocaleString();
+  }
+}
+
+function claimCard(key, label, pts, note){
+  const cA = state.counts.abir[key]||0;
+  const cJ = state.counts.jade[key]||0;
+  const ptsClass = pts>0?'pos':(pts<0?'neg':'');
+  return `<div class="card">
+    <div class="card-info">
+      <div class="card-label">${label}</div>
+      <div class="card-pts ${ptsClass}">${fmt(pts)} pts${note?(' · '+note):''}</div>
+    </div>
+    <div class="card-actions">
+      <button class="pill abir" onclick="__app.claim('${key}','abir',${pts},'${label.replace(/'/g,"\\'")}')">${state.names.abir}${cA?' ('+cA+')':''}</button>
+      ${cA?`<button class="pill ghost" title="Undo ${state.names.abir}'s last claim" onclick="__app.undo('${key}','abir')">↺</button>`:''}
+      <button class="pill jade" onclick="__app.claim('${key}','jade',${pts},'${label.replace(/'/g,"\\'")}')">${state.names.jade}${cJ?' ('+cJ+')':''}</button>
+      ${cJ?`<button class="pill ghost" title="Undo ${state.names.jade}'s last claim" onclick="__app.undo('${key}','jade')">↺</button>`:''}
+    </div>
+  </div>`;
+}
+
+function renderDaily(){
+  return DAILY.map(item=>claimCard('daily:'+item.id, item.label, item.pts)).join('');
+}
+
+function renderAchievements(){
+  return ACHIEVEMENTS.map(item=>claimCard('ach:'+item.id, item.label, item.pts)).join('');
+}
+
+function renderQuests(){
+  const col = (party)=>QUESTS[party].map(item=>claimCard('quest:'+party+':'+item.id, item.label, item.pts)).join('');
+  return `<div class="col2">
+    <div>
+      <div class="panel-title">${state.names.abir}'s Goals</div>
+      ${col('abir')}
+    </div>
+    <div>
+      <div class="panel-title">${state.names.jade}'s Goals</div>
+      ${col('jade')}
+    </div>
+  </div>`;
+}
+
+function renderPenalties(){
+  return PENALTIES.map(item=>claimCard('pen:'+item.id, item.label, item.pts)).join('');
+}
+
+function shopCard(item, party){
+  const balance = state.points[party];
+  const cA = state.counts[party]['shop:'+item.id]||0;
+  if(item.pts == null){
+    return `<div class="card">
+      <div class="card-info">
+        <div class="card-label">${item.label}</div>
+        <div class="card-pts">${item.note}${cA?(' · claimed '+cA+'×'):''}</div>
+      </div>
+      <div class="card-actions">
+        <button class="pill ${party}" onclick="__app.redeemShop('${party}','${item.id}')">Claim</button>
+        ${cA?`<button class="pill ghost" onclick="__app.undo('shop:${item.id}','${party}')">↺</button>`:''}
+      </div>
+    </div>`;
+  }
+  if(item.flexible){
+    return `<div class="card">
+      <div class="card-info">
+        <div class="card-label">${item.label}</div>
+        <div class="card-pts">${item.note} · set your own point cost</div>
+      </div>
+      <div class="card-actions">
+        <input class="num-input" type="number" id="flex-${party}-${item.id}" placeholder="${item.pts}">
+        <button class="pill ${party}" onclick="__app.redeemFlexShop('${party}','${item.id}')">Redeem</button>
+        ${cA?`<button class="pill ghost" onclick="__app.undo('shop:${item.id}','${party}')">↺</button>`:''}
+      </div>
+    </div>`;
+  }
+  const affordable = balance >= item.pts;
+  return `<div class="card">
+    <div class="card-info">
+      <div class="card-label">${item.label}</div>
+      <div class="card-pts ${affordable?'':'neg'}">${item.pts.toLocaleString()} pts · ${item.note}${cA?(' · claimed '+cA+'×'):''}</div>
+    </div>
+    <div class="card-actions">
+      <button class="pill ${party}" ${affordable?'':'disabled'} onclick="__app.redeemShop('${party}','${item.id}')">Redeem</button>
+      ${cA?`<button class="pill ghost" onclick="__app.undo('shop:${item.id}','${party}')">↺</button>`:''}
+    </div>
+  </div>`;
+}
+
+function renderShop(){
+  return `<div class="col2">
+    <div>
+      <div class="panel-title">${state.names.abir}'s Shop</div>
+      ${SHOP.abir.map(i=>shopCard(i,'abir')).join('')}
+    </div>
+    <div>
+      <div class="panel-title">${state.names.jade}'s Shop</div>
+      ${SHOP.jade.map(i=>shopCard(i,'jade')).join('')}
+    </div>
+  </div>`;
+}
+
+function renderBets(){
+  const open = state.bets.filter(b=>b.status==='open');
+  const resolved = state.bets.filter(b=>b.status!=='open');
+  return `
+    <div class="bet-form">
+      <input id="betTitle" placeholder="What's the bet?">
+      <input id="betStake" type="number" placeholder="Stake pts" style="max-width:110px;">
+      <button class="btn-flame" onclick="__app.addBet()">Create Bet</button>
+    </div>
+    <div class="panel-title">Open Bets</div>
+    ${open.length===0?'<div class="empty-note">No active bets. Make one above.</div>':''}
+    ${open.map(b=>`<div class="card">
+      <div class="card-info">
+        <div class="card-label">${b.title}</div>
+        <div class="card-pts pos">Stake: ${b.stake.toLocaleString()} pts</div>
+      </div>
+      <div class="card-actions">
+        <button class="pill abir" onclick="__app.resolveBet('${b.id}','abir')">${state.names.abir} wins</button>
+        <button class="pill jade" onclick="__app.resolveBet('${b.id}','jade')">${state.names.jade} wins</button>
+        <button class="pill danger" onclick="__app.voidBet('${b.id}')">Void</button>
+      </div>
+    </div>`).join('')}
+    <div class="panel-title">Resolved</div>
+    ${resolved.length===0?'<div class="empty-note">Nothing settled yet.</div>':''}
+    ${resolved.map(b=>`<div class="card">
+      <div class="card-info">
+        <div class="card-label">${b.title}</div>
+        <div class="card-pts">${b.status==='void'?'Voided':('Won by '+state.names[b.winner]+' · '+b.stake.toLocaleString()+' pts')}</div>
+      </div>
+    </div>`).join('')}
+  `;
+}
+
+function renderHistory(){
+  if(state.history.length===0) return '<div class="empty-note">No actions logged yet — go claim something.</div>';
+  return state.history.slice(0,150).map(h=>{
+    const d = new Date(h.ts);
+    const dateStr = d.toLocaleDateString(undefined,{month:'short',day:'numeric'}) + ' ' + d.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'});
+    const cls = h.delta > 0 ? 'pos' : (h.delta < 0 ? 'neg' : '');
+    return `<div class="hist-row">
+      <div>
+        <div>${h.reason}</div>
+        <div class="hist-meta">${state.names[h.party]||h.party} · ${dateStr}</div>
+      </div>
+      <div class="hist-delta ${cls}">${fmt(h.delta)}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderContent(){
+  const el = document.getElementById('content');
+  let inner = '';
+  let title = '';
+  switch(activeTab){
+    case 'daily': title='Daily Habits'; inner = renderDaily(); break;
+    case 'achievements': title='Achievements'; inner = renderAchievements(); break;
+    case 'quests': title=''; inner = renderQuests(); break;
+    case 'penalties': title='Penalties'; inner = renderPenalties(); break;
+    case 'shop': title=''; inner = renderShop(); break;
+    case 'bets': title='World Events: Bets & Challenges'; inner = renderBets(); break;
+    case 'history': title='Point Log'; inner = renderHistory(); break;
+  }
+  const topActions = activeTab==='history'
+    ? '<div class="top-actions"><button class="link-btn" onclick="__app.resetSeason()">Reset entire season</button></div>'
+    : '';
+  el.innerHTML = (title?`<div class="panel-title">${title}</div>`:'') + topActions + inner;
+}
+
+function renderTabs(){
+  document.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.classList.toggle('active', btn.dataset.tab === activeTab);
+  });
+}
+
+function renderAll(){
+  renderBanners();
+  renderTabs();
+  renderContent();
+}
+
+/* ---------------- events ---------------- */
+
+document.getElementById('tabs').addEventListener('click', e=>{
+  const btn = e.target.closest('.tab-btn');
+  if(!btn) return;
+  activeTab = btn.dataset.tab;
+  renderTabs();
+  renderContent();
+});
+
+const __app = {
+  renameParty,
+  claim(key, party, pts, label){ claim(key, party, pts, label); },
+  undo(key, party){ undoLast(key, party); },
+  redeemShop(party,id){ redeemShop(party, id); },
+  redeemFlexShop(party,id){
+    const input = document.getElementById('flex-'+party+'-'+id);
+    const val = parseInt(input.value,10);
+    if(!val || val<=0){ alert('Enter a point cost first.'); return; }
+    redeemShop(party, id, val);
+  },
+  addBet(){
+    const title = document.getElementById('betTitle').value.trim();
+    const stake = parseInt(document.getElementById('betStake').value,10);
+    if(!title || !stake || stake<=0){ alert('Give the bet a title and a stake in points.'); return; }
+    state.bets.unshift({id:'bet_'+Date.now(), title, stake, status:'open', ts:Date.now()});
+    saveState(); renderAll();
+  },
+  resolveBet(id, winner){
+    const bet = state.bets.find(b=>b.id===id);
+    if(!bet) return;
+    bet.status = 'resolved';
+    bet.winner = winner;
+    claim('bet:'+id, winner, bet.stake, 'Bet won: '+bet.title);
+  },
+  voidBet(id){
+    const bet = state.bets.find(b=>b.id===id);
+    if(!bet) return;
+    bet.status = 'void';
+    saveState(); renderAll();
+  },
+  resetSeason
+};
+window.__app = __app;
+
+/* ---------------- init ---------------- */
+state = defaultState();
+subscribeState();
+
+} // end runApp
+</script>
+</body>
+</html>
