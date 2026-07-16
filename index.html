@@ -154,6 +154,21 @@
   .pill.ghost{background:none;color:var(--text-muted);padding:7px 9px;font-size:14px;}
   .pill.ghost:hover:not(:disabled){color:var(--danger);border-color:var(--danger);}
 
+  .card-remove-btn{
+    background:none;border:1px solid transparent;color:var(--text-muted);
+    padding:6px 9px;font-size:14px;cursor:pointer;border-radius:2px;
+    opacity:0.28;transition:opacity .15s ease,color .15s ease,border-color .15s ease;
+  }
+  .card:hover .card-remove-btn{opacity:1;}
+  .card-remove-btn:hover{color:var(--danger);border-color:var(--danger);opacity:1;}
+
+  .daily-board{
+    font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--text-muted);
+    background:var(--panel);border:1px solid var(--border);padding:10px 14px;
+    margin-bottom:16px;display:flex;gap:16px;flex-wrap:wrap;align-items:center;
+  }
+  .daily-board-label{color:var(--flame);letter-spacing:2px;font-weight:bold;}
+
   .count-tag{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-muted);}
 
   .empty-note{color:var(--text-muted);font-size:13px;font-style:italic;padding:10px 2px;}
@@ -215,6 +230,7 @@
 
   <div id="app" style="display:none;">
   <div class="banners" id="banners"></div>
+  <div class="daily-board" id="dailyBoard"></div>
 
   <div class="tabs" id="tabs">
     <button class="tab-btn" data-tab="daily">Daily</button>
@@ -239,13 +255,12 @@
 // "Your apps" > SDK setup and configuration > Config
 // =====================================================================
 const firebaseConfig = {
-  apiKey: "AIzaSyAPDL1kF7BoXfxxoNsaZtvM2sNk75Vg_ZI",
-  authDomain: "point-tracker-fd222.firebaseapp.com",
-  projectId: "point-tracker-fd222",
-  storageBucket: "point-tracker-fd222.firebasestorage.app",
-  messagingSenderId: "985175072746",
-  appId: "1:985175072746:web:6d1b60323a2c7f2853dc93",
-  measurementId: "G-7CXZSL0ZJF"
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
 };
 // =====================================================================
 
@@ -396,10 +411,11 @@ function defaultState(){
   return {
     names: {abir:'Abir', jade:'Jade'},
     points: {abir:34000, jade:32000},
-    counts: {abir:{}, jade:{}}, // key -> times claimed (for display only)
+    counts: {abir:{}, jade:{}}, // key -> {date:'YYYY-MM-DD', n:number} — resets display daily
     customDaily: [], // {id,label,pts}
     customQuests: {abir:[], jade:[]},
     customShop: {abir:[], jade:[]}, // {id,label,pts,note}
+    hiddenDaily: [], // ids of built-in daily habits the user has removed
     bets: [], // {id,title,stake,status,winner,ts}
     history: [] // {ts, party, delta, reason, key}
   };
@@ -414,8 +430,33 @@ function mergeState(parsed){
   state.customDaily = parsed.customDaily || [];
   state.customQuests = Object.assign({abir:[],jade:[]}, parsed.customQuests||{});
   state.customShop = Object.assign({abir:[],jade:[]}, parsed.customShop||{});
+  state.hiddenDaily = parsed.hiddenDaily || [];
   state.bets = parsed.bets || [];
   state.history = parsed.history || [];
+}
+
+function todayKey(){
+  const d = new Date();
+  return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+}
+
+function getCountToday(party, key){
+  const c = state.counts[party][key];
+  if(!c || c.date !== todayKey()) return 0;
+  return c.n;
+}
+
+function bumpCount(party, key){
+  const day = todayKey();
+  const c = state.counts[party][key];
+  if(c && c.date === day){ c.n += 1; }
+  else{ state.counts[party][key] = {date: day, n: 1}; }
+}
+
+function dropCount(party, key){
+  const day = todayKey();
+  const c = state.counts[party][key];
+  if(c && c.date === day && c.n > 0){ c.n -= 1; }
 }
 
 let applyingRemote = false;
@@ -468,7 +509,7 @@ function addHistory(party, delta, reason, key){
 
 function claim(key, party, delta, reason){
   state.points[party] = (state.points[party]||0) + delta;
-  state.counts[party][key] = (state.counts[party][key]||0) + 1;
+  bumpCount(party, key);
   addHistory(party, delta, reason, key);
   saveState();
   renderAll();
@@ -479,7 +520,7 @@ function undoLast(key, party){
   if(idx===-1) return;
   const entry = state.history[idx];
   state.points[party] = (state.points[party]||0) - entry.delta;
-  state.counts[party][key] = Math.max(0,(state.counts[party][key]||1) - 1);
+  dropCount(party, key);
   state.history.splice(idx,1);
   saveState();
   renderAll();
@@ -508,6 +549,10 @@ function removeCustomDaily(id){
   state.customDaily = state.customDaily.filter(i=>i.id!==id);
   saveState(); renderAll();
 }
+function hideBaseDaily(id){
+  if(!state.hiddenDaily.includes(id)) state.hiddenDaily.push(id);
+  saveState(); renderAll();
+}
 function addCustomQuest(party, label, pts){
   if(!label || !pts) return;
   state.customQuests[party].push({id:'c_'+Date.now(), label, pts});
@@ -519,7 +564,7 @@ function removeCustomQuest(party, id){
 }
 function addCustomShop(party, label, pts, note){
   if(!label || !pts) return;
-  state.customShop[party].push({id:'c_'+Date.now(), label, pts, note: note||'custom'});
+  state.customShop[party].push({id:'c_'+Date.now(), label, pts, note: note||''});
   saveState(); renderAll();
 }
 function removeCustomShop(party, id){
@@ -567,17 +612,21 @@ function renderBanners(){
   const rt = document.getElementById('rankingTag');
   if(a===j){ rt.innerHTML = 'Dead even'; }
   else{
-    const leader = a>j ? state.names.abir : state.names.jade;
+    const abirLeads = a>j;
+    const leader = abirLeads ? state.names.abir : state.names.jade;
     const diff = Math.abs(a-j);
-    rt.innerHTML = '<b>'+leader+'</b> leads by '+diff.toLocaleString();
+    const color = abirLeads ? '#722F37' : '#004700';
+    rt.innerHTML = '<b style="color:'+color+'">'+leader+'</b> leads by '+diff.toLocaleString();
   }
 }
 
 function claimCard(key, label, pts, note, removeAction){
-  const cA = state.counts.abir[key]||0;
-  const cJ = state.counts.jade[key]||0;
+  const cA = getCountToday('abir', key);
+  const cJ = getCountToday('jade', key);
   const ptsClass = pts>0?'pos':(pts<0?'neg':'');
-  return `<div class="card">
+  const removeAttr = removeAction ? ` data-remove="${removeAction.replace(/"/g,'&quot;')}"` : '';
+  const removeCls = removeAction ? ' removable' : '';
+  return `<div class="card${removeCls}"${removeAttr}>
     <div class="card-info">
       <div class="card-label">${label}</div>
       <div class="card-pts ${ptsClass}">${fmt(pts)} pts${note?(' · '+note):''}</div>
@@ -587,7 +636,7 @@ function claimCard(key, label, pts, note, removeAction){
       ${cA?`<button class="pill ghost" title="Undo ${state.names.abir}'s last claim" onclick="__app.undo('${key}','abir')">↺</button>`:''}
       <button class="pill jade" onclick="__app.claim('${key}','jade',${pts},'${label.replace(/'/g,"\\'")}')">${state.names.jade}${cJ?' ('+cJ+')':''}</button>
       ${cJ?`<button class="pill ghost" title="Undo ${state.names.jade}'s last claim" onclick="__app.undo('${key}','jade')">↺</button>`:''}
-      ${removeAction?`<button class="pill ghost" title="Remove this item" onclick="${removeAction}">✕</button>`:''}
+      ${removeAction?`<button class="card-remove-btn" data-remove="${removeAction.replace(/"/g,'&quot;')}" title="Remove (or right-click the card)">⋯</button>`:''}
     </div>
   </div>`;
 }
@@ -601,9 +650,11 @@ function addForm(labelPh, ptsPh, onClick){
 }
 
 function renderDaily(){
-  const base = DAILY.map(item=>claimCard('daily:'+item.id, item.label, item.pts)).join('');
+  const base = DAILY.filter(item=>!state.hiddenDaily.includes(item.id)).map(item=>
+    claimCard('daily:'+item.id, item.label, item.pts, null, `__app.hideDaily('${item.id}')`)
+  ).join('');
   const custom = state.customDaily.map(item=>
-    claimCard('daily:'+item.id, item.label, item.pts, 'custom', `__app.removeDaily('${item.id}')`)
+    claimCard('daily:'+item.id, item.label, item.pts, null, `__app.removeDaily('${item.id}')`)
   ).join('');
   return base + custom + addForm(
     {id:'newDailyLabel', text:'New daily habit'},
@@ -620,7 +671,7 @@ function renderQuests(){
   const col = (party)=>{
     const base = QUESTS[party].map(item=>claimCard('quest:'+party+':'+item.id, item.label, item.pts)).join('');
     const custom = state.customQuests[party].map(item=>
-      claimCard('quest:'+party+':'+item.id, item.label, item.pts, 'custom', `__app.removeQuest('${party}','${item.id}')`)
+      claimCard('quest:'+party+':'+item.id, item.label, item.pts, null, `__app.removeQuest('${party}','${item.id}')`)
     ).join('');
     const form = addForm(
       {id:'newQuestLabel_'+party, text:'New goal'},
@@ -647,10 +698,12 @@ function renderPenalties(){
 
 function shopCard(item, party, removeAction){
   const balance = state.points[party];
-  const cA = state.counts[party]['shop:'+item.id]||0;
-  const removeBtn = removeAction?`<button class="pill ghost" title="Remove this item" onclick="${removeAction}">✕</button>`:'';
+  const cA = getCountToday(party, 'shop:'+item.id);
+  const removeAttr = removeAction ? ` data-remove="${removeAction.replace(/"/g,'&quot;')}"` : '';
+  const removeCls = removeAction ? ' removable' : '';
+  const removeBtn = removeAction?`<button class="card-remove-btn" data-remove="${removeAction.replace(/"/g,'&quot;')}" title="Remove (or right-click the card)">⋯</button>`:'';
   if(item.pts == null){
-    return `<div class="card">
+    return `<div class="card${removeCls}"${removeAttr}>
       <div class="card-info">
         <div class="card-label">${item.label}</div>
         <div class="card-pts">${item.note}${cA?(' · claimed '+cA+'×'):''}</div>
@@ -663,7 +716,7 @@ function shopCard(item, party, removeAction){
     </div>`;
   }
   if(item.flexible){
-    return `<div class="card">
+    return `<div class="card${removeCls}"${removeAttr}>
       <div class="card-info">
         <div class="card-label">${item.label}</div>
         <div class="card-pts">${item.note} · set your own point cost</div>
@@ -677,10 +730,10 @@ function shopCard(item, party, removeAction){
     </div>`;
   }
   const affordable = balance >= item.pts;
-  return `<div class="card">
+  return `<div class="card${removeCls}"${removeAttr}>
     <div class="card-info">
       <div class="card-label">${item.label}</div>
-      <div class="card-pts ${affordable?'':'neg'}">${item.pts.toLocaleString()} pts · ${item.note}${cA?(' · claimed '+cA+'×'):''}</div>
+      <div class="card-pts ${affordable?'':'neg'}">${item.pts.toLocaleString()} pts${item.note?(' · '+item.note):''}${cA?(' · claimed '+cA+'×'):''}</div>
     </div>
     <div class="card-actions">
       <button class="pill ${party}" ${affordable?'':'disabled'} onclick="__app.redeemShop('${party}','${item.id}')">Redeem</button>
@@ -790,11 +843,66 @@ function renderTabs(){
 
 function renderAll(){
   renderBanners();
+  renderDailyBoard();
   renderTabs();
   renderContent();
 }
 
-/* ---------------- events ---------------- */
+/* ---------------- removal via subtle button or right-click ---------------- */
+
+function runRemove(call){
+  if(!call) return;
+  if(!confirm('Remove this item?')) return;
+  (0, eval)(call);
+}
+
+document.addEventListener('click', e=>{
+  const btn = e.target.closest('.card-remove-btn');
+  if(!btn) return;
+  e.stopPropagation();
+  runRemove(btn.getAttribute('data-remove'));
+});
+
+document.addEventListener('contextmenu', e=>{
+  const card = e.target.closest('.removable');
+  if(!card) return;
+  e.preventDefault();
+  runRemove(card.getAttribute('data-remove'));
+});
+
+/* ---------------- daily leaderboard ---------------- */
+
+function todayTotals(){
+  const day = todayKey();
+  const totals = {abir:0, jade:0};
+  state.history.forEach(h=>{
+    const d = new Date(h.ts);
+    const key = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+    if(key === day && totals[h.party] !== undefined){
+      totals[h.party] += h.delta;
+    }
+  });
+  return totals;
+}
+
+function renderDailyBoard(){
+  const el = document.getElementById('dailyBoard');
+  if(!el) return;
+  const t = todayTotals();
+  let leadHtml = 'Tied today';
+  if(t.abir !== t.jade){
+    const abirLeads = t.abir > t.jade;
+    const diff = Math.abs(t.abir - t.jade);
+    const color = abirLeads ? '#722F37' : '#004700';
+    leadHtml = `<b style="color:${color}">${abirLeads?state.names.abir:state.names.jade}</b> leading today by ${diff.toLocaleString()}`;
+  }
+  el.innerHTML = `
+    <span class="daily-board-label">TODAY</span>
+    <span>${state.names.abir}: ${fmt(t.abir)}</span>
+    <span>${state.names.jade}: ${fmt(t.jade)}</span>
+    <span>${leadHtml}</span>
+  `;
+}
 
 document.getElementById('tabs').addEventListener('click', e=>{
   const btn = e.target.closest('.tab-btn');
@@ -822,6 +930,7 @@ const __app = {
     addCustomDaily(label, pts);
   },
   removeDaily(id){ removeCustomDaily(id); },
+  hideDaily(id){ hideBaseDaily(id); },
   addQuest(party){
     const label = document.getElementById('newQuestLabel_'+party).value.trim();
     const pts = parseInt(document.getElementById('newQuestPts_'+party).value,10);
