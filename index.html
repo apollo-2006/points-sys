@@ -36,7 +36,7 @@
   }
   ::selection{background:var(--flame);color:#0A0C0F;}
 
-  .wrap{max-width:920px;margin:0 auto;padding:20px 16px 60px;}
+  .wrap{max-width:1360px;margin:0 auto;padding:20px 16px 60px;}
 
   /* ---------- HEADER ---------- */
   .topbar{
@@ -54,11 +54,22 @@
     text-shadow:0 0 20px rgba(255,90,31,0.25);
   }
   .ranking-tag{
-    font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--text-muted);
-    background:var(--panel);border:1px solid var(--border);padding:6px 12px;
+    background:linear-gradient(180deg,var(--panel-light),var(--panel));
+    border:1px solid var(--border);border-left:3px solid var(--lead-color,var(--border));
+    padding:8px 18px;min-width:190px;text-align:right;
     clip-path:polygon(8px 0,100% 0,100% 100%,0 100%,0 8px);
   }
-  .ranking-tag b{color:var(--gold);}
+  .lead-eyebrow{
+    font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;
+    color:var(--text-muted);text-transform:uppercase;
+  }
+  .lead-name{
+    font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;letter-spacing:0.5px;
+    text-transform:uppercase;line-height:1.25;
+  }
+  .lead-diff{
+    font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-muted);margin-top:1px;
+  }
 
   .shared-note{
     font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-muted);
@@ -162,12 +173,50 @@
   .card:hover .card-remove-btn{opacity:1;}
   .card-remove-btn:hover{color:var(--danger);border-color:var(--danger);opacity:1;}
 
-  .daily-board{
-    font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--text-muted);
-    background:var(--panel);border:1px solid var(--border);padding:10px 14px;
-    margin-bottom:16px;display:flex;gap:16px;flex-wrap:wrap;align-items:center;
+  .layout{display:grid;grid-template-columns:240px 1fr 240px;gap:20px;align-items:start;}
+  .main-col{min-width:0;}
+  .side-col{display:flex;flex-direction:column;gap:16px;position:sticky;top:20px;}
+  @media (max-width:1000px){
+    .layout{grid-template-columns:1fr;}
+    .main-col{order:1;}
+    .side-col{position:static;}
+    .side-col.left{order:2;}
+    .side-col.right{order:3;}
   }
-  .daily-board-label{color:var(--flame);letter-spacing:2px;font-weight:bold;}
+
+  .side-panel{
+    background:var(--panel);border:1px solid var(--border);padding:14px;
+  }
+  .side-panel-title{
+    font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;
+    text-transform:uppercase;color:var(--text);margin-bottom:2px;
+  }
+  .side-panel-sub{
+    font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-muted);
+    margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border);
+  }
+  .side-group{margin-bottom:12px;}
+  .side-group:last-child{margin-bottom:0;}
+  .side-group-name{
+    font-family:'Rajdhani',sans-serif;font-weight:600;font-size:12.5px;letter-spacing:0.5px;
+    text-transform:uppercase;color:var(--text);margin-bottom:6px;
+  }
+  .side-item{
+    display:flex;justify-content:space-between;gap:8px;font-size:12px;padding:5px 0;
+    border-bottom:1px solid var(--border);
+  }
+  .side-item:last-child{border-bottom:none;}
+  .side-item-label{color:var(--text-muted);}
+  .side-item-delta{font-family:'Share Tech Mono',monospace;font-weight:600;white-space:nowrap;}
+  .side-item-delta.pos{color:var(--success);}
+  .side-item-delta.neg{color:var(--danger);}
+
+  .todo-row{
+    display:flex;align-items:flex-start;gap:8px;font-size:13px;padding:6px 0;
+    border-bottom:1px solid var(--border);cursor:pointer;
+  }
+  .todo-row:last-of-type{border-bottom:none;}
+  .todo-row input[type="checkbox"]{margin-top:2px;accent-color:var(--flame);cursor:pointer;}
 
   .count-tag{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-muted);}
 
@@ -228,21 +277,26 @@
     </div>
   </div>
 
-  <div id="app" style="display:none;">
-  <div class="banners" id="banners"></div>
-  <div class="daily-board" id="dailyBoard"></div>
+  <div id="app" style="display:none;" class="layout">
+    <aside class="side-col left" id="todayCol"></aside>
 
-  <div class="tabs" id="tabs">
-    <button class="tab-btn" data-tab="daily">Daily</button>
-    <button class="tab-btn" data-tab="achievements">Achievements</button>
-    <button class="tab-btn" data-tab="quests">Quest Log</button>
-    <button class="tab-btn" data-tab="penalties">Penalties</button>
-    <button class="tab-btn" data-tab="shop">Point Shop</button>
-    <button class="tab-btn" data-tab="bets">Bets</button>
-    <button class="tab-btn" data-tab="history">Log</button>
-  </div>
+    <main class="main-col">
+      <div class="banners" id="banners"></div>
 
-  <div id="content">Loading squad data…</div>
+      <div class="tabs" id="tabs">
+        <button class="tab-btn" data-tab="daily">Daily</button>
+        <button class="tab-btn" data-tab="achievements">Achievements</button>
+        <button class="tab-btn" data-tab="quests">Quest Log</button>
+        <button class="tab-btn" data-tab="penalties">Penalties</button>
+        <button class="tab-btn" data-tab="shop">Point Shop</button>
+        <button class="tab-btn" data-tab="bets">Bets</button>
+        <button class="tab-btn" data-tab="history">Log</button>
+      </div>
+
+      <div id="content">Loading squad data…</div>
+    </main>
+
+    <aside class="side-col right" id="todoCol"></aside>
   </div>
 
 </div>
@@ -307,7 +361,7 @@ if (NEEDS_SETUP) {
   onAuthStateChanged(auth, (user)=>{
     if(user){
       document.getElementById('loginGate').style.display = 'none';
-      document.getElementById('app').style.display = 'block';
+      document.getElementById('app').style.display = 'grid';
       document.getElementById('authStatus').innerHTML = 'Signed in as ' + user.email + ' · <button class="link-btn" onclick="__auth.signOut()">Sign out</button>';
       if(!started){
         started = true;
@@ -322,7 +376,7 @@ if (NEEDS_SETUP) {
 }
 
 function runApp({ onSnapshot, setDoc, stateRef }){
-document.getElementById('app').style.display = 'block';
+document.getElementById('app').style.display = 'grid';
 
 const DAILY = [
   {id:'workout', label:'Workout completed', pts:2000},
@@ -415,7 +469,12 @@ function defaultState(){
     customDaily: [], // {id,label,pts}
     customQuests: {abir:[], jade:[]},
     customShop: {abir:[], jade:[]}, // {id,label,pts,note}
+    customPenalties: [], // {id,label,pts}
     hiddenDaily: [], // ids of built-in daily habits the user has removed
+    hiddenQuests: {abir:[], jade:[]},
+    hiddenPenalties: [],
+    hiddenShop: {abir:[], jade:[]},
+    todos: {abir:[], jade:[]}, // {id,text} — plain to-do items, no points
     bets: [], // {id,title,stake,status,winner,ts}
     history: [] // {ts, party, delta, reason, key}
   };
@@ -430,7 +489,12 @@ function mergeState(parsed){
   state.customDaily = parsed.customDaily || [];
   state.customQuests = Object.assign({abir:[],jade:[]}, parsed.customQuests||{});
   state.customShop = Object.assign({abir:[],jade:[]}, parsed.customShop||{});
+  state.customPenalties = parsed.customPenalties || [];
   state.hiddenDaily = parsed.hiddenDaily || [];
+  state.hiddenQuests = Object.assign({abir:[],jade:[]}, parsed.hiddenQuests||{});
+  state.hiddenPenalties = parsed.hiddenPenalties || [];
+  state.hiddenShop = Object.assign({abir:[],jade:[]}, parsed.hiddenShop||{});
+  state.todos = Object.assign({abir:[],jade:[]}, parsed.todos||{});
   state.bets = parsed.bets || [];
   state.history = parsed.history || [];
 }
@@ -571,6 +635,37 @@ function removeCustomShop(party, id){
   state.customShop[party] = state.customShop[party].filter(i=>i.id!==id);
   saveState(); renderAll();
 }
+function hideBaseShopItem(party, id){
+  if(!state.hiddenShop[party].includes(id)) state.hiddenShop[party].push(id);
+  saveState(); renderAll();
+}
+function hideBaseQuest(party, id){
+  if(!state.hiddenQuests[party].includes(id)) state.hiddenQuests[party].push(id);
+  saveState(); renderAll();
+}
+function addCustomPenalty(label, pts){
+  if(!label || !pts) return;
+  state.customPenalties.push({id:'c_'+Date.now(), label, pts: -Math.abs(pts)});
+  saveState(); renderAll();
+}
+function removeCustomPenalty(id){
+  state.customPenalties = state.customPenalties.filter(i=>i.id!==id);
+  saveState(); renderAll();
+}
+function hideBasePenalty(id){
+  if(!state.hiddenPenalties.includes(id)) state.hiddenPenalties.push(id);
+  saveState(); renderAll();
+}
+
+function addTodoItem(party, text){
+  if(!text) return;
+  state.todos[party].push({id:'td_'+Date.now(), text});
+  saveState(); renderAll();
+}
+function completeTodoItem(party, id){
+  state.todos[party] = state.todos[party].filter(t=>t.id!==id);
+  saveState(); renderAll();
+}
 
 function renameParty(party){
   const current = state.names[party];
@@ -610,13 +705,16 @@ function renderBanners(){
 
   const a = state.points.abir, j = state.points.jade;
   const rt = document.getElementById('rankingTag');
-  if(a===j){ rt.innerHTML = 'Dead even'; }
-  else{
+  if(a===j){
+    rt.style.setProperty('--lead-color', 'var(--border)');
+    rt.innerHTML = `<div class="lead-eyebrow">Season Lead</div><div class="lead-name">Dead Even</div>`;
+  } else{
     const abirLeads = a>j;
     const leader = abirLeads ? state.names.abir : state.names.jade;
     const diff = Math.abs(a-j);
     const color = abirLeads ? '#722F37' : '#004700';
-    rt.innerHTML = '<b style="color:'+color+'">'+leader+'</b> leads by '+diff.toLocaleString();
+    rt.style.setProperty('--lead-color', color);
+    rt.innerHTML = `<div class="lead-eyebrow">Season Lead</div><div class="lead-name" style="color:${color}">${leader}</div><div class="lead-diff">+${diff.toLocaleString()} ahead</div>`;
   }
 }
 
@@ -669,7 +767,9 @@ function renderAchievements(){
 
 function renderQuests(){
   const col = (party)=>{
-    const base = QUESTS[party].map(item=>claimCard('quest:'+party+':'+item.id, item.label, item.pts)).join('');
+    const base = QUESTS[party].filter(item=>!state.hiddenQuests[party].includes(item.id)).map(item=>
+      claimCard('quest:'+party+':'+item.id, item.label, item.pts, null, `__app.hideQuest('${party}','${item.id}')`)
+    ).join('');
     const custom = state.customQuests[party].map(item=>
       claimCard('quest:'+party+':'+item.id, item.label, item.pts, null, `__app.removeQuest('${party}','${item.id}')`)
     ).join('');
@@ -693,7 +793,17 @@ function renderQuests(){
 }
 
 function renderPenalties(){
-  return PENALTIES.map(item=>claimCard('pen:'+item.id, item.label, item.pts)).join('');
+  const base = PENALTIES.filter(item=>!state.hiddenPenalties.includes(item.id)).map(item=>
+    claimCard('pen:'+item.id, item.label, item.pts, null, `__app.hidePenalty('${item.id}')`)
+  ).join('');
+  const custom = state.customPenalties.map(item=>
+    claimCard('pen:'+item.id, item.label, item.pts, null, `__app.removePenalty('${item.id}')`)
+  ).join('');
+  return base + custom + addForm(
+    {id:'newPenaltyLabel', text:'New penalty'},
+    {id:'newPenaltyPts', text:'Points to deduct'},
+    `__app.addPenalty()`
+  );
 }
 
 function shopCard(item, party, removeAction){
@@ -745,7 +855,9 @@ function shopCard(item, party, removeAction){
 
 function renderShop(){
   const col = (party)=>{
-    const base = SHOP[party].map(i=>shopCard(i,party)).join('');
+    const base = SHOP[party].filter(i=>!state.hiddenShop[party].includes(i.id)).map(i=>
+      shopCard(i,party,`__app.hideShopItem('${party}','${i.id}')`)
+    ).join('');
     const custom = state.customShop[party].map(i=>shopCard(i,party,`__app.removeShopItem('${party}','${i.id}')`)).join('');
     const form = `<div class="bet-form" style="margin-top:10px;">
       <input id="newShopLabel_${party}" placeholder="Wanted item">
@@ -843,7 +955,8 @@ function renderTabs(){
 
 function renderAll(){
   renderBanners();
-  renderDailyBoard();
+  renderTodaySidebar();
+  renderTodoSidebar();
   renderTabs();
   renderContent();
 }
@@ -885,23 +998,68 @@ function todayTotals(){
   return totals;
 }
 
-function renderDailyBoard(){
-  const el = document.getElementById('dailyBoard');
+function renderTodaySidebar(){
+  const el = document.getElementById('todayCol');
   if(!el) return;
-  const t = todayTotals();
+  const day = todayKey();
+  const todays = state.history.filter(h=>{
+    const d = new Date(h.ts);
+    return (d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()) === day;
+  });
+  const totals = todayTotals();
+  const rowsFor = (p)=>{
+    const items = todays.filter(h=>h.party===p);
+    if(items.length===0) return '<div class="empty-note" style="padding:4px 0;font-size:12px;">Nothing logged yet today.</div>';
+    return items.map(h=>{
+      const cls = h.delta>0?'pos':(h.delta<0?'neg':'');
+      return `<div class="side-item">
+        <span class="side-item-label">${h.reason}</span>
+        <span class="side-item-delta ${cls}">${fmt(h.delta)}</span>
+      </div>`;
+    }).join('');
+  };
   let leadHtml = 'Tied today';
-  if(t.abir !== t.jade){
-    const abirLeads = t.abir > t.jade;
-    const diff = Math.abs(t.abir - t.jade);
+  if(totals.abir !== totals.jade){
+    const abirLeads = totals.abir > totals.jade;
+    const diff = Math.abs(totals.abir - totals.jade);
     const color = abirLeads ? '#722F37' : '#004700';
-    leadHtml = `<b style="color:${color}">${abirLeads?state.names.abir:state.names.jade}</b> leading today by ${diff.toLocaleString()}`;
+    leadHtml = `<b style="color:${color}">${abirLeads?state.names.abir:state.names.jade}</b> +${diff.toLocaleString()} today`;
   }
-  el.innerHTML = `
-    <span class="daily-board-label">TODAY</span>
-    <span>${state.names.abir}: ${fmt(t.abir)}</span>
-    <span>${state.names.jade}: ${fmt(t.jade)}</span>
-    <span>${leadHtml}</span>
-  `;
+  el.innerHTML = `<div class="side-panel">
+    <div class="side-panel-title">Today's Leaderboard</div>
+    <div class="side-panel-sub">${leadHtml}</div>
+    <div class="side-group">
+      <div class="side-group-name">${state.names.abir} · ${fmt(totals.abir)}</div>
+      ${rowsFor('abir')}
+    </div>
+    <div class="side-group">
+      <div class="side-group-name">${state.names.jade} · ${fmt(totals.jade)}</div>
+      ${rowsFor('jade')}
+    </div>
+  </div>`;
+}
+
+function renderTodoSidebar(){
+  const el = document.getElementById('todoCol');
+  if(!el) return;
+  const section = (party, title)=>{
+    const items = state.todos[party];
+    const rows = items.length===0
+      ? '<div class="empty-note" style="padding:4px 0;font-size:12px;">Nothing on the list.</div>'
+      : items.map(t=>`<label class="todo-row">
+          <input type="checkbox" onchange="__app.completeTodo('${party}','${t.id}')">
+          <span>${t.text}</span>
+        </label>`).join('');
+    return `<div class="side-panel">
+      <div class="side-panel-title">${title}</div>
+      <div style="margin:10px 0;">${rows}</div>
+      <div class="bet-form" style="margin-bottom:0;">
+        <input id="newTodo_${party}" placeholder="Add a task">
+        <button class="btn-flame" onclick="__app.addTodo('${party}')">Add</button>
+      </div>
+    </div>`;
+  };
+  el.innerHTML = section('jade', state.names.jade + "'s To-Do") + section('abir', state.names.abir + "'s To-Do");
 }
 
 document.getElementById('tabs').addEventListener('click', e=>{
@@ -938,6 +1096,7 @@ const __app = {
     addCustomQuest(party, label, pts);
   },
   removeQuest(party,id){ removeCustomQuest(party, id); },
+  hideQuest(party,id){ hideBaseQuest(party, id); },
   addShopItem(party){
     const label = document.getElementById('newShopLabel_'+party).value.trim();
     const pts = parseInt(document.getElementById('newShopPts_'+party).value,10);
@@ -946,6 +1105,22 @@ const __app = {
     addCustomShop(party, label, pts, note);
   },
   removeShopItem(party,id){ removeCustomShop(party, id); },
+  hideShopItem(party,id){ hideBaseShopItem(party, id); },
+  addPenalty(){
+    const label = document.getElementById('newPenaltyLabel').value.trim();
+    const pts = parseInt(document.getElementById('newPenaltyPts').value,10);
+    if(!label || !pts){ alert('Give it a name and a positive point value to deduct.'); return; }
+    addCustomPenalty(label, pts);
+  },
+  removePenalty(id){ removeCustomPenalty(id); },
+  hidePenalty(id){ hideBasePenalty(id); },
+  addTodo(party){
+    const input = document.getElementById('newTodo_'+party);
+    const text = input.value.trim();
+    if(!text) return;
+    addTodoItem(party, text);
+  },
+  completeTodo(party,id){ completeTodoItem(party, id); },
   addBet(){
     const title = document.getElementById('betTitle').value.trim();
     const stake = parseInt(document.getElementById('betStake').value,10);
