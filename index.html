@@ -727,6 +727,22 @@ function resetSeason(){
   renderAll();
 }
 
+function cleanupOrphanedBetHistory(){
+  const validBetIds = new Set(state.bets.map(b=>b.id));
+  const before = state.history.length;
+  state.history = state.history.filter(h=>{
+    // old buggy "Reverted bet: ..." lines should never have stuck around — always drop these
+    if(h.reason && h.reason.indexOf('Reverted bet:') === 0) return false;
+    // "Bet won/lost" entries whose bet was since reverted/deleted are orphaned — drop these too
+    if(h.key && h.key.indexOf('bet:') === 0){
+      const betId = h.key.slice(4);
+      if(!validBetIds.has(betId)) return false;
+    }
+    return true;
+  });
+  return before - state.history.length;
+}
+
 /* ---------------- RENDER ---------------- */
 
 function renderBanners(){
@@ -996,7 +1012,7 @@ function renderContent(){
     case 'history': title='Point Log'; inner = renderHistory(); break;
   }
   const topActions = activeTab==='history'
-    ? '<div class="top-actions"><button class="link-btn" onclick="__app.resetSeason()">Reset entire season</button></div>'
+    ? '<div class="top-actions"><button class="link-btn" onclick="__app.cleanupBetHistory()">Clean up old bet log entries</button><button class="link-btn" onclick="__app.resetSeason()">Reset entire season</button></div>'
     : '';
   el.innerHTML = (title?`<div class="panel-title">${title}</div>`:'') + topActions + inner;
 }
@@ -1318,6 +1334,15 @@ const __app = {
     if(!confirm(warn)) return;
     state.bets = state.bets.filter(b=>b.id!==id);
     saveState(); renderAll();
+  },
+  cleanupBetHistory(){
+    const removed = cleanupOrphanedBetHistory();
+    if(removed > 0){
+      saveState(); renderAll();
+      alert('Removed '+removed+' leftover bet log entr'+(removed===1?'y':'ies')+'.');
+    } else {
+      alert('Nothing to clean up — the log is already clear of orphaned bet entries.');
+    }
   },
   resetSeason
 };
