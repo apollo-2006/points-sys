@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>SEASON 2 · BATTLE FOR THE TOP</title>
+<title>SEASON 1 · BATTLE FOR THE TOP</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -99,6 +99,15 @@
     cursor:pointer;text-transform:uppercase;
   }
   .banner-name:hover{color:var(--flame);}
+  .crown{
+    display:inline-block;margin-right:6px;font-size:16px;
+    filter:drop-shadow(0 0 4px rgba(255,201,74,0.7));
+    animation:crown-bob 2.2s ease-in-out infinite;
+  }
+  @keyframes crown-bob{
+    0%,100%{ transform:translateY(0) rotate(-6deg); }
+    50%{ transform:translateY(-2px) rotate(6deg); }
+  }
   .evo-hex{
     width:34px;height:34px;
     clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
@@ -218,6 +227,11 @@
   .todo-row:last-of-type{border-bottom:none;}
   .todo-row input[type="checkbox"]{margin-top:2px;accent-color:var(--flame);cursor:pointer;}
 
+  @keyframes confetti-fall{
+    0%{ transform: translate(0,0) rotate(0deg); opacity:1; }
+    100%{ transform: translate(var(--drift,0),115vh) rotate(600deg); opacity:0.4; }
+  }
+
   .count-tag{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-muted);}
 
   .empty-note{color:var(--text-muted);font-size:13px;font-style:italic;padding:10px 2px;}
@@ -252,7 +266,7 @@
 
   <div class="topbar">
     <div>
-      <div class="brand-eyebrow">Season 2 · Fall 26</div>
+      <div class="brand-eyebrow">Season 1 · Fall 26</div>
       <h1>Battle For The Top</h1>
     </div>
     <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
@@ -289,6 +303,7 @@
         <button class="tab-btn" data-tab="quests">Quest Log</button>
         <button class="tab-btn" data-tab="penalties">Penalties</button>
         <button class="tab-btn" data-tab="shop">Point Shop</button>
+        <button class="tab-btn" data-tab="weekly">Weekly</button>
         <button class="tab-btn" data-tab="bets">Bets</button>
         <button class="tab-btn" data-tab="history">Log</button>
       </div>
@@ -667,6 +682,34 @@ function completeTodoItem(party, id){
   saveState(); renderAll();
 }
 
+function fireConfetti(winnerParty){
+  const palette = winnerParty === 'abir'
+    ? ['#3EC6E0', '#FF5A1F', '#E9ECEF']  // Abir: cyan + flame
+    : ['#FFC94A', '#FF5A1F', '#E9ECEF']; // Jade: gold + flame
+  const container = document.createElement('div');
+  container.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden;';
+  document.body.appendChild(container);
+  const count = 90;
+  for(let i=0;i<count;i++){
+    const el = document.createElement('div');
+    const color = palette[Math.floor(Math.random()*palette.length)];
+    const w = 6 + Math.random()*6;
+    const h = w * (0.4 + Math.random()*0.5);
+    const left = Math.random()*100;
+    const duration = 2.2 + Math.random()*1.6;
+    const delay = Math.random()*0.5;
+    const rotate = Math.random()*360;
+    const drift = (Math.random()*80 - 40).toFixed(0);
+    el.style.cssText = `position:absolute;top:-24px;left:${left}vw;width:${w}px;height:${h}px;`
+      + `background:${color};opacity:0.95;border-radius:1px;`
+      + `transform:rotate(${rotate}deg);`
+      + `animation:confetti-fall ${duration}s cubic-bezier(.25,.46,.45,.94) ${delay}s forwards;`
+      + `--drift:${drift}px;`;
+    container.appendChild(el);
+  }
+  setTimeout(()=>container.remove(), 4200);
+}
+
 function renameParty(party){
   const current = state.names[party];
   const next = prompt('Rename '+current, current);
@@ -688,13 +731,15 @@ function resetSeason(){
 
 function renderBanners(){
   const el = document.getElementById('banners');
+  const leaderParty = state.points.abir === state.points.jade ? null : (state.points.abir > state.points.jade ? 'abir' : 'jade');
   el.innerHTML = ['abir','jade'].map(p=>{
     const pts = state.points[p];
     const t = tierInfo(pts);
+    const crown = p===leaderParty ? '<span class="crown" title="Season lead">👑</span>' : '';
     return `
     <div class="banner" style="--tier-color:${t.color}">
       <div class="banner-head">
-        <div class="banner-name" onclick="__app.renameParty('${p}')">${state.names[p]}</div>
+        <div class="banner-name" onclick="__app.renameParty('${p}')">${crown}${state.names[p]}</div>
         <div class="evo-hex">${t.level}</div>
       </div>
       <div class="banner-points">${pts.toLocaleString()}</div>
@@ -886,27 +931,35 @@ function renderBets(){
     <div class="bet-form">
       <input id="betTitle" placeholder="What's the bet?">
       <input id="betStake" type="number" placeholder="Stake pts" style="max-width:110px;">
+      <label style="display:flex;align-items:center;gap:6px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-muted);white-space:nowrap;">
+        <input type="checkbox" id="betRecurring" style="accent-color:var(--flame);"> Weekly
+      </label>
       <button class="btn-flame" onclick="__app.addBet()">Create Bet</button>
     </div>
     <div class="panel-title">Open Bets</div>
     ${open.length===0?'<div class="empty-note">No active bets. Make one above.</div>':''}
     ${open.map(b=>`<div class="card">
       <div class="card-info">
-        <div class="card-label">${b.title}</div>
+        <div class="card-label">${b.title}${b.recurring?' <span style="color:var(--text-muted);font-size:11px;">· weekly</span>':''}</div>
         <div class="card-pts pos">Stake: ${b.stake.toLocaleString()} pts</div>
       </div>
       <div class="card-actions">
         <button class="pill abir" onclick="__app.resolveBet('${b.id}','abir')">${state.names.abir} wins</button>
         <button class="pill jade" onclick="__app.resolveBet('${b.id}','jade')">${state.names.jade} wins</button>
         <button class="pill danger" onclick="__app.voidBet('${b.id}')">Void</button>
+        <button class="card-remove-btn" onclick="__app.deleteBet('${b.id}')" title="Delete this bet">⋯</button>
       </div>
     </div>`).join('')}
     <div class="panel-title">Resolved</div>
     ${resolved.length===0?'<div class="empty-note">Nothing settled yet.</div>':''}
     ${resolved.map(b=>`<div class="card">
       <div class="card-info">
-        <div class="card-label">${b.title}</div>
-        <div class="card-pts">${b.status==='void'?'Voided':('Won by '+state.names[b.winner]+' · '+b.stake.toLocaleString()+' pts')}</div>
+        <div class="card-label">${b.title}${b.recurring?' <span style="color:var(--text-muted);font-size:11px;">· weekly</span>':''}</div>
+        <div class="card-pts">${b.status==='void'?'Voided':('Won by '+state.names[b.winner]+' · '+b.stake.toLocaleString()+' pts from '+state.names[b.winner==='abir'?'jade':'abir'])}</div>
+      </div>
+      <div class="card-actions">
+        ${b.status==='resolved'?`<button class="pill danger" onclick="__app.revertBet('${b.id}')">Revert result</button>`:''}
+        <button class="card-remove-btn" onclick="__app.deleteBet('${b.id}')" title="Delete this bet">⋯</button>
       </div>
     </div>`).join('')}
   `;
@@ -938,6 +991,7 @@ function renderContent(){
     case 'quests': title=''; inner = renderQuests(); break;
     case 'penalties': title='Penalties'; inner = renderPenalties(); break;
     case 'shop': title=''; inner = renderShop(); break;
+    case 'weekly': title=''; inner = renderWeekly(); break;
     case 'bets': title='World Events: Bets & Challenges'; inner = renderBets(); break;
     case 'history': title='Point Log'; inner = renderHistory(); break;
   }
@@ -996,6 +1050,86 @@ function todayTotals(){
     }
   });
   return totals;
+}
+
+function getWeekStart(){
+  const now = new Date();
+  const dow = now.getDay(); // 0=Sun..6=Sat
+  const offset = (dow + 6) % 7; // days since most recent Monday
+  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - offset);
+  start.setHours(0,0,0,0);
+  return start;
+}
+
+function weekDayTotals(){
+  const start = getWeekStart();
+  const days = [];
+  for(let i=0;i<7;i++){
+    const d = new Date(start);
+    d.setDate(start.getDate()+i);
+    days.push(d);
+  }
+  const totals = days.map(()=>({abir:0, jade:0}));
+  state.history.forEach(h=>{
+    const d = new Date(h.ts);
+    for(let i=0;i<7;i++){
+      const dayStart = days[i];
+      const dayEnd = new Date(dayStart);
+      dayEnd.setDate(dayStart.getDate()+1);
+      if(d >= dayStart && d < dayEnd && totals[i][h.party] !== undefined){
+        totals[i][h.party] += h.delta;
+      }
+    }
+  });
+  return {days, totals};
+}
+
+function renderWeekly(){
+  const {days, totals} = weekDayTotals();
+  const labels = days.map(d=>d.toLocaleDateString(undefined,{weekday:'short'}));
+  const weekTotalAbir = totals.reduce((s,t)=>s+t.abir,0);
+  const weekTotalJade = totals.reduce((s,t)=>s+t.jade,0);
+  const maxVal = Math.max(1000, ...totals.flatMap(t=>[Math.abs(t.abir),Math.abs(t.jade)]));
+
+  const chartW = 700, chartH = 240, padBottom = 26, padTop = 16;
+  const usableH = chartH - padBottom - padTop;
+  const baseline = padTop + usableH/2;
+  const groupW = chartW/7;
+  const barW = Math.min(26, groupW*0.32);
+
+  const CYAN = '#3EC6E0', GOLD = '#FFC94A', DANGER = '#FF5252', MUTED = '#868C96', BORDER = '#272C35';
+
+  let bars = '';
+  days.forEach((d,i)=>{
+    const cx = groupW*i + groupW/2;
+    const abirVal = totals[i].abir, jadeVal = totals[i].jade;
+    const abirH = Math.abs(abirVal)/maxVal * (usableH/2);
+    const jadeH = Math.abs(jadeVal)/maxVal * (usableH/2);
+    const abirY = abirVal>=0 ? baseline - abirH : baseline;
+    const jadeY = jadeVal>=0 ? baseline - jadeH : baseline;
+    const abirColor = abirVal>=0 ? CYAN : DANGER;
+    const jadeColor = jadeVal>=0 ? GOLD : DANGER;
+    const isToday = d.toDateString() === new Date().toDateString();
+    bars += `
+      <rect x="${(cx-barW-3).toFixed(1)}" y="${abirY.toFixed(1)}" width="${barW.toFixed(1)}" height="${Math.max(abirH,1.5).toFixed(1)}" fill="${abirColor}" rx="2"/>
+      <rect x="${(cx+3).toFixed(1)}" y="${jadeY.toFixed(1)}" width="${barW.toFixed(1)}" height="${Math.max(jadeH,1.5).toFixed(1)}" fill="${jadeColor}" rx="2"/>
+      <text x="${cx.toFixed(1)}" y="${chartH-6}" font-family="Share Tech Mono, monospace" font-size="11" fill="${isToday?'#EDEFF2':MUTED}" text-anchor="middle">${labels[i]}${isToday?' •':''}</text>
+    `;
+  });
+
+  return `
+    <div class="panel-title">Weekly Points <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-muted);">· resets Monday 12am</span></div>
+    <div class="card" style="display:block;">
+      <svg viewBox="0 0 ${chartW} ${chartH}" style="width:100%;height:auto;display:block;">
+        <line x1="0" y1="${baseline.toFixed(1)}" x2="${chartW}" y2="${baseline.toFixed(1)}" stroke="${BORDER}" stroke-width="1"/>
+        ${bars}
+      </svg>
+      <div style="display:flex;gap:20px;margin-top:12px;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--text-muted);flex-wrap:wrap;">
+        <span><span style="display:inline-block;width:10px;height:10px;background:${CYAN};margin-right:5px;border-radius:2px;"></span>${state.names.abir} · ${fmt(weekTotalAbir)} this week</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:${GOLD};margin-right:5px;border-radius:2px;"></span>${state.names.jade} · ${fmt(weekTotalJade)} this week</span>
+      </div>
+    </div>
+  `;
 }
 
 function renderTodaySidebar(){
@@ -1124,21 +1258,52 @@ const __app = {
   addBet(){
     const title = document.getElementById('betTitle').value.trim();
     const stake = parseInt(document.getElementById('betStake').value,10);
+    const recurring = document.getElementById('betRecurring').checked;
     if(!title || !stake || stake<=0){ alert('Give the bet a title and a stake in points.'); return; }
-    state.bets.unshift({id:'bet_'+Date.now(), title, stake, status:'open', ts:Date.now()});
+    state.bets.unshift({id:'bet_'+Date.now(), title, stake, status:'open', recurring, ts:Date.now()});
     saveState(); renderAll();
   },
   resolveBet(id, winner){
     const bet = state.bets.find(b=>b.id===id);
     if(!bet) return;
+    const loser = winner === 'abir' ? 'jade' : 'abir';
     bet.status = 'resolved';
     bet.winner = winner;
     claim('bet:'+id, winner, bet.stake, 'Bet won: '+bet.title);
+    claim('bet:'+id, loser, -bet.stake, 'Bet lost: '+bet.title);
+    if(bet.recurring){
+      state.bets.unshift({id:'bet_'+Date.now(), title: bet.title, stake: bet.stake, status:'open', recurring:true, ts:Date.now()});
+      saveState(); renderAll();
+    }
+    fireConfetti(winner);
+  },
+  revertBet(id){
+    const bet = state.bets.find(b=>b.id===id);
+    if(!bet || bet.status!=='resolved') return;
+    if(!confirm('Revert this result? The point transfer will be undone.')) return;
+    const loser = bet.winner === 'abir' ? 'jade' : 'abir';
+    state.points[bet.winner] = (state.points[bet.winner]||0) - bet.stake;
+    state.points[loser] = (state.points[loser]||0) + bet.stake;
+    addHistory(bet.winner, -bet.stake, 'Reverted bet: '+bet.title, 'bet:'+id);
+    addHistory(loser, bet.stake, 'Reverted bet: '+bet.title, 'bet:'+id);
+    bet.status = 'open';
+    delete bet.winner;
+    saveState(); renderAll();
   },
   voidBet(id){
     const bet = state.bets.find(b=>b.id===id);
     if(!bet) return;
     bet.status = 'void';
+    saveState(); renderAll();
+  },
+  deleteBet(id){
+    const bet = state.bets.find(b=>b.id===id);
+    if(!bet) return;
+    const warn = bet.status==='resolved'
+      ? 'Delete this bet? Points already awarded from it will NOT be reverted — revert first if you need that.'
+      : 'Delete this bet?';
+    if(!confirm(warn)) return;
+    state.bets = state.bets.filter(b=>b.id!==id);
     saveState(); renderAll();
   },
   resetSeason
