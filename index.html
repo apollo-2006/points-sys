@@ -1291,12 +1291,15 @@ const __app = {
   revertBet(id){
     const bet = state.bets.find(b=>b.id===id);
     if(!bet || bet.status!=='resolved') return;
-    if(!confirm('Revert this result? The point transfer will be undone.')) return;
+    if(!confirm('Revert this result? The point transfer will be undone and it will disappear from the log/leaderboards entirely.')) return;
     const loser = bet.winner === 'abir' ? 'jade' : 'abir';
     state.points[bet.winner] = (state.points[bet.winner]||0) - bet.stake;
     state.points[loser] = (state.points[loser]||0) + bet.stake;
-    addHistory(bet.winner, -bet.stake, 'Reverted bet: '+bet.title, 'bet:'+id);
-    addHistory(loser, bet.stake, 'Reverted bet: '+bet.title, 'bet:'+id);
+    // wipe the original "bet won/lost" entries instead of stacking a counter-entry on top,
+    // so a reverted bet leaves no trace in the log or the leaderboards
+    state.history = state.history.filter(h => h.key !== ('bet:'+id));
+    state.counts.abir['bet:'+id] = undefined;
+    state.counts.jade['bet:'+id] = undefined;
     bet.status = 'open';
     delete bet.winner;
     saveState(); renderAll();
