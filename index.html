@@ -25,6 +25,11 @@
     --text-muted:#868C96;
     --danger:#FF5252;
     --success:#4CD97B;
+    /* identity colors — Abir is always red, Jade is always green */
+    --abir-deep:#722F37;
+    --abir-accent:#FF4D5E;
+    --jade-deep:#004700;
+    --jade-accent:#3ECF6E;
   }
   *{box-sizing:border-box;}
   html{scroll-behavior:smooth;}
@@ -118,12 +123,13 @@
     position:relative;
     background:linear-gradient(160deg,var(--glass-light),var(--glass));
     backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-    border:1px solid var(--border-glass);padding:20px 20px 18px;
+    border:1px solid var(--border-glass);border-left:3px solid var(--id-color,var(--border-glass));
+    padding:20px 20px 18px;
     clip-path:polygon(0 0,100% 0,100% calc(100% - 16px),calc(100% - 16px) 100%,0 100%);
     overflow:hidden;transition:transform .22s ease,box-shadow .22s ease;
     box-shadow:0 8px 28px rgba(0,0,0,0.3);
   }
-  .banner:hover{transform:translateY(-3px);box-shadow:0 14px 36px rgba(0,0,0,0.45);}
+  .banner:hover{transform:translateY(-3px);box-shadow:0 14px 36px rgba(0,0,0,0.45),0 0 30px -12px var(--id-color,transparent);}
   .banner::before{
     content:'';position:absolute;top:0;left:0;right:0;height:3px;
     background:var(--tier-color,var(--cyan));
@@ -218,10 +224,10 @@
   .pill:hover:not(:disabled){border-color:var(--flame);color:var(--flame);box-shadow:0 0 12px rgba(255,90,31,0.25);}
   .pill:active:not(:disabled){transform:scale(0.94);}
   .pill:disabled{opacity:0.32;cursor:not-allowed;}
-  .pill.abir{border-color:rgba(114,47,55,0.7);}
-  .pill.abir:hover:not(:disabled){border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 12px rgba(62,198,224,0.3);}
-  .pill.jade{border-color:rgba(0,71,0,0.7);}
-  .pill.jade:hover:not(:disabled){border-color:var(--gold);color:var(--gold);box-shadow:0 0 12px rgba(255,201,74,0.3);}
+  .pill.abir{border-color:var(--abir-deep);}
+  .pill.abir:hover:not(:disabled){border-color:var(--abir-accent);color:var(--abir-accent);box-shadow:0 0 12px rgba(255,77,94,0.3);}
+  .pill.jade{border-color:var(--jade-deep);}
+  .pill.jade:hover:not(:disabled){border-color:var(--jade-accent);color:var(--jade-accent);box-shadow:0 0 12px rgba(62,207,110,0.3);}
   .pill.danger:hover:not(:disabled){border-color:var(--danger);color:var(--danger);box-shadow:0 0 12px rgba(255,82,82,0.3);}
   .pill.ghost{background:none;color:var(--text-muted);padding:7px 9px;font-size:14px;}
   .pill.ghost:hover:not(:disabled){color:var(--danger);border-color:var(--danger);}
@@ -316,6 +322,19 @@
   .link-btn:hover{color:var(--flame);}
 
   .num-input{width:70px;background:var(--glass-light);border:1px solid var(--border-glass);color:var(--text);padding:6px;font-family:'Share Tech Mono',monospace;font-size:12px;border-radius:3px;}
+
+  /* collapsible add-forms — keeps lists tidy until you actually want to add something */
+  .add-details{margin-top:10px;}
+  .add-details summary{
+    list-style:none;cursor:pointer;user-select:none;
+    font-family:'Rajdhani',sans-serif;font-weight:600;font-size:12.5px;letter-spacing:0.5px;
+    text-transform:uppercase;color:var(--text-muted);
+    border:1px dashed var(--border-glass);padding:8px 14px;border-radius:3px;
+    transition:all .15s ease;display:inline-block;
+  }
+  .add-details summary::-webkit-details-marker{display:none;}
+  .add-details summary:hover{color:var(--flame);border-color:var(--flame-dim);}
+  .add-details[open] summary{color:var(--flame);border-color:var(--flame-dim);margin-bottom:2px;}
 </style>
 </head>
 <body>
@@ -810,8 +829,9 @@ function renderBanners(){
     const pts = state.points[p];
     const t = tierInfo(pts);
     const crown = p===leaderParty ? '<span class="crown" title="Season lead">👑</span>' : '';
+    const idColor = p==='abir' ? 'var(--abir-accent)' : 'var(--jade-accent)';
     return `
-    <div class="banner" style="--tier-color:${t.color}">
+    <div class="banner" style="--tier-color:${t.color};--id-color:${idColor}">
       <div class="banner-head">
         <div class="banner-name" onclick="__app.renameParty('${p}')">${crown}${state.names[p]}</div>
         <div class="evo-hex">${t.level}</div>
@@ -831,7 +851,7 @@ function renderBanners(){
     const abirLeads = a>j;
     const leader = abirLeads ? state.names.abir : state.names.jade;
     const diff = Math.abs(a-j);
-    const color = abirLeads ? '#722F37' : '#004700';
+    const color = abirLeads ? '#FF4D5E' : '#3ECF6E';
     rt.style.setProperty('--lead-color', color);
     rt.innerHTML = `<div class="lead-eyebrow">Season Lead</div><div class="lead-name" style="color:${color}">${leader}</div><div class="lead-diff">+${diff.toLocaleString()} ahead</div>`;
   }
@@ -862,12 +882,15 @@ function claimCard(key, label, pts, note, removeAction, prereqKey, prereqLabel){
   </div>`;
 }
 
-function addForm(labelPh, ptsPh, onClick){
-  return `<div class="bet-form" style="margin-top:10px;">
-    <input id="${labelPh.id}" placeholder="${labelPh.text}">
-    <input id="${ptsPh.id}" type="number" placeholder="${ptsPh.text}" style="max-width:110px;">
-    <button class="btn-flame" onclick="${onClick}">Add</button>
-  </div>`;
+function addForm(labelPh, ptsPh, onClick, summaryText){
+  return `<details class="add-details">
+    <summary>+ ${summaryText || 'Add new'}</summary>
+    <div class="bet-form" style="margin-top:10px;">
+      <input id="${labelPh.id}" placeholder="${labelPh.text}">
+      <input id="${ptsPh.id}" type="number" placeholder="${ptsPh.text}" style="max-width:110px;">
+      <button class="btn-flame" onclick="${onClick}">Add</button>
+    </div>
+  </details>`;
 }
 
 function renderDaily(){
@@ -886,7 +909,8 @@ function renderDaily(){
   return base + custom + addForm(
     {id:'newDailyLabel', text:'New daily habit'},
     {id:'newDailyPts', text:'Points'},
-    `__app.addDaily()`
+    `__app.addDaily()`,
+    'Add daily habit'
   );
 }
 
@@ -905,7 +929,8 @@ function renderQuests(){
     const form = addForm(
       {id:'newQuestLabel_'+party, text:'New goal'},
       {id:'newQuestPts_'+party, text:'Points'},
-      `__app.addQuest('${party}')`
+      `__app.addQuest('${party}')`,
+      'Add goal'
     );
     return base + custom + form;
   };
@@ -931,7 +956,8 @@ function renderPenalties(){
   return base + custom + addForm(
     {id:'newPenaltyLabel', text:'New penalty'},
     {id:'newPenaltyPts', text:'Points to deduct'},
-    `__app.addPenalty()`
+    `__app.addPenalty()`,
+    'Add penalty'
   );
 }
 
@@ -988,12 +1014,15 @@ function renderShop(){
       shopCard(i,party,`__app.hideShopItem('${party}','${i.id}')`)
     ).join('');
     const custom = state.customShop[party].map(i=>shopCard(i,party,`__app.removeShopItem('${party}','${i.id}')`)).join('');
-    const form = `<div class="bet-form" style="margin-top:10px;">
-      <input id="newShopLabel_${party}" placeholder="Wanted item">
-      <input id="newShopPts_${party}" type="number" placeholder="Points" style="max-width:100px;">
-      <input id="newShopNote_${party}" placeholder="Note (optional)" style="max-width:120px;">
-      <button class="btn-flame" onclick="__app.addShopItem('${party}')">Add</button>
-    </div>`;
+    const form = `<details class="add-details">
+      <summary>+ Add wanted item</summary>
+      <div class="bet-form" style="margin-top:10px;">
+        <input id="newShopLabel_${party}" placeholder="Wanted item">
+        <input id="newShopPts_${party}" type="number" placeholder="Points" style="max-width:100px;">
+        <input id="newShopNote_${party}" placeholder="Note (optional)" style="max-width:120px;">
+        <button class="btn-flame" onclick="__app.addShopItem('${party}')">Add</button>
+      </div>
+    </details>`;
     return base + custom + form;
   };
   return `<div class="col2">
@@ -1215,8 +1244,8 @@ function renderWeekly(){
   const weekTotalAbir = abirSeries.reduce((s,v)=>s+v,0);
   const weekTotalJade = jadeSeries.reduce((s,v)=>s+v,0);
 
-  const ABIR_COLOR = '#722F37'; // wine red
-  const JADE_COLOR = '#004700'; // dark green
+  const ABIR_COLOR = '#FF4D5E'; // Abir identity red
+  const JADE_COLOR = '#3ECF6E'; // Jade identity green
 
   return `
     <div class="panel-title">Weekly Points <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-muted);">· resets Monday 12am</span></div>
@@ -1251,18 +1280,18 @@ function renderTodaySidebar(){
   if(totals.abir !== totals.jade){
     const abirLeads = totals.abir > totals.jade;
     const diff = Math.abs(totals.abir - totals.jade);
-    const color = abirLeads ? '#722F37' : '#004700';
+    const color = abirLeads ? '#FF4D5E' : '#3ECF6E';
     leadHtml = `<b style="color:${color}">${abirLeads?state.names.abir:state.names.jade}</b> +${diff.toLocaleString()} today`;
   }
   el.innerHTML = `<div class="side-panel">
     <div class="side-panel-title">Today's Leaderboard</div>
     <div class="side-panel-sub">${leadHtml}</div>
     <div class="side-group">
-      <div class="side-group-name">${state.names.abir} · ${fmt(totals.abir)}</div>
+      <div class="side-group-name" style="color:var(--abir-accent);">${state.names.abir} · ${fmt(totals.abir)}</div>
       ${rowsFor('abir')}
     </div>
     <div class="side-group">
-      <div class="side-group-name">${state.names.jade} · ${fmt(totals.jade)}</div>
+      <div class="side-group-name" style="color:var(--jade-accent);">${state.names.jade} · ${fmt(totals.jade)}</div>
       ${rowsFor('jade')}
     </div>
   </div>`;
@@ -1273,14 +1302,15 @@ function renderTodoSidebar(){
   if(!el) return;
   const section = (party, title)=>{
     const items = state.todos[party];
+    const accent = party==='abir' ? 'var(--abir-accent)' : 'var(--jade-accent)';
     const rows = items.length===0
       ? '<div class="empty-note" style="padding:4px 0;font-size:12px;">Nothing on the list.</div>'
       : items.map(t=>`<label class="todo-row">
-          <input type="checkbox" onchange="__app.completeTodo('${party}','${t.id}')">
+          <input type="checkbox" style="accent-color:${accent};" onchange="__app.completeTodo('${party}','${t.id}')">
           <span>${t.text}</span>
         </label>`).join('');
-    return `<div class="side-panel">
-      <div class="side-panel-title">${title}</div>
+    return `<div class="side-panel" style="border-top-color:${accent};">
+      <div class="side-panel-title" style="color:${accent};">${title}</div>
       <div style="margin:10px 0;">${rows}</div>
       <div class="bet-form" style="margin-bottom:0;">
         <input id="newTodo_${party}" placeholder="Add a task">
