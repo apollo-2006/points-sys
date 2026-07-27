@@ -35,6 +35,10 @@
     min-height:100vh;
   }
   ::selection{background:var(--flame);color:#0A0C0F;}
+  ::-webkit-scrollbar{width:10px;height:10px;}
+  ::-webkit-scrollbar-track{background:var(--void);}
+  ::-webkit-scrollbar-thumb{background:var(--panel-light);border-radius:5px;border:2px solid var(--void);}
+  ::-webkit-scrollbar-thumb:hover{background:var(--flame-dim);}
 
   .wrap{max-width:1360px;margin:0 auto;padding:20px 16px 60px;}
 
@@ -86,8 +90,9 @@
     position:relative;background:linear-gradient(180deg,var(--panel-light),var(--panel));
     border:1px solid var(--border);padding:18px 18px 16px;
     clip-path:polygon(0 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%);
-    overflow:hidden;
+    overflow:hidden;transition:transform .18s ease,box-shadow .18s ease;
   }
+  .banner:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.4);}
   .banner::before{
     content:'';position:absolute;top:0;left:0;right:0;height:3px;
     background:var(--tier-color,var(--cyan));
@@ -124,7 +129,7 @@
     font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-muted);
     letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;
   }
-  .evo-track{height:6px;background:#0A0C0F;border:1px solid var(--border);position:relative;overflow:hidden;}
+  .evo-track{height:6px;background:#0A0C0F;border:1px solid var(--border);position:relative;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,0.7);}
   .evo-fill{height:100%;background:var(--tier-color,var(--cyan));transition:width .6s ease;
     box-shadow:0 0 10px var(--tier-color,var(--cyan));}
 
@@ -138,7 +143,7 @@
     transition:all .15s ease;
   }
   .tab-btn:hover{color:var(--text);border-color:var(--flame-dim);}
-  .tab-btn.active{background:var(--flame);color:#0A0C0F;border-color:var(--flame);}
+  .tab-btn.active{background:var(--flame);color:#0A0C0F;border-color:var(--flame);box-shadow:0 3px 14px rgba(255,90,31,0.4);}
 
   /* ---------- CONTENT ---------- */
   .panel-title{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;
@@ -151,7 +156,9 @@
     background:var(--panel);border:1px solid var(--border);
     padding:12px 14px;margin-bottom:8px;
     display:flex;flex-direction:column;align-items:stretch;gap:8px;
+    transition:border-color .15s ease,transform .15s ease;
   }
+  .card:hover{border-color:var(--flame-dim);}
   .card-info{flex:1;min-width:150px;}
   .card-label{font-size:14px;font-weight:500;}
   .card-pts{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--text-muted);margin-top:2px;}
@@ -165,6 +172,7 @@
     color:var(--text);padding:7px 12px;cursor:pointer;transition:all .12s ease;
   }
   .pill:hover:not(:disabled){border-color:var(--flame);color:var(--flame);}
+  .pill:active:not(:disabled){transform:scale(0.94);}
   .pill:disabled{opacity:0.35;cursor:not-allowed;}
   .pill.abir{border-color:#2b4a56;}
   .pill.abir:hover:not(:disabled){border-color:var(--cyan);color:var(--cyan);}
@@ -194,7 +202,7 @@
   }
 
   .side-panel{
-    background:var(--panel);border:1px solid var(--border);padding:14px;
+    background:var(--panel);border:1px solid var(--border);border-top:2px solid var(--flame);padding:14px;
   }
   .side-panel-title{
     font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;
@@ -324,12 +332,12 @@
 // "Your apps" > SDK setup and configuration > Config
 // =====================================================================
 const firebaseConfig = {
-  apiKey: "AIzaSyAPDL1kF7BoXfxxoNsaZtvM2sNk75Vg_ZI",
-  authDomain: "point-tracker-fd222.firebaseapp.com",
-  projectId: "point-tracker-fd222",
-  storageBucket: "point-tracker-fd222.firebasestorage.app",
-  messagingSenderId: "985175072746",
-  appId: "1:985175072746:web:6d1b60323a2c7f2853dc93"
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
 };
 // =====================================================================
 
@@ -398,7 +406,8 @@ const DAILY = [
   {id:'skincare', label:'Skincare routine done', pts:1000},
   {id:'meals', label:'Ate 3 balanced meals', pts:1500},
   {id:'sleep_on_time', label:'Slept on time (before 1am)', pts:2000},
-  {id:'wake_on_time', label:'Woke up on time (before 11am)', pts:2000},
+  {id:'out_of_bed', label:'Got out of bed', pts:1000},
+  {id:'wake_on_time', label:'Woke up on time (before 11am)', pts:2000, prereq:'out_of_bed'},
   {id:'studied', label:'Studied / worked productively (2+ hrs)', pts:2500},
   {id:'chores', label:'Chores completed', pts:1500},
   {id:'pomodoro', label:'Completed a Pomodoro cycle (60/15)', pts:2500},
@@ -416,8 +425,8 @@ const PENALTIES = [
   {id:'forgot_tracking', label:'Forgetting to keep track of points', pts:-5000},
   {id:'junk_food', label:'Ate junk food / binge meal', pts:-2000},
   {id:'skipped_skincare', label:'Skipped skincare', pts:-1000},
-  {id:'stayed_up', label:'Stayed up past midnight–1am', pts:-3000},
-  {id:'slept_in', label:'Slept in past 9am', pts:-2500},
+  {id:'stayed_up', label:'Stayed up past midnight–1am', pts:-3500},
+  {id:'slept_in', label:'Slept in past 9am', pts:-5000},
   {id:'ignored_chores', label:'Ignored chores (2+ days)', pts:-2000},
   {id:'laziness', label:'Laziness / procrastination', pts:-1500},
   {id:'skipped_workout', label:'Skipped workout', pts:-2500},
@@ -779,21 +788,25 @@ function renderBanners(){
   }
 }
 
-function claimCard(key, label, pts, note, removeAction){
+function claimCard(key, label, pts, note, removeAction, prereqKey, prereqLabel){
   const cA = getCountToday('abir', key);
   const cJ = getCountToday('jade', key);
   const ptsClass = pts>0?'pos':(pts<0?'neg':'');
   const removeAttr = removeAction ? ` data-remove="${removeAction.replace(/"/g,'&quot;')}"` : '';
   const removeCls = removeAction ? ' removable' : '';
+  const abirLocked = prereqKey && getCountToday('abir', prereqKey) === 0;
+  const jadeLocked = prereqKey && getCountToday('jade', prereqKey) === 0;
+  const lockNote = prereqKey ? `<div style="font-family:'Share Tech Mono',monospace;font-size:10.5px;color:var(--text-muted);margin-top:2px;">Requires "${prereqLabel}" first (today)</div>` : '';
   return `<div class="card${removeCls}"${removeAttr}>
     <div class="card-info">
       <div class="card-label">${label}</div>
       <div class="card-pts ${ptsClass}">${fmt(pts)} pts${note?(' · '+note):''}</div>
+      ${lockNote}
     </div>
     <div class="card-actions">
-      <button class="pill abir" onclick="__app.claim('${key}','abir',${pts},'${label.replace(/'/g,"\\'")}')">${state.names.abir}${cA?' ('+cA+')':''}</button>
+      <button class="pill abir" ${abirLocked?'disabled title="Get out of bed first"':''} onclick="__app.claim('${key}','abir',${pts},'${label.replace(/'/g,"\\'")}')">${state.names.abir}${cA?' ('+cA+')':''}</button>
       ${cA?`<button class="pill ghost" title="Undo ${state.names.abir}'s last claim" onclick="__app.undo('${key}','abir')">↺</button>`:''}
-      <button class="pill jade" onclick="__app.claim('${key}','jade',${pts},'${label.replace(/'/g,"\\'")}')">${state.names.jade}${cJ?' ('+cJ+')':''}</button>
+      <button class="pill jade" ${jadeLocked?'disabled title="Get out of bed first"':''} onclick="__app.claim('${key}','jade',${pts},'${label.replace(/'/g,"\\'")}')">${state.names.jade}${cJ?' ('+cJ+')':''}</button>
       ${cJ?`<button class="pill ghost" title="Undo ${state.names.jade}'s last claim" onclick="__app.undo('${key}','jade')">↺</button>`:''}
       ${removeAction?`<button class="card-remove-btn" data-remove="${removeAction.replace(/"/g,'&quot;')}" title="Remove (or right-click the card)">⋯</button>`:''}
     </div>
@@ -809,9 +822,15 @@ function addForm(labelPh, ptsPh, onClick){
 }
 
 function renderDaily(){
-  const base = DAILY.filter(item=>!state.hiddenDaily.includes(item.id)).map(item=>
-    claimCard('daily:'+item.id, item.label, item.pts, null, `__app.hideDaily('${item.id}')`)
-  ).join('');
+  const base = DAILY.filter(item=>!state.hiddenDaily.includes(item.id)).map(item=>{
+    const prereqItem = item.prereq ? DAILY.find(d=>d.id===item.prereq) : null;
+    return claimCard(
+      'daily:'+item.id, item.label, item.pts, null,
+      `__app.hideDaily('${item.id}')`,
+      prereqItem ? 'daily:'+prereqItem.id : null,
+      prereqItem ? prereqItem.label : null
+    );
+  }).join('');
   const custom = state.customDaily.map(item=>
     claimCard('daily:'+item.id, item.label, item.pts, null, `__app.removeDaily('${item.id}')`)
   ).join('');
