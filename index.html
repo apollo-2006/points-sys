@@ -181,10 +181,9 @@
     display:flex;gap:4px;margin-bottom:20px;flex-wrap:nowrap;overflow-x:auto;position:relative;
     background:var(--glass-light);border:1px solid var(--border-glass);padding:5px;border-radius:4px;
     backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-    scrollbar-width:thin;
+    scrollbar-width:none;-ms-overflow-style:none;
   }
-  .tabs::-webkit-scrollbar{height:6px;}
-  .tabs::-webkit-scrollbar-thumb{background:var(--panel-light);border-radius:3px;}
+  .tabs::-webkit-scrollbar{display:none;}
   .tab-btn{
     font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13.5px;letter-spacing:1px;
     text-transform:uppercase;background:transparent;border:1px solid transparent;
@@ -362,10 +361,9 @@
 
   .board-tabs{
     display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;margin-bottom:14px;
-    padding:2px 2px 8px;scrollbar-width:thin;
+    padding:2px 2px 8px;scrollbar-width:none;-ms-overflow-style:none;
   }
-  .board-tabs::-webkit-scrollbar{height:6px;}
-  .board-tabs::-webkit-scrollbar-thumb{background:var(--panel-light);border-radius:3px;}
+  .board-tabs::-webkit-scrollbar{display:none;}
   .board-tab{
     font-family:'Rajdhani',sans-serif;font-weight:600;font-size:12.5px;letter-spacing:0.5px;
     text-transform:uppercase;background:var(--glass-light);border:1px solid var(--border-glass);
@@ -378,9 +376,30 @@
     border-color:transparent;box-shadow:0 3px 12px rgba(255,90,31,0.35);
   }
 
+  /* ---------- DECORATIVE BOARD FRAME (recolorable via hex) ---------- */
+  .board-frame{
+    position:relative;padding:18px;border-radius:18px;
+    border:3px dashed var(--frame-color,var(--cyan));
+    box-shadow:0 8px 30px rgba(0,0,0,0.35),0 0 0 1px rgba(255,255,255,0.03) inset;
+  }
+  .board-frame::before,.board-frame::after{
+    content:'';position:absolute;width:11px;height:11px;border-radius:50%;pointer-events:none;
+    background:var(--frame-color,var(--cyan));box-shadow:0 0 10px var(--frame-color,var(--cyan));
+  }
+  .board-frame::before{top:-6px;left:26px;}
+  .board-frame::after{bottom:-6px;right:26px;}
+  .frame-controls{
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;
+    font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-muted);
+  }
+  .frame-swatch{width:18px;height:18px;border-radius:4px;border:1px solid var(--border-glass);flex-shrink:0;}
+  .hex-input{
+    width:96px;background:rgba(255,255,255,0.04);border:1px solid var(--border-glass);color:var(--text);
+    padding:6px 8px;font-family:'Share Tech Mono',monospace;font-size:11.5px;border-radius:3px;
+  }
+
   .matrix-canvas{
-    position:relative;min-height:560px;border:1px solid var(--border-glass);
-    border-top:2px solid var(--owner-color,var(--flame));border-radius:4px;overflow:auto;
+    position:relative;min-height:540px;border:1px solid var(--border-glass);border-radius:4px;overflow:auto;
     background-color:#0A0D11;
     background-image:
       linear-gradient(rgba(62,198,224,0.10) 1px, transparent 1px),
@@ -390,15 +409,10 @@
     background-size:120px 120px,120px 120px,24px 24px,24px 24px;
     box-shadow:inset 0 0 60px rgba(0,0,0,0.6);
   }
-  .matrix-canvas::before,.matrix-canvas::after{
-    content:'';position:absolute;width:22px;height:22px;pointer-events:none;
-    border-color:var(--owner-color,var(--flame));opacity:0.65;
-  }
-  .matrix-canvas::before{top:8px;left:8px;border-top:2px solid;border-left:2px solid;}
-  .matrix-canvas::after{bottom:8px;right:8px;border-bottom:2px solid;border-right:2px solid;}
 
   .matrix-note{
     position:absolute;width:230px;
+
     background:linear-gradient(160deg,rgba(28,32,40,0.95),rgba(12,14,18,0.96));
     border:1px solid var(--note-color,var(--cyan));border-radius:3px;
     box-shadow:0 8px 24px rgba(0,0,0,0.5),0 0 16px -6px var(--note-color,var(--cyan));
@@ -420,7 +434,7 @@
     padding:8px;margin-bottom:8px;
   }
   .matrix-note-text:focus{outline:none;border-color:var(--note-color,var(--cyan));}
-  .matrix-note-swatches{display:flex;gap:5px;margin-bottom:8px;}
+  .matrix-note-swatches{display:flex;gap:5px;margin-bottom:8px;flex-wrap:wrap;align-items:center;}
   .note-todo-row{
     display:flex;align-items:center;gap:6px;font-size:12.5px;padding:5px 0;
     border-bottom:1px solid rgba(255,255,255,0.06);
@@ -438,10 +452,10 @@
   /* ---------- BOARD SECTIONS (kanban-style lanes) ---------- */
   .section-lanes{
     display:flex;align-items:stretch;overflow-x:auto;border:1px solid var(--border-glass);
-    border-top:2px solid var(--owner-color,var(--flame));border-radius:4px;min-height:560px;
-    background-color:#0A0D11;scrollbar-width:thin;
+    border-radius:4px;min-height:540px;
+    background-color:#0A0D11;scrollbar-width:none;-ms-overflow-style:none;
   }
-  .section-lanes::-webkit-scrollbar{height:6px;}
+  .section-lanes::-webkit-scrollbar{display:none;}
   .section-lane{flex:1 1 240px;min-width:220px;display:flex;flex-direction:column;}
   .section-lane-header{
     padding:10px 12px;border-bottom:1px solid var(--border-glass);
@@ -900,6 +914,15 @@ function completeTodoItem(party, id){
 }
 
 const NOTE_COLORS = ['#3EC6E0','#B463FF','#FFC94A','#FF5A1F','#4CD97B','#FF5252'];
+const ABIR_ACCENT_HEX = '#FF4D5E';
+const JADE_ACCENT_HEX = '#3ECF6E';
+
+function normalizeHex(hex){
+  if(!hex) return null;
+  let h = hex.trim();
+  if(!h.startsWith('#')) h = '#'+h;
+  return /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(h) ? h : null;
+}
 
 function addBoard(name, party){
   if(!name) return;
@@ -917,6 +940,15 @@ function removeBoard(id){
     activeBoardId = remaining.length ? remaining[0].id : null;
   }
   saveState(); renderAll();
+}
+function setBoardBorderColor(boardId, hex){
+  const clean = normalizeHex(hex);
+  if(!clean) return false;
+  const board = state.boards.find(b=>b.id===boardId);
+  if(!board) return false;
+  board.borderColor = clean;
+  saveState(); renderAll();
+  return true;
 }
 function addNote(boardId, text, color, sectionId){
   const board = state.boards.find(b=>b.id===boardId);
@@ -950,18 +982,6 @@ function removeSection(boardId, sectionId){
   board.notes.forEach(n=>{ if(n.section===sectionId) n.section = fallback; });
   saveState(); renderAll();
 }
-function setNoteSection(boardId, noteId, sectionId){
-  const board = state.boards.find(b=>b.id===boardId);
-  if(!board) return;
-  const note = board.notes.find(n=>n.id===noteId);
-  if(!note) return;
-  note.section = sectionId || null;
-  const siblings = board.notes.filter(n=>n.section===note.section && n.id!==note.id);
-  const c = siblings.length;
-  note.x = 6 + (c % 2) * 46;
-  note.y = 6 + Math.floor(c / 2) * 30;
-  saveState(); renderAll();
-}
 function removeNote(boardId, noteId){
   const board = state.boards.find(b=>b.id===boardId);
   if(!board) return;
@@ -984,14 +1004,15 @@ function setNoteColor(boardId, noteId, color){
   note.color = color;
   saveState(); renderAll();
 }
-function setNotePosition(boardId, noteId, xPct, yPct){
+function moveNoteTo(boardId, noteId, sectionId, xPct, yPct){
   const board = state.boards.find(b=>b.id===boardId);
   if(!board) return;
   const note = board.notes.find(n=>n.id===noteId);
   if(!note) return;
-  note.x = Math.max(0, Math.min(100, xPct));
-  note.y = Math.max(0, Math.min(100, yPct));
-  saveState();
+  if(sectionId !== undefined) note.section = sectionId;
+  note.x = Math.max(0, Math.min(96, xPct));
+  note.y = Math.max(0, Math.min(92, yPct));
+  saveState(); renderAll();
 }
 function addNoteTodo(boardId, noteId, text, pts){
   const board = state.boards.find(b=>b.id===boardId);
@@ -1039,32 +1060,42 @@ function toggleNoteTodo(boardId, noteId, todoId, ptsVal, checked){
 }
 function startNoteDrag(evt, boardId, noteId, canvasElId){
   if(evt.target.closest('button') || evt.target.closest('input') || evt.target.closest('select') || evt.target.closest('textarea')) return;
-  const canvas = document.getElementById(canvasElId || 'boardCanvas');
   const noteEl = document.getElementById('note_'+noteId);
-  if(!canvas || !noteEl) return;
+  if(!noteEl) return;
   evt.preventDefault();
-  const startLeft = noteEl.offsetLeft;
-  const startTop = noteEl.offsetTop;
-  const startX = evt.clientX;
-  const startY = evt.clientY;
+  const startRect = noteEl.getBoundingClientRect();
+  const offsetX = evt.clientX - startRect.left;
+  const offsetY = evt.clientY - startRect.top;
   noteEl.classList.add('dragging');
+  noteEl.style.position = 'fixed';
+  noteEl.style.margin = '0';
+  noteEl.style.zIndex = 9999;
+  noteEl.style.width = startRect.width + 'px';
+  noteEl.style.left = startRect.left + 'px';
+  noteEl.style.top = startRect.top + 'px';
   function onMove(ev){
-    const dx = ev.clientX - startX;
-    const dy = ev.clientY - startY;
-    let left = startLeft + dx;
-    let top = startTop + dy;
-    left = Math.max(0, Math.min(left, Math.max(0, canvas.clientWidth - noteEl.offsetWidth)));
-    top = Math.max(0, Math.min(top, Math.max(0, canvas.clientHeight - noteEl.offsetHeight)));
-    noteEl.style.left = left+'px';
-    noteEl.style.top = top+'px';
+    noteEl.style.left = (ev.clientX - offsetX) + 'px';
+    noteEl.style.top = (ev.clientY - offsetY) + 'px';
   }
-  function onUp(){
+  function onUp(ev){
     document.removeEventListener('pointermove', onMove);
     document.removeEventListener('pointerup', onUp);
     noteEl.classList.remove('dragging');
-    const xPct = (noteEl.offsetLeft / canvas.clientWidth) * 100;
-    const yPct = (noteEl.offsetTop / canvas.clientHeight) * 100;
-    setNotePosition(boardId, noteId, xPct, yPct);
+    noteEl.style.pointerEvents = 'none';
+    const under = document.elementFromPoint(ev.clientX, ev.clientY);
+    noteEl.style.pointerEvents = '';
+    let target = under ? under.closest('.section-lane-canvas, #boardCanvas') : null;
+    if(!target) target = document.getElementById(canvasElId) || document.getElementById('boardCanvas');
+    if(!target){
+      moveNoteTo(boardId, noteId, undefined, parseFloat(noteEl.style.left), parseFloat(noteEl.style.top));
+      return;
+    }
+    const rect = target.getBoundingClientRect();
+    const xPct = ((ev.clientX - offsetX - rect.left) / rect.width) * 100;
+    const yPct = ((ev.clientY - offsetY - rect.top) / rect.height) * 100;
+    const isSectionCanvas = target.id.indexOf('sectionCanvas_') === 0;
+    const targetSectionId = isSectionCanvas ? target.id.slice('sectionCanvas_'.length) : undefined;
+    moveNoteTo(boardId, noteId, targetSectionId, xPct, yPct);
   }
   document.addEventListener('pointermove', onMove);
   document.addEventListener('pointerup', onUp);
@@ -1646,21 +1677,17 @@ function renderNote(board, note, canvasElId){
         ${t.done?'':`<button class="card-remove-btn" style="opacity:0.5;" title="Remove item (no points)" onclick="__app.removeNoteTodo('${boardId}','${note.id}','${t.id}')">✕</button>`}
       </div>`).join('');
   const swatches = NOTE_COLORS.map(c=>`<button type="button" title="Set color" onclick="__app.setNoteColor('${boardId}','${note.id}','${c}')" style="width:16px;height:16px;border-radius:50%;background:${c};border:2px solid ${note.color===c?'#fff':'rgba(255,255,255,0.15)'};cursor:pointer;padding:0;"></button>`).join('');
-  const sectionSelect = (board.sections && board.sections.length)
-    ? `<select class="note-pts-input" style="width:auto;padding:3px 4px;" title="Move to section" onchange="__app.setNoteSection('${boardId}','${note.id}', this.value)">
-        ${board.sections.map(s=>`<option value="${s.id}" ${note.section===s.id?'selected':''}>${escHtml(s.name)}</option>`).join('')}
-      </select>`
-    : '';
   return `<div class="matrix-note" id="note_${note.id}" style="--note-color:${note.color};left:${note.x||0}%;top:${note.y||0}%;">
     <div class="note-drag-handle" onpointerdown="__app.startNoteDrag(event,'${boardId}','${note.id}','${canvasElId}')">
-      <span>⋮⋮ NOTE</span>
-      <span style="display:flex;align-items:center;gap:4px;">
-        ${sectionSelect}
-        <button class="card-remove-btn" style="padding:2px 6px;color:var(--note-color);" title="Remove note" onclick="__app.removeNote('${boardId}','${note.id}')">✕</button>
-      </span>
+      <span>⋮⋮ NOTE${board.sections && board.sections.length ? ' · drag to move sections' : ''}</span>
+      <button class="card-remove-btn" style="padding:2px 6px;color:var(--note-color);" title="Remove note" onclick="__app.removeNote('${boardId}','${note.id}')">✕</button>
     </div>
     <textarea class="matrix-note-text" onblur="__app.updateNoteText('${boardId}','${note.id}', this.value)" placeholder="Write something...">${escHtml(note.text)}</textarea>
-    <div class="matrix-note-swatches">${swatches}</div>
+    <div class="matrix-note-swatches">
+      ${swatches}
+      <input class="hex-input" style="width:74px;margin-left:2px;" type="text" placeholder="#hex" id="noteHex_${note.id}" onkeydown="if(event.key==='Enter'){__app.setNoteColorHex('${boardId}','${note.id}', this.value); this.value='';}">
+      <button class="pill" style="padding:4px 8px;font-size:10.5px;" title="Apply hex color" onclick="__app.setNoteColorHex('${boardId}','${note.id}', document.getElementById('noteHex_${note.id}').value); document.getElementById('noteHex_${note.id}').value='';">Set</button>
+    </div>
     <details class="add-details" style="border-color:rgba(255,255,255,0.15);">
       <summary style="color:var(--text-muted);border-color:rgba(255,255,255,0.15);">+ Checklist${todos.length?' ('+todos.length+')':''}</summary>
       <div style="margin-top:8px;">
@@ -1713,13 +1740,14 @@ function renderBoards(){
 
   const board = ownerBoards.find(b=>b.id===activeBoardId);
   const sections = board.sections || [];
+  const frameColor = board.borderColor || (activeBoardOwner==='abir' ? ABIR_ACCENT_HEX : JADE_ACCENT_HEX);
 
   let bodyHtml;
   if(sections.length === 0){
     const notesHtml = board.notes.length===0
       ? '<div class="empty-note" style="padding:20px;">No sticky notes here yet — pin one below.</div>'
       : board.notes.map(n=>renderNote(board, n, 'boardCanvas')).join('');
-    bodyHtml = `<div class="matrix-canvas" id="boardCanvas" style="--owner-color:${ownerColorVar};">${notesHtml}</div>`;
+    bodyHtml = `<div class="matrix-canvas" id="boardCanvas">${notesHtml}</div>`;
   } else {
     const laneHtml = sections.map((sec,i)=>{
       const secNotes = board.notes.filter(n=>n.section===sec.id);
@@ -1738,11 +1766,18 @@ function renderBoards(){
             <button class="card-remove-btn" style="padding:2px 6px;" title="Remove section" onclick="__app.removeSection('${board.id}','${sec.id}')">✕</button>
           </span>
         </div>
-        <div class="section-lane-canvas" id="${canvasId}" style="--owner-color:${ownerColorVar};">${notesInner}</div>
+        <div class="section-lane-canvas" id="${canvasId}">${notesInner}</div>
       </div>`;
     }).join('');
-    bodyHtml = `<div class="section-lanes" style="--owner-color:${ownerColorVar};">${laneHtml}</div>`;
+    bodyHtml = `<div class="section-lanes">${laneHtml}</div>`;
   }
+
+  const frameControls = `<div class="frame-controls">
+    <span class="frame-swatch" style="background:${frameColor};"></span>
+    <span>Board border</span>
+    <input class="hex-input" type="text" id="borderHex_${board.id}" placeholder="${frameColor}" onkeydown="if(event.key==='Enter'){__app.setBoardBorderColor('${board.id}', this.value); this.value='';}">
+    <button class="pill" style="padding:6px 12px;" onclick="__app.setBoardBorderColor('${board.id}', document.getElementById('borderHex_${board.id}').value); document.getElementById('borderHex_${board.id}').value='';">Apply</button>
+  </div>`;
 
   const addSectionForm = `<details class="add-details" style="margin-top:0;margin-bottom:14px;">
     <summary>+ Add section</summary>
@@ -1778,7 +1813,8 @@ function renderBoards(){
     ${newBoardForm}
     <div class="board-tabs">${boardTabs}</div>
     ${addSectionForm}
-    ${bodyHtml}
+    ${frameControls}
+    <div class="board-frame" style="--frame-color:${frameColor};">${bodyHtml}</div>
     ${newNoteForm}
   `;
 }
@@ -1944,7 +1980,15 @@ const __app = {
     if(!confirm('Remove this section? Its notes will move into another section (or become unsectioned).')) return;
     removeSection(boardId, sectionId);
   },
-  setNoteSection(boardId, noteId, sectionId){ setNoteSection(boardId, noteId, sectionId); },
+  setNoteColorHex(boardId, noteId, hex){
+    const clean = normalizeHex(hex);
+    if(!clean){ if(hex && hex.trim()) alert('Enter a valid hex color, like #3EC6E0 or #B463FF.'); return; }
+    setNoteColor(boardId, noteId, clean);
+  },
+  setBoardBorderColor(boardId, hex){
+    const ok = setBoardBorderColor(boardId, hex);
+    if(!ok && hex && hex.trim()) alert('Enter a valid hex color, like #3EC6E0 or #FF4D5E.');
+  },
   addBet(){
     const title = document.getElementById('betTitle').value.trim();
     const stake = parseInt(document.getElementById('betStake').value,10);
