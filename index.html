@@ -431,6 +431,45 @@
     width:56px;background:rgba(255,255,255,0.04);border:1px solid var(--border-glass);color:var(--text);
     padding:4px 5px;font-family:'Share Tech Mono',monospace;font-size:11px;border-radius:3px;
   }
+  .note-todo-check{accent-color:var(--cyan);cursor:pointer;flex-shrink:0;}
+  .note-todo-row.done .note-todo-text{text-decoration:line-through;opacity:0.55;}
+  .note-todo-row.done .note-pts-input{opacity:0.5;}
+
+  /* ---------- BOARD SECTIONS (kanban-style lanes) ---------- */
+  .section-lanes{
+    display:flex;align-items:stretch;overflow-x:auto;border:1px solid var(--border-glass);
+    border-top:2px solid var(--owner-color,var(--flame));border-radius:4px;min-height:560px;
+    background-color:#0A0D11;scrollbar-width:thin;
+  }
+  .section-lanes::-webkit-scrollbar{height:6px;}
+  .section-lane{flex:1 1 240px;min-width:220px;display:flex;flex-direction:column;}
+  .section-lane-header{
+    padding:10px 12px;border-bottom:1px solid var(--border-glass);
+    display:flex;justify-content:space-between;align-items:center;gap:8px;
+  }
+  .section-lane-name{
+    font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13.5px;letter-spacing:1px;
+    text-transform:uppercase;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .section-lane-max{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-muted);white-space:nowrap;}
+  .section-lane-max.over{color:var(--danger);}
+  .section-lane-canvas{
+    position:relative;flex:1;min-height:520px;
+    background-image:
+      linear-gradient(rgba(62,198,224,0.10) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(62,198,224,0.10) 1px, transparent 1px),
+      linear-gradient(rgba(62,198,224,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(62,198,224,0.04) 1px, transparent 1px);
+    background-size:120px 120px,120px 120px,24px 24px,24px 24px;
+  }
+  .section-divider{
+    width:14px;flex-shrink:0;align-self:stretch;opacity:0.55;
+    background-image:
+      linear-gradient(135deg, transparent 45%, var(--cyan) 45%, var(--cyan) 55%, transparent 55%),
+      linear-gradient(45deg, transparent 45%, var(--cyan) 45%, var(--cyan) 55%, transparent 55%);
+    background-size:14px 14px;
+    filter:drop-shadow(0 0 4px rgba(62,198,224,0.6));
+  }
 </style>
 </head>
 <body>
@@ -666,7 +705,7 @@ function defaultState(){
     hiddenPenalties: [],
     hiddenShop: {abir:[], jade:[]},
     todos: {abir:[], jade:[]}, // {id,text} — plain to-do items, no points
-    boards: [], // {id, name, party, notes:[{id,text,color,x,y,todos:[{id,text,pts}]}]}
+    boards: [], // {id, name, party, sections:[{id,name,max}], notes:[{id,text,color,x,y,section,todos:[{id,text,pts,done}]}]}
     bets: [], // {id,title,stake,status,winner,ts}
     history: [] // {ts, party, delta, reason, key}
   };
@@ -879,13 +918,48 @@ function removeBoard(id){
   }
   saveState(); renderAll();
 }
-function addNote(boardId, text, color){
+function addNote(boardId, text, color, sectionId){
   const board = state.boards.find(b=>b.id===boardId);
   if(!board || !text) return;
-  const n = board.notes.length;
-  const x = 4 + (n % 4) * 23;
-  const y = 4 + Math.floor(n / 4) * 26;
-  board.notes.push({id:'note_'+Date.now(), text, color: color || NOTE_COLORS[n % NOTE_COLORS.length], x, y, todos: []});
+  const targetSection = sectionId || ((board.sections && board.sections.length) ? board.sections[0].id : null);
+  const siblings = board.notes.filter(n=>n.section===targetSection);
+  const n = siblings.length;
+  const x = 4 + (n % 3) * 30;
+  const y = 4 + Math.floor(n / 3) * 26;
+  board.notes.push({id:'note_'+Date.now(), text, color: color || NOTE_COLORS[board.notes.length % NOTE_COLORS.length], x, y, section: targetSection, todos: []});
+  saveState(); renderAll();
+}
+function addSection(boardId, name, max){
+  const board = state.boards.find(b=>b.id===boardId);
+  if(!board || !name) return;
+  if(!board.sections) board.sections = [];
+  const isFirst = board.sections.length === 0;
+  const sec = {id:'sec_'+Date.now(), name, max: (max && max>0) ? max : null};
+  board.sections.push(sec);
+  if(isFirst){
+    // migrate any pre-existing unsectioned notes into the first section so nothing gets hidden
+    board.notes.forEach(n=>{ if(!n.section) n.section = sec.id; });
+  }
+  saveState(); renderAll();
+}
+function removeSection(boardId, sectionId){
+  const board = state.boards.find(b=>b.id===boardId);
+  if(!board) return;
+  board.sections = (board.sections||[]).filter(s=>s.id!==sectionId);
+  const fallback = board.sections.length ? board.sections[0].id : null;
+  board.notes.forEach(n=>{ if(n.section===sectionId) n.section = fallback; });
+  saveState(); renderAll();
+}
+function setNoteSection(boardId, noteId, sectionId){
+  const board = state.boards.find(b=>b.id===boardId);
+  if(!board) return;
+  const note = board.notes.find(n=>n.id===noteId);
+  if(!note) return;
+  note.section = sectionId || null;
+  const siblings = board.notes.filter(n=>n.section===note.section && n.id!==note.id);
+  const c = siblings.length;
+  note.x = 6 + (c % 2) * 46;
+  note.y = 6 + Math.floor(c / 2) * 30;
   saveState(); renderAll();
 }
 function removeNote(boardId, noteId){
@@ -925,7 +999,7 @@ function addNoteTodo(boardId, noteId, text, pts){
   const note = board.notes.find(n=>n.id===noteId);
   if(!note || !text) return;
   if(!note.todos) note.todos = [];
-  note.todos.push({id:'ntd_'+Date.now(), text, pts: pts || 0});
+  note.todos.push({id:'ntd_'+Date.now(), text, pts: pts || 0, done: false});
   saveState(); renderAll();
 }
 function removeNoteTodo(boardId, noteId, todoId){
@@ -946,20 +1020,26 @@ function updateNoteTodoPts(boardId, noteId, todoId, val){
   todo.pts = parseInt(val,10) || 0;
   saveState();
 }
-function completeNoteTodo(boardId, noteId, todoId, ptsVal){
+function toggleNoteTodo(boardId, noteId, todoId, ptsVal, checked){
   const board = state.boards.find(b=>b.id===boardId);
   if(!board) return;
   const note = board.notes.find(n=>n.id===noteId);
   if(!note) return;
   const todo = (note.todos||[]).find(t=>t.id===todoId);
   if(!todo) return;
-  const pts = parseInt(ptsVal,10) || 0;
-  note.todos = (note.todos||[]).filter(t=>t.id!==todoId);
-  claim('note:'+noteId+':'+todoId, board.party, pts, todo.text);
+  if(checked && !todo.done){
+    const pts = parseInt(ptsVal,10) || 0;
+    todo.pts = pts;
+    todo.done = true;
+    claim('note:'+noteId+':'+todoId, board.party, pts, todo.text);
+  } else if(!checked && todo.done){
+    todo.done = false;
+    undoLast('note:'+noteId+':'+todoId, board.party);
+  }
 }
-function startNoteDrag(evt, boardId, noteId){
-  if(evt.target.closest('button') || evt.target.closest('input') || evt.target.closest('textarea')) return;
-  const canvas = document.getElementById('boardCanvas');
+function startNoteDrag(evt, boardId, noteId, canvasElId){
+  if(evt.target.closest('button') || evt.target.closest('input') || evt.target.closest('select') || evt.target.closest('textarea')) return;
+  const canvas = document.getElementById(canvasElId || 'boardCanvas');
   const noteEl = document.getElementById('note_'+noteId);
   if(!canvas || !noteEl) return;
   evt.preventDefault();
@@ -1554,21 +1634,30 @@ function escHtml(str){
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-function renderNote(boardId, note){
+function renderNote(board, note, canvasElId){
+  const boardId = board.id;
   const todos = note.todos || [];
   const todoRows = todos.length===0
     ? '<div class="empty-note" style="padding:4px 0;font-size:11.5px;">No checklist items yet.</div>'
-    : todos.map(t=>`<div class="note-todo-row">
-        <input class="note-pts-input" type="number" id="ntdpts_${t.id}" value="${t.pts||0}" onblur="__app.updateNoteTodoPts('${boardId}','${note.id}','${t.id}', this.value)">
+    : todos.map(t=>`<div class="note-todo-row${t.done?' done':''}">
+        <input type="checkbox" class="note-todo-check" ${t.done?'checked':''} onchange="__app.toggleNoteTodo('${boardId}','${note.id}','${t.id}', document.getElementById('ntdpts_${t.id}').value, this.checked)">
+        <input class="note-pts-input" type="number" id="ntdpts_${t.id}" value="${t.pts||0}" ${t.done?'disabled':''} onblur="__app.updateNoteTodoPts('${boardId}','${note.id}','${t.id}', this.value)">
         <span class="note-todo-text">${escHtml(t.text)}</span>
-        <button class="pill" style="border-color:${note.color};padding:5px 9px;font-size:11px;" title="Mark done and award these points" onclick="__app.completeNoteTodo('${boardId}','${note.id}','${t.id}', document.getElementById('ntdpts_${t.id}').value)">✓</button>
-        <button class="card-remove-btn" style="opacity:0.5;" title="Remove item (no points)" onclick="__app.removeNoteTodo('${boardId}','${note.id}','${t.id}')">✕</button>
+        ${t.done?'':`<button class="card-remove-btn" style="opacity:0.5;" title="Remove item (no points)" onclick="__app.removeNoteTodo('${boardId}','${note.id}','${t.id}')">✕</button>`}
       </div>`).join('');
   const swatches = NOTE_COLORS.map(c=>`<button type="button" title="Set color" onclick="__app.setNoteColor('${boardId}','${note.id}','${c}')" style="width:16px;height:16px;border-radius:50%;background:${c};border:2px solid ${note.color===c?'#fff':'rgba(255,255,255,0.15)'};cursor:pointer;padding:0;"></button>`).join('');
+  const sectionSelect = (board.sections && board.sections.length)
+    ? `<select class="note-pts-input" style="width:auto;padding:3px 4px;" title="Move to section" onchange="__app.setNoteSection('${boardId}','${note.id}', this.value)">
+        ${board.sections.map(s=>`<option value="${s.id}" ${note.section===s.id?'selected':''}>${escHtml(s.name)}</option>`).join('')}
+      </select>`
+    : '';
   return `<div class="matrix-note" id="note_${note.id}" style="--note-color:${note.color};left:${note.x||0}%;top:${note.y||0}%;">
-    <div class="note-drag-handle" onpointerdown="__app.startNoteDrag(event,'${boardId}','${note.id}')">
+    <div class="note-drag-handle" onpointerdown="__app.startNoteDrag(event,'${boardId}','${note.id}','${canvasElId}')">
       <span>⋮⋮ NOTE</span>
-      <button class="card-remove-btn" style="padding:2px 6px;color:var(--note-color);" title="Remove note" onclick="__app.removeNote('${boardId}','${note.id}')">✕</button>
+      <span style="display:flex;align-items:center;gap:4px;">
+        ${sectionSelect}
+        <button class="card-remove-btn" style="padding:2px 6px;color:var(--note-color);" title="Remove note" onclick="__app.removeNote('${boardId}','${note.id}')">✕</button>
+      </span>
     </div>
     <textarea class="matrix-note-text" onblur="__app.updateNoteText('${boardId}','${note.id}', this.value)" placeholder="Write something...">${escHtml(note.text)}</textarea>
     <div class="matrix-note-swatches">${swatches}</div>
@@ -1623,17 +1712,61 @@ function renderBoards(){
   }
 
   const board = ownerBoards.find(b=>b.id===activeBoardId);
-  const notesHtml = board.notes.length===0
-    ? '<div class="empty-note" style="padding:20px;">No sticky notes here yet — pin one below.</div>'
-    : board.notes.map(n=>renderNote(board.id, n)).join('');
+  const sections = board.sections || [];
+
+  let bodyHtml;
+  if(sections.length === 0){
+    const notesHtml = board.notes.length===0
+      ? '<div class="empty-note" style="padding:20px;">No sticky notes here yet — pin one below.</div>'
+      : board.notes.map(n=>renderNote(board, n, 'boardCanvas')).join('');
+    bodyHtml = `<div class="matrix-canvas" id="boardCanvas" style="--owner-color:${ownerColorVar};">${notesHtml}</div>`;
+  } else {
+    const laneHtml = sections.map((sec,i)=>{
+      const secNotes = board.notes.filter(n=>n.section===sec.id);
+      const count = secNotes.length;
+      const over = sec.max && count > sec.max;
+      const canvasId = 'sectionCanvas_'+sec.id;
+      const notesInner = secNotes.length===0
+        ? '<div class="empty-note" style="padding:16px;">No notes yet.</div>'
+        : secNotes.map(n=>renderNote(board, n, canvasId)).join('');
+      const divider = i>0 ? '<div class="section-divider"></div>' : '';
+      return divider + `<div class="section-lane">
+        <div class="section-lane-header">
+          <span class="section-lane-name">${escHtml(sec.name)}</span>
+          <span style="display:flex;align-items:center;gap:8px;">
+            <span class="section-lane-max${over?' over':''}">${sec.max?(count+'/'+sec.max):count}</span>
+            <button class="card-remove-btn" style="padding:2px 6px;" title="Remove section" onclick="__app.removeSection('${board.id}','${sec.id}')">✕</button>
+          </span>
+        </div>
+        <div class="section-lane-canvas" id="${canvasId}" style="--owner-color:${ownerColorVar};">${notesInner}</div>
+      </div>`;
+    }).join('');
+    bodyHtml = `<div class="section-lanes" style="--owner-color:${ownerColorVar};">${laneHtml}</div>`;
+  }
+
+  const addSectionForm = `<details class="add-details" style="margin-top:0;margin-bottom:14px;">
+    <summary>+ Add section</summary>
+    <div class="bet-form" style="margin-top:10px;">
+      <input id="newSectionName_${board.id}" placeholder="Section name (e.g. In Progress)">
+      <input id="newSectionMax_${board.id}" type="number" placeholder="Max (optional)" style="max-width:110px;">
+      <button class="btn-flame" onclick="__app.addSection('${board.id}')">Add</button>
+    </div>
+  </details>`;
+
+  const sectionPicker = sections.length
+    ? `<select id="newNoteSection_${board.id}" style="background:var(--glass-light);border:1px solid var(--border-glass);color:var(--text);padding:9px 10px;font-family:'Inter',sans-serif;font-size:13px;border-radius:3px;">
+        ${sections.map(s=>`<option value="${s.id}">${escHtml(s.name)}</option>`).join('')}
+      </select>`
+    : '';
 
   const newNoteForm = `<details class="add-details" style="margin-top:12px;">
     <summary>+ New sticky note</summary>
     <div style="margin-top:10px;">
       <textarea id="newNoteText_${board.id}" placeholder="Write something..." style="width:100%;min-height:60px;background:var(--glass-light);border:1px solid var(--border-glass);color:var(--text);padding:8px;font-family:'Inter',sans-serif;font-size:13px;border-radius:3px;resize:vertical;"></textarea>
       <input type="hidden" id="newNoteColor_${board.id}" value="${NOTE_COLORS[0]}">
-      <div style="display:flex;gap:6px;margin:8px 0;">
+      <div style="display:flex;gap:6px;margin:8px 0;align-items:center;flex-wrap:wrap;">
         ${NOTE_COLORS.map((c,i)=>`<button type="button" onclick="document.getElementById('newNoteColor_${board.id}').value='${c}'" style="width:20px;height:20px;border-radius:50%;background:${c};border:2px solid ${i===0?'var(--flame)':'var(--border-glass)'};cursor:pointer;"></button>`).join('')}
+        ${sectionPicker}
       </div>
       <button class="btn-flame" onclick="__app.addNote('${board.id}')">Pin Note</button>
     </div>
@@ -1644,7 +1777,8 @@ function renderBoards(){
     ${ownerRow}
     ${newBoardForm}
     <div class="board-tabs">${boardTabs}</div>
-    <div class="matrix-canvas" id="boardCanvas" style="--owner-color:${ownerColorVar};">${notesHtml}</div>
+    ${addSectionForm}
+    ${bodyHtml}
     ${newNoteForm}
   `;
 }
@@ -1785,9 +1919,10 @@ const __app = {
   addNote(boardId){
     const textEl = document.getElementById('newNoteText_'+boardId);
     const colorEl = document.getElementById('newNoteColor_'+boardId);
+    const sectionEl = document.getElementById('newNoteSection_'+boardId);
     const text = textEl.value.trim();
     if(!text){ alert('Write something on the note first.'); return; }
-    addNote(boardId, text, colorEl.value);
+    addNote(boardId, text, colorEl.value, sectionEl ? sectionEl.value : null);
   },
   removeNote(boardId, noteId){ removeNote(boardId, noteId); },
   updateNoteText(boardId, noteId, text){ updateNoteText(boardId, noteId, text); },
@@ -1795,8 +1930,21 @@ const __app = {
   addNoteTodo(boardId, noteId, text, pts){ addNoteTodo(boardId, noteId, (text||'').trim(), pts||0); },
   removeNoteTodo(boardId, noteId, todoId){ removeNoteTodo(boardId, noteId, todoId); },
   updateNoteTodoPts(boardId, noteId, todoId, val){ updateNoteTodoPts(boardId, noteId, todoId, val); },
-  completeNoteTodo(boardId, noteId, todoId, ptsVal){ completeNoteTodo(boardId, noteId, todoId, ptsVal); },
-  startNoteDrag(evt, boardId, noteId){ startNoteDrag(evt, boardId, noteId); },
+  toggleNoteTodo(boardId, noteId, todoId, ptsVal, checked){ toggleNoteTodo(boardId, noteId, todoId, ptsVal, checked); },
+  startNoteDrag(evt, boardId, noteId, canvasElId){ startNoteDrag(evt, boardId, noteId, canvasElId); },
+  addSection(boardId){
+    const nameEl = document.getElementById('newSectionName_'+boardId);
+    const maxEl = document.getElementById('newSectionMax_'+boardId);
+    const name = nameEl.value.trim();
+    const max = parseInt(maxEl.value,10) || null;
+    if(!name){ alert('Give the section a name.'); return; }
+    addSection(boardId, name, max);
+  },
+  removeSection(boardId, sectionId){
+    if(!confirm('Remove this section? Its notes will move into another section (or become unsectioned).')) return;
+    removeSection(boardId, sectionId);
+  },
+  setNoteSection(boardId, noteId, sectionId){ setNoteSection(boardId, noteId, sectionId); },
   addBet(){
     const title = document.getElementById('betTitle').value.trim();
     const stake = parseInt(document.getElementById('betStake').value,10);
