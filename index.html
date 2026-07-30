@@ -178,15 +178,18 @@
 
   /* ---------- TABS ---------- */
   .tabs{
-    display:flex;gap:4px;margin-bottom:20px;flex-wrap:wrap;position:relative;
+    display:flex;gap:4px;margin-bottom:20px;flex-wrap:nowrap;overflow-x:auto;position:relative;
     background:var(--glass-light);border:1px solid var(--border-glass);padding:5px;border-radius:4px;
     backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    scrollbar-width:thin;
   }
+  .tabs::-webkit-scrollbar{height:6px;}
+  .tabs::-webkit-scrollbar-thumb{background:var(--panel-light);border-radius:3px;}
   .tab-btn{
     font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13.5px;letter-spacing:1px;
     text-transform:uppercase;background:transparent;border:1px solid transparent;
     color:var(--text-muted);padding:9px 16px;cursor:pointer;border-radius:3px;
-    transition:all .18s ease;position:relative;
+    transition:all .18s ease;position:relative;white-space:nowrap;flex-shrink:0;
   }
   .tab-btn:hover{color:var(--text);}
   .tab-btn.active{
@@ -337,37 +340,97 @@
   .add-details[open] summary{color:var(--flame);border-color:var(--flame-dim);margin-bottom:2px;}
 
   /* ---------- THOUGHT BOARDS ---------- */
-  .board-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+  .board-owner-row{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    flex-wrap:nowrap;margin-bottom:12px;
+  }
+  .owner-toggle{
+    display:flex;gap:6px;background:var(--glass-light);border:1px solid var(--border-glass);
+    padding:4px;border-radius:4px;flex-shrink:0;overflow-x:auto;scrollbar-width:none;
+  }
+  .owner-toggle::-webkit-scrollbar{display:none;}
+  .owner-btn{
+    font-family:'Rajdhani',sans-serif;font-weight:600;font-size:12.5px;letter-spacing:0.5px;
+    text-transform:uppercase;background:transparent;border:1px solid transparent;color:var(--text-muted);
+    padding:8px 16px;cursor:pointer;border-radius:3px;transition:all .15s ease;white-space:nowrap;flex-shrink:0;
+  }
+  .owner-btn:hover{color:var(--text);}
+  .owner-btn.active{
+    color:#0A0C0F;background:linear-gradient(135deg,var(--owner-color,var(--flame)),#ffffff55);
+    box-shadow:0 3px 12px rgba(0,0,0,0.35),0 0 14px -4px var(--owner-color,var(--flame));
+  }
+
+  .board-tabs{
+    display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;margin-bottom:14px;
+    padding:2px 2px 8px;scrollbar-width:thin;
+  }
+  .board-tabs::-webkit-scrollbar{height:6px;}
+  .board-tabs::-webkit-scrollbar-thumb{background:var(--panel-light);border-radius:3px;}
   .board-tab{
-    font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;letter-spacing:0.5px;
+    font-family:'Rajdhani',sans-serif;font-weight:600;font-size:12.5px;letter-spacing:0.5px;
     text-transform:uppercase;background:var(--glass-light);border:1px solid var(--border-glass);
     color:var(--text-muted);padding:7px 14px;cursor:pointer;border-radius:3px;transition:all .15s ease;
+    white-space:nowrap;flex-shrink:0;
   }
   .board-tab:hover{color:var(--text);border-color:var(--flame-dim);}
-  .board-tab.active{background:linear-gradient(135deg,var(--flame),#ff7e45);color:#0A0C0F;border-color:transparent;box-shadow:0 3px 12px rgba(255,90,31,0.35);}
-
-  .sticky-board{column-count:3;column-gap:16px;}
-  @media (max-width:900px){.sticky-board{column-count:2;}}
-  @media (max-width:600px){.sticky-board{column-count:1;}}
-
-  .sticky-note{
-    display:inline-block;width:100%;break-inside:avoid;margin-bottom:16px;
-    border-radius:2px;padding:14px 14px 10px;position:relative;
-    box-shadow:0 6px 18px rgba(0,0,0,0.35),0 1px 0 rgba(255,255,255,0.15) inset;
-    transform:rotate(var(--tilt,0deg));transition:transform .15s ease,box-shadow .15s ease;
-    color:#14171D;
+  .board-tab.active{
+    background:linear-gradient(135deg,var(--owner-color,var(--flame)),#ff7e45);color:#0A0C0F;
+    border-color:transparent;box-shadow:0 3px 12px rgba(255,90,31,0.35);
   }
-  .sticky-note:nth-child(3n+1){--tilt:-1.2deg;}
-  .sticky-note:nth-child(3n+2){--tilt:0.8deg;}
-  .sticky-note:nth-child(3n+3){--tilt:-0.4deg;}
-  .sticky-note:hover{transform:rotate(0deg) translateY(-2px);box-shadow:0 10px 26px rgba(0,0,0,0.45),0 1px 0 rgba(255,255,255,0.15) inset;}
-  .sticky-note:hover .card-remove-btn{opacity:1;}
-  .sticky-note-text{
-    width:100%;min-height:70px;background:transparent;border:none;resize:vertical;
-    font-family:'Inter',sans-serif;font-size:13.5px;color:#14171D;padding:0;margin-bottom:8px;
+
+  .matrix-canvas{
+    position:relative;min-height:560px;border:1px solid var(--border-glass);
+    border-top:2px solid var(--owner-color,var(--flame));border-radius:4px;overflow:auto;
+    background-color:#0A0D11;
+    background-image:
+      linear-gradient(rgba(62,198,224,0.10) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(62,198,224,0.10) 1px, transparent 1px),
+      linear-gradient(rgba(62,198,224,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(62,198,224,0.04) 1px, transparent 1px);
+    background-size:120px 120px,120px 120px,24px 24px,24px 24px;
+    box-shadow:inset 0 0 60px rgba(0,0,0,0.6);
   }
-  .sticky-note-text:focus{outline:none;}
-  .sticky-note-swatches{display:flex;gap:5px;margin-bottom:8px;}
+  .matrix-canvas::before,.matrix-canvas::after{
+    content:'';position:absolute;width:22px;height:22px;pointer-events:none;
+    border-color:var(--owner-color,var(--flame));opacity:0.65;
+  }
+  .matrix-canvas::before{top:8px;left:8px;border-top:2px solid;border-left:2px solid;}
+  .matrix-canvas::after{bottom:8px;right:8px;border-bottom:2px solid;border-right:2px solid;}
+
+  .matrix-note{
+    position:absolute;width:230px;
+    background:linear-gradient(160deg,rgba(28,32,40,0.95),rgba(12,14,18,0.96));
+    border:1px solid var(--note-color,var(--cyan));border-radius:3px;
+    box-shadow:0 8px 24px rgba(0,0,0,0.5),0 0 16px -6px var(--note-color,var(--cyan));
+    padding:0 12px 12px;transition:box-shadow .15s ease;
+  }
+  .matrix-note.dragging{
+    box-shadow:0 18px 44px rgba(0,0,0,0.6),0 0 26px -2px var(--note-color,var(--cyan));z-index:60;
+  }
+  .note-drag-handle{
+    display:flex;align-items:center;justify-content:space-between;
+    margin:0 -12px 8px;padding:6px 12px;cursor:grab;touch-action:none;
+    border-bottom:1px solid rgba(255,255,255,0.08);
+    color:var(--note-color,var(--cyan));font-family:'Share Tech Mono',monospace;font-size:10.5px;letter-spacing:2px;
+  }
+  .note-drag-handle:active{cursor:grabbing;}
+  .matrix-note-text{
+    width:100%;min-height:64px;background:rgba(255,255,255,0.03);border:1px solid var(--border-glass);
+    border-radius:3px;resize:vertical;font-family:'Inter',sans-serif;font-size:13px;color:var(--text);
+    padding:8px;margin-bottom:8px;
+  }
+  .matrix-note-text:focus{outline:none;border-color:var(--note-color,var(--cyan));}
+  .matrix-note-swatches{display:flex;gap:5px;margin-bottom:8px;}
+  .note-todo-row{
+    display:flex;align-items:center;gap:6px;font-size:12.5px;padding:5px 0;
+    border-bottom:1px solid rgba(255,255,255,0.06);
+  }
+  .note-todo-row:last-of-type{border-bottom:none;}
+  .note-todo-text{flex:1;color:var(--text);word-break:break-word;}
+  .note-pts-input{
+    width:56px;background:rgba(255,255,255,0.04);border:1px solid var(--border-glass);color:var(--text);
+    padding:4px 5px;font-family:'Share Tech Mono',monospace;font-size:11px;border-radius:3px;
+  }
 </style>
 </head>
 <body>
@@ -587,6 +650,7 @@ const STORAGE_KEY = 'apex_tracker_state';
 let state = null;
 let activeTab = 'daily';
 let activeBoardId = null; // client-side only — which board you're viewing, not synced
+let activeBoardOwner = 'abir'; // client-side only — whose set of boards you're viewing
 
 function defaultState(){
   return {
@@ -602,7 +666,7 @@ function defaultState(){
     hiddenPenalties: [],
     hiddenShop: {abir:[], jade:[]},
     todos: {abir:[], jade:[]}, // {id,text} — plain to-do items, no points
-    boards: [], // {id, name, notes:[{id,text,color,todos:[{id,text}]}]}
+    boards: [], // {id, name, party, notes:[{id,text,color,x,y,todos:[{id,text,pts}]}]}
     bets: [], // {id,title,stake,status,winner,ts}
     history: [] // {ts, party, delta, reason, key}
   };
@@ -796,24 +860,32 @@ function completeTodoItem(party, id){
   saveState(); renderAll();
 }
 
-const NOTE_COLORS = ['#FFD966','#74C0FC','#D0A8FF','#FFA94D','#63E6E2','#FF9FB2'];
+const NOTE_COLORS = ['#3EC6E0','#B463FF','#FFC94A','#FF5A1F','#4CD97B','#FF5252'];
 
-function addBoard(name){
+function addBoard(name, party){
   if(!name) return;
-  const board = {id:'board_'+Date.now(), name, notes: []};
+  const board = {id:'board_'+Date.now(), name, party: party || 'abir', notes: []};
   state.boards.push(board);
   activeBoardId = board.id;
   saveState(); renderAll();
 }
 function removeBoard(id){
+  const removed = state.boards.find(b=>b.id===id);
   state.boards = state.boards.filter(b=>b.id!==id);
-  if(activeBoardId === id) activeBoardId = state.boards.length ? state.boards[0].id : null;
+  if(activeBoardId === id){
+    const owner = removed ? removed.party : activeBoardOwner;
+    const remaining = state.boards.filter(b=>b.party===owner);
+    activeBoardId = remaining.length ? remaining[0].id : null;
+  }
   saveState(); renderAll();
 }
 function addNote(boardId, text, color){
   const board = state.boards.find(b=>b.id===boardId);
   if(!board || !text) return;
-  board.notes.push({id:'note_'+Date.now(), text, color: color || NOTE_COLORS[0], todos: []});
+  const n = board.notes.length;
+  const x = 4 + (n % 4) * 23;
+  const y = 4 + Math.floor(n / 4) * 26;
+  board.notes.push({id:'note_'+Date.now(), text, color: color || NOTE_COLORS[n % NOTE_COLORS.length], x, y, todos: []});
   saveState(); renderAll();
 }
 function removeNote(boardId, noteId){
@@ -838,13 +910,22 @@ function setNoteColor(boardId, noteId, color){
   note.color = color;
   saveState(); renderAll();
 }
-function addNoteTodo(boardId, noteId, text){
+function setNotePosition(boardId, noteId, xPct, yPct){
+  const board = state.boards.find(b=>b.id===boardId);
+  if(!board) return;
+  const note = board.notes.find(n=>n.id===noteId);
+  if(!note) return;
+  note.x = Math.max(0, Math.min(100, xPct));
+  note.y = Math.max(0, Math.min(100, yPct));
+  saveState();
+}
+function addNoteTodo(boardId, noteId, text, pts){
   const board = state.boards.find(b=>b.id===boardId);
   if(!board) return;
   const note = board.notes.find(n=>n.id===noteId);
   if(!note || !text) return;
   if(!note.todos) note.todos = [];
-  note.todos.push({id:'ntd_'+Date.now(), text});
+  note.todos.push({id:'ntd_'+Date.now(), text, pts: pts || 0});
   saveState(); renderAll();
 }
 function removeNoteTodo(boardId, noteId, todoId){
@@ -854,6 +935,59 @@ function removeNoteTodo(boardId, noteId, todoId){
   if(!note) return;
   note.todos = (note.todos||[]).filter(t=>t.id!==todoId);
   saveState(); renderAll();
+}
+function updateNoteTodoPts(boardId, noteId, todoId, val){
+  const board = state.boards.find(b=>b.id===boardId);
+  if(!board) return;
+  const note = board.notes.find(n=>n.id===noteId);
+  if(!note) return;
+  const todo = (note.todos||[]).find(t=>t.id===todoId);
+  if(!todo) return;
+  todo.pts = parseInt(val,10) || 0;
+  saveState();
+}
+function completeNoteTodo(boardId, noteId, todoId, ptsVal){
+  const board = state.boards.find(b=>b.id===boardId);
+  if(!board) return;
+  const note = board.notes.find(n=>n.id===noteId);
+  if(!note) return;
+  const todo = (note.todos||[]).find(t=>t.id===todoId);
+  if(!todo) return;
+  const pts = parseInt(ptsVal,10) || 0;
+  note.todos = (note.todos||[]).filter(t=>t.id!==todoId);
+  claim('note:'+noteId+':'+todoId, board.party, pts, todo.text);
+}
+function startNoteDrag(evt, boardId, noteId){
+  if(evt.target.closest('button') || evt.target.closest('input') || evt.target.closest('textarea')) return;
+  const canvas = document.getElementById('boardCanvas');
+  const noteEl = document.getElementById('note_'+noteId);
+  if(!canvas || !noteEl) return;
+  evt.preventDefault();
+  const startLeft = noteEl.offsetLeft;
+  const startTop = noteEl.offsetTop;
+  const startX = evt.clientX;
+  const startY = evt.clientY;
+  noteEl.classList.add('dragging');
+  function onMove(ev){
+    const dx = ev.clientX - startX;
+    const dy = ev.clientY - startY;
+    let left = startLeft + dx;
+    let top = startTop + dy;
+    left = Math.max(0, Math.min(left, Math.max(0, canvas.clientWidth - noteEl.offsetWidth)));
+    top = Math.max(0, Math.min(top, Math.max(0, canvas.clientHeight - noteEl.offsetHeight)));
+    noteEl.style.left = left+'px';
+    noteEl.style.top = top+'px';
+  }
+  function onUp(){
+    document.removeEventListener('pointermove', onMove);
+    document.removeEventListener('pointerup', onUp);
+    noteEl.classList.remove('dragging');
+    const xPct = (noteEl.offsetLeft / canvas.clientWidth) * 100;
+    const yPct = (noteEl.offsetTop / canvas.clientHeight) * 100;
+    setNotePosition(boardId, noteId, xPct, yPct);
+  }
+  document.addEventListener('pointermove', onMove);
+  document.addEventListener('pointerup', onUp);
 }
 
 function fireConfetti(winnerParty){
@@ -1423,23 +1557,29 @@ function escHtml(str){
 function renderNote(boardId, note){
   const todos = note.todos || [];
   const todoRows = todos.length===0
-    ? ''
-    : todos.map(t=>`<label class="todo-row" style="border-color:rgba(0,0,0,0.15);">
-        <input type="checkbox" style="accent-color:#0A0C0F;" onchange="__app.removeNoteTodo('${boardId}','${note.id}','${t.id}')">
-        <span>${escHtml(t.text)}</span>
-      </label>`).join('');
-  const swatches = NOTE_COLORS.map(c=>`<button type="button" title="Set color" onclick="__app.setNoteColor('${boardId}','${note.id}','${c}')" style="width:16px;height:16px;border-radius:50%;background:${c};border:2px solid ${note.color===c?'#0A0C0F':'rgba(0,0,0,0.15)'};cursor:pointer;padding:0;"></button>`).join('');
-  return `<div class="sticky-note" style="background:${note.color};">
-    <button class="card-remove-btn" data-remove="__app.removeNote('${boardId}','${note.id}')" title="Remove note" style="position:absolute;top:4px;right:4px;color:rgba(0,0,0,0.5);">⋯</button>
-    <textarea class="sticky-note-text" onblur="__app.updateNoteText('${boardId}','${note.id}', this.value)" placeholder="Write something...">${escHtml(note.text)}</textarea>
-    <div class="sticky-note-swatches">${swatches}</div>
-    <details class="add-details" style="border-color:rgba(0,0,0,0.25);">
-      <summary style="color:rgba(0,0,0,0.65);border-color:rgba(0,0,0,0.25);">+ Checklist${todos.length?' ('+todos.length+')':''}</summary>
+    ? '<div class="empty-note" style="padding:4px 0;font-size:11.5px;">No checklist items yet.</div>'
+    : todos.map(t=>`<div class="note-todo-row">
+        <input class="note-pts-input" type="number" id="ntdpts_${t.id}" value="${t.pts||0}" onblur="__app.updateNoteTodoPts('${boardId}','${note.id}','${t.id}', this.value)">
+        <span class="note-todo-text">${escHtml(t.text)}</span>
+        <button class="pill" style="border-color:${note.color};padding:5px 9px;font-size:11px;" title="Mark done and award these points" onclick="__app.completeNoteTodo('${boardId}','${note.id}','${t.id}', document.getElementById('ntdpts_${t.id}').value)">✓</button>
+        <button class="card-remove-btn" style="opacity:0.5;" title="Remove item (no points)" onclick="__app.removeNoteTodo('${boardId}','${note.id}','${t.id}')">✕</button>
+      </div>`).join('');
+  const swatches = NOTE_COLORS.map(c=>`<button type="button" title="Set color" onclick="__app.setNoteColor('${boardId}','${note.id}','${c}')" style="width:16px;height:16px;border-radius:50%;background:${c};border:2px solid ${note.color===c?'#fff':'rgba(255,255,255,0.15)'};cursor:pointer;padding:0;"></button>`).join('');
+  return `<div class="matrix-note" id="note_${note.id}" style="--note-color:${note.color};left:${note.x||0}%;top:${note.y||0}%;">
+    <div class="note-drag-handle" onpointerdown="__app.startNoteDrag(event,'${boardId}','${note.id}')">
+      <span>⋮⋮ NOTE</span>
+      <button class="card-remove-btn" style="padding:2px 6px;color:var(--note-color);" title="Remove note" onclick="__app.removeNote('${boardId}','${note.id}')">✕</button>
+    </div>
+    <textarea class="matrix-note-text" onblur="__app.updateNoteText('${boardId}','${note.id}', this.value)" placeholder="Write something...">${escHtml(note.text)}</textarea>
+    <div class="matrix-note-swatches">${swatches}</div>
+    <details class="add-details" style="border-color:rgba(255,255,255,0.15);">
+      <summary style="color:var(--text-muted);border-color:rgba(255,255,255,0.15);">+ Checklist${todos.length?' ('+todos.length+')':''}</summary>
       <div style="margin-top:8px;">
         ${todoRows}
         <div class="bet-form" style="margin-top:6px;margin-bottom:0;">
-          <input id="noteTodo_${note.id}" placeholder="Add item" style="background:rgba(255,255,255,0.5);border-color:rgba(0,0,0,0.2);color:#14171D;">
-          <button class="btn-flame" onclick="__app.addNoteTodo('${boardId}','${note.id}', document.getElementById('noteTodo_${note.id}').value.trim()); document.getElementById('noteTodo_${note.id}').value='';">Add</button>
+          <input id="noteTodoText_${note.id}" placeholder="Item">
+          <input id="noteTodoPts_${note.id}" type="number" placeholder="Pts" style="max-width:70px;">
+          <button class="btn-flame" onclick="__app.addNoteTodo('${boardId}','${note.id}', document.getElementById('noteTodoText_${note.id}').value.trim(), parseInt(document.getElementById('noteTodoPts_${note.id}').value,10)||0); document.getElementById('noteTodoText_${note.id}').value=''; document.getElementById('noteTodoPts_${note.id}').value='';">Add</button>
         </div>
       </div>
     </details>
@@ -1447,37 +1587,47 @@ function renderNote(boardId, note){
 }
 
 function renderBoards(){
-  if(!activeBoardId || !state.boards.find(b=>b.id===activeBoardId)){
-    activeBoardId = state.boards.length ? state.boards[0].id : null;
+  if(!['abir','jade'].includes(activeBoardOwner)) activeBoardOwner = 'abir';
+  const ownerBoards = state.boards.filter(b=>b.party===activeBoardOwner);
+  if(!activeBoardId || !ownerBoards.find(b=>b.id===activeBoardId)){
+    activeBoardId = ownerBoards.length ? ownerBoards[0].id : null;
   }
+  const ownerColorVar = activeBoardOwner==='abir' ? 'var(--abir-accent)' : 'var(--jade-accent)';
 
-  const boardTabs = state.boards.map(b=>`
-    <button class="board-tab removable ${b.id===activeBoardId?'active':''}" data-remove="__app.removeBoard('${b.id}')" onclick="__app.selectBoard('${b.id}')">${escHtml(b.name)}</button>
-  `).join('');
+  const ownerRow = `<div class="board-owner-row">
+    <div class="owner-toggle">
+      <button class="owner-btn ${activeBoardOwner==='abir'?'active':''}" style="--owner-color:var(--abir-accent);" onclick="__app.selectBoardOwner('abir')">${escHtml(state.names.abir)}'s Boards</button>
+      <button class="owner-btn ${activeBoardOwner==='jade'?'active':''}" style="--owner-color:var(--jade-accent);" onclick="__app.selectBoardOwner('jade')">${escHtml(state.names.jade)}'s Boards</button>
+    </div>
+  </div>`;
 
-  const newBoardForm = `<details class="add-details">
-    <summary>+ New board</summary>
+  const newBoardForm = `<details class="add-details" style="margin-top:0;margin-bottom:14px;">
+    <summary>+ New board for ${escHtml(state.names[activeBoardOwner])}</summary>
     <div class="bet-form" style="margin-top:10px;">
       <input id="newBoardName" placeholder="Board name">
       <button class="btn-flame" onclick="__app.addBoard()">Create</button>
     </div>
   </details>`;
 
+  const boardTabs = ownerBoards.map(b=>`
+    <button class="board-tab removable ${b.id===activeBoardId?'active':''}" style="--owner-color:${ownerColorVar};" data-remove="__app.removeBoard('${b.id}')" onclick="__app.selectBoard('${b.id}')">${escHtml(b.name)}</button>
+  `).join('');
+
   if(!activeBoardId){
     return `
       <div class="panel-title">Thought Boards</div>
-      <div class="board-tabs">${boardTabs}</div>
+      ${ownerRow}
       ${newBoardForm}
-      <div class="empty-note">No boards yet — create one above to start pinning notes.</div>
+      <div class="empty-note">No boards yet for ${escHtml(state.names[activeBoardOwner])} — create one above to start pinning notes.</div>
     `;
   }
 
-  const board = state.boards.find(b=>b.id===activeBoardId);
+  const board = ownerBoards.find(b=>b.id===activeBoardId);
   const notesHtml = board.notes.length===0
-    ? '<div class="empty-note">No sticky notes here yet.</div>'
-    : `<div class="sticky-board">${board.notes.map(n=>renderNote(board.id, n)).join('')}</div>`;
+    ? '<div class="empty-note" style="padding:20px;">No sticky notes here yet — pin one below.</div>'
+    : board.notes.map(n=>renderNote(board.id, n)).join('');
 
-  const newNoteForm = `<details class="add-details">
+  const newNoteForm = `<details class="add-details" style="margin-top:12px;">
     <summary>+ New sticky note</summary>
     <div style="margin-top:10px;">
       <textarea id="newNoteText_${board.id}" placeholder="Write something..." style="width:100%;min-height:60px;background:var(--glass-light);border:1px solid var(--border-glass);color:var(--text);padding:8px;font-family:'Inter',sans-serif;font-size:13px;border-radius:3px;resize:vertical;"></textarea>
@@ -1491,11 +1641,11 @@ function renderBoards(){
 
   return `
     <div class="panel-title">Thought Boards</div>
-    <div class="board-tabs">${boardTabs}</div>
+    ${ownerRow}
     ${newBoardForm}
-    <div class="panel-title" style="margin-top:20px;">${escHtml(board.name)}</div>
+    <div class="board-tabs">${boardTabs}</div>
+    <div class="matrix-canvas" id="boardCanvas" style="--owner-color:${ownerColorVar};">${notesHtml}</div>
     ${newNoteForm}
-    <div style="margin-top:14px;">${notesHtml}</div>
   `;
 }
 
@@ -1627,10 +1777,11 @@ const __app = {
     const input = document.getElementById('newBoardName');
     const name = input.value.trim();
     if(!name){ alert('Give the board a name.'); return; }
-    addBoard(name);
+    addBoard(name, activeBoardOwner);
   },
   removeBoard(id){ removeBoard(id); },
   selectBoard(id){ activeBoardId = id; renderContent(); },
+  selectBoardOwner(party){ activeBoardOwner = party; activeBoardId = null; renderContent(); },
   addNote(boardId){
     const textEl = document.getElementById('newNoteText_'+boardId);
     const colorEl = document.getElementById('newNoteColor_'+boardId);
@@ -1641,8 +1792,11 @@ const __app = {
   removeNote(boardId, noteId){ removeNote(boardId, noteId); },
   updateNoteText(boardId, noteId, text){ updateNoteText(boardId, noteId, text); },
   setNoteColor(boardId, noteId, color){ setNoteColor(boardId, noteId, color); },
-  addNoteTodo(boardId, noteId, text){ addNoteTodo(boardId, noteId, (text||'').trim()); },
+  addNoteTodo(boardId, noteId, text, pts){ addNoteTodo(boardId, noteId, (text||'').trim(), pts||0); },
   removeNoteTodo(boardId, noteId, todoId){ removeNoteTodo(boardId, noteId, todoId); },
+  updateNoteTodoPts(boardId, noteId, todoId, val){ updateNoteTodoPts(boardId, noteId, todoId, val); },
+  completeNoteTodo(boardId, noteId, todoId, ptsVal){ completeNoteTodo(boardId, noteId, todoId, ptsVal); },
+  startNoteDrag(evt, boardId, noteId){ startNoteDrag(evt, boardId, noteId); },
   addBet(){
     const title = document.getElementById('betTitle').value.trim();
     const stake = parseInt(document.getElementById('betStake').value,10);
