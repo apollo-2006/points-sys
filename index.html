@@ -63,9 +63,7 @@
   ::-webkit-scrollbar-track{background:var(--void);}
   ::-webkit-scrollbar-thumb{background:var(--panel-light);border-radius:5px;border:2px solid var(--void);}
   ::-webkit-scrollbar-thumb:hover{background:var(--flame-dim);}
-
   .wrap{max-width:1360px;margin:0 auto;padding:24px 16px 60px;position:relative;z-index:1;}
-
   /* ---------- HEADER ---------- */
   .topbar{
     display:flex;justify-content:space-between;align-items:flex-end;
@@ -106,7 +104,6 @@
   .lead-diff{
     font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-muted);margin-top:1px;
   }
-
   .shared-note{
     font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-muted);
     background:var(--glass-light);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
@@ -114,11 +111,9 @@
     display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;
   }
   .shared-note b{color:var(--cyan);}
-
   /* ---------- EVO BANNERS ---------- */
   .banners{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:22px;}
   @media (max-width:560px){.banners{grid-template-columns:1fr;}}
-
   .banner{
     position:relative;
     background:linear-gradient(160deg,var(--glass-light),var(--glass));
@@ -175,7 +170,6 @@
   .evo-track{height:6px;background:rgba(0,0,0,0.5);border:1px solid var(--border-glass);position:relative;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,0.7);border-radius:3px;}
   .evo-fill{height:100%;background:linear-gradient(90deg,var(--tier-color,var(--cyan)),rgba(255,255,255,0.5));transition:width .6s ease;
     box-shadow:0 0 10px var(--tier-color,var(--cyan));border-radius:3px;}
-
   /* ---------- TABS ---------- */
   .tabs{
     display:flex;gap:4px;margin-bottom:20px;flex-wrap:nowrap;overflow-x:auto;position:relative;
@@ -195,14 +189,12 @@
     background:linear-gradient(135deg,var(--flame),#ff7e45);color:#0A0C0F;
     box-shadow:0 4px 16px rgba(255,90,31,0.45);
   }
-
   /* ---------- CONTENT ---------- */
   .panel-title{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;
     letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin:24px 0 12px;}
   .panel-title:first-child{margin-top:0;}
   .col2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
   @media (max-width:640px){.col2{grid-template-columns:1fr;}}
-
   .card{
     background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
     border:1px solid var(--border-glass);border-left:2px solid transparent;
@@ -217,7 +209,6 @@
   .card-pts.neg{color:var(--danger);}
   .card-pts.pos{color:var(--success);}
   .card-actions{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
-
   .pill{
     font-family:'Rajdhani',sans-serif;font-weight:600;font-size:12.5px;letter-spacing:0.5px;
     text-transform:uppercase;border:1px solid var(--border-glass);background:var(--glass-light);
@@ -233,7 +224,7 @@
   .pill.danger:hover:not(:disabled){border-color:var(--danger);color:var(--danger);box-shadow:0 0 12px rgba(255,82,82,0.3);}
   .pill.ghost{background:none;color:var(--text-muted);padding:7px 9px;font-size:14px;}
   .pill.ghost:hover:not(:disabled){color:var(--danger);border-color:var(--danger);}
-
+  .pill.on{border-color:var(--flame);color:var(--flame);background:rgba(255,90,31,0.12);}
   .card-remove-btn{
     background:none;border:1px solid transparent;color:var(--text-muted);
     padding:6px 9px;font-size:14px;cursor:pointer;border-radius:3px;
@@ -241,7 +232,6 @@
   }
   .card:hover .card-remove-btn{opacity:1;}
   .card-remove-btn:hover{color:var(--danger);border-color:var(--danger);opacity:1;}
-
   .layout{display:grid;grid-template-columns:250px 1fr 250px;gap:20px;align-items:start;}
   .main-col{min-width:0;}
   .side-col{display:flex;flex-direction:column;gap:16px;position:sticky;top:20px;}
@@ -252,7 +242,6 @@
     .side-col.left{order:2;}
     .side-col.right{order:3;}
   }
-
   .side-panel{
     background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
     border:1px solid var(--border-glass);border-top:2px solid var(--flame);padding:15px;
@@ -281,23 +270,29 @@
   .side-item-delta{font-family:'Share Tech Mono',monospace;font-weight:600;white-space:nowrap;}
   .side-item-delta.pos{color:var(--success);}
   .side-item-delta.neg{color:var(--danger);}
-
   .todo-row{
     display:flex;align-items:flex-start;gap:8px;font-size:13px;padding:6px 0;
     border-bottom:1px solid var(--border-glass);cursor:pointer;
   }
   .todo-row:last-of-type{border-bottom:none;}
   .todo-row input[type="checkbox"]{margin-top:2px;accent-color:var(--flame);cursor:pointer;}
-
+  /* ---------- NOTES MARGIN (shared scratchpad) ---------- */
+  .scratch-area{
+    width:100%;min-height:140px;resize:vertical;
+    background:rgba(255,255,255,0.03);border:1px solid var(--border-glass);border-radius:3px;
+    color:var(--text);font-family:'Inter',sans-serif;font-size:12.5px;line-height:1.55;padding:9px;
+  }
+  .scratch-area:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(62,198,224,0.12);}
+  .scratch-status{
+    font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-muted);
+    margin-top:6px;text-align:right;min-height:12px;
+  }
   @keyframes confetti-fall{
     0%{ transform: translate(0,0) rotate(0deg); opacity:1; }
     100%{ transform: translate(var(--drift,0),115vh) rotate(600deg); opacity:0.4; }
   }
-
   .count-tag{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-muted);}
-
   .empty-note{color:var(--text-muted);font-size:13px;font-style:italic;padding:10px 2px;}
-
   /* forms */
   .bet-form{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
   .bet-form input{
@@ -313,18 +308,19 @@
   }
   .btn-flame:hover{filter:brightness(1.1);box-shadow:0 5px 18px rgba(255,90,31,0.45);transform:translateY(-1px);}
   .btn-flame:active{transform:translateY(0);}
-
+  .mini-select{
+    background:var(--glass-light);border:1px solid var(--border-glass);color:var(--text);
+    padding:7px 9px;font-family:'Inter',sans-serif;font-size:12px;border-radius:3px;
+  }
+  .mini-select:focus{outline:none;border-color:var(--flame);}
   /* history */
   .hist-row{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--border-glass);font-size:13px;}
   .hist-meta{color:var(--text-muted);font-family:'Share Tech Mono',monospace;font-size:11px;}
   .hist-delta{font-family:'Share Tech Mono',monospace;font-weight:600;white-space:nowrap;}
-
   .top-actions{display:flex;justify-content:flex-end;gap:8px;margin-bottom:10px;}
   .link-btn{background:none;border:none;color:var(--text-muted);font-size:12px;cursor:pointer;text-decoration:underline;font-family:'Inter',sans-serif;}
   .link-btn:hover{color:var(--flame);}
-
   .num-input{width:70px;background:var(--glass-light);border:1px solid var(--border-glass);color:var(--text);padding:6px;font-family:'Share Tech Mono',monospace;font-size:12px;border-radius:3px;}
-
   /* collapsible add-forms — keeps lists tidy until you actually want to add something */
   .add-details{margin-top:10px;}
   .add-details summary{
@@ -337,7 +333,28 @@
   .add-details summary::-webkit-details-marker{display:none;}
   .add-details summary:hover{color:var(--flame);border-color:var(--flame-dim);}
   .add-details[open] summary{color:var(--flame);border-color:var(--flame-dim);margin-bottom:2px;}
-
+  /* ---------- IDEAS ---------- */
+  .idea-card{
+    background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    border:1px solid var(--border-glass);border-left:2px solid var(--idea-accent,var(--purple));
+    padding:13px 15px;margin-bottom:9px;border-radius:4px;
+    transition:border-color .18s ease,box-shadow .18s ease;
+  }
+  .idea-card:hover{box-shadow:0 6px 20px rgba(0,0,0,0.28);}
+  .idea-card.promoted{opacity:0.62;border-left-color:var(--success);}
+  .idea-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;}
+  .idea-text{font-size:14px;font-weight:500;line-height:1.45;word-break:break-word;}
+  .idea-meta{font-family:'Share Tech Mono',monospace;font-size:10.5px;color:var(--text-muted);margin-top:3px;}
+  .idea-score{
+    font-family:'Share Tech Mono',monospace;font-size:18px;font-weight:700;color:var(--gold);
+    min-width:34px;text-align:right;flex-shrink:0;
+  }
+  .idea-actions{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:10px;}
+  .promoted-tag{
+    display:inline-block;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px;
+    text-transform:uppercase;color:var(--success);border:1px solid var(--success);
+    padding:2px 7px;border-radius:2px;margin-top:6px;
+  }
   /* ---------- THOUGHT BOARDS ---------- */
   .board-owner-row{
     display:flex;align-items:center;justify-content:space-between;gap:10px;
@@ -358,24 +375,39 @@
     color:#0A0C0F;background:linear-gradient(135deg,var(--owner-color,var(--flame)),#ffffff55);
     box-shadow:0 3px 12px rgba(0,0,0,0.35),0 0 14px -4px var(--owner-color,var(--flame));
   }
-
-  .board-tabs{
-    display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;margin-bottom:14px;
-    padding:2px 2px 8px;scrollbar-width:none;-ms-overflow-style:none;
+  /* board tabs now live in a vertical rail down the left of the board */
+  .board-shell{display:grid;grid-template-columns:176px minmax(0,1fr);gap:16px;align-items:start;}
+  .board-rail{
+    display:flex;flex-direction:column;gap:6px;position:sticky;top:20px;
+    max-height:78vh;overflow-y:auto;padding-right:2px;
+    scrollbar-width:none;-ms-overflow-style:none;
   }
-  .board-tabs::-webkit-scrollbar{display:none;}
+  .board-rail::-webkit-scrollbar{display:none;}
+  .board-rail-label{
+    font-family:'Share Tech Mono',monospace;font-size:9.5px;letter-spacing:2px;
+    text-transform:uppercase;color:var(--text-muted);padding:0 2px 4px;
+  }
   .board-tab{
     font-family:'Rajdhani',sans-serif;font-weight:600;font-size:12.5px;letter-spacing:0.5px;
     text-transform:uppercase;background:var(--glass-light);border:1px solid var(--border-glass);
-    color:var(--text-muted);padding:7px 14px;cursor:pointer;border-radius:3px;transition:all .15s ease;
-    white-space:nowrap;flex-shrink:0;
+    color:var(--text-muted);padding:9px 12px;cursor:pointer;border-radius:3px;transition:all .15s ease;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left;width:100%;flex-shrink:0;
   }
   .board-tab:hover{color:var(--text);border-color:var(--flame-dim);}
   .board-tab.active{
     background:linear-gradient(135deg,var(--owner-color,var(--flame)),#ff7e45);color:#0A0C0F;
-    border-color:transparent;box-shadow:0 3px 12px rgba(255,90,31,0.35);
+    border-color:transparent;box-shadow:0 3px 12px rgba(0,0,0,0.35);
   }
-
+  .board-main{min-width:0;}
+  @media (max-width:760px){
+    .board-shell{grid-template-columns:1fr;}
+    .board-rail{
+      flex-direction:row;overflow-x:auto;position:static;max-height:none;
+      padding-bottom:8px;
+    }
+    .board-rail-label{display:none;}
+    .board-tab{width:auto;}
+  }
   /* ---------- DECORATIVE BOARD FRAME (recolorable via hex) ---------- */
   .board-frame{
     position:relative;padding:18px;border-radius:18px;
@@ -397,7 +429,6 @@
     width:96px;background:rgba(255,255,255,0.04);border:1px solid var(--border-glass);color:var(--text);
     padding:6px 8px;font-family:'Share Tech Mono',monospace;font-size:11.5px;border-radius:3px;
   }
-
   .matrix-canvas{
     position:relative;min-height:540px;border:1px solid var(--border-glass);border-radius:4px;overflow:auto;
     background-color:#0A0D11;
@@ -409,10 +440,8 @@
     background-size:120px 120px,120px 120px,24px 24px,24px 24px;
     box-shadow:inset 0 0 60px rgba(0,0,0,0.6);
   }
-
   .matrix-note{
     position:absolute;width:230px;
-
     background:linear-gradient(160deg,rgba(28,32,40,0.95),rgba(12,14,18,0.96));
     border:1px solid var(--note-color,var(--cyan));border-radius:3px;
     box-shadow:0 8px 24px rgba(0,0,0,0.5),0 0 16px -6px var(--note-color,var(--cyan));
@@ -421,6 +450,7 @@
   .matrix-note.dragging{
     box-shadow:0 18px 44px rgba(0,0,0,0.6),0 0 26px -2px var(--note-color,var(--cyan));z-index:60;
   }
+  .matrix-note.resizing{z-index:60;}
   .note-drag-handle{
     display:flex;align-items:center;justify-content:space-between;
     margin:0 -12px 8px;padding:6px 12px;cursor:grab;touch-action:none;
@@ -429,12 +459,32 @@
   }
   .note-drag-handle:active{cursor:grabbing;}
   .matrix-note-text{
-    width:100%;min-height:64px;background:rgba(255,255,255,0.03);border:1px solid var(--border-glass);
+    width:100%;min-height:44px;background:rgba(255,255,255,0.03);border:1px solid var(--border-glass);
     border-radius:3px;resize:vertical;font-family:'Inter',sans-serif;font-size:13px;color:var(--text);
     padding:8px;margin-bottom:8px;
   }
   .matrix-note-text:focus{outline:none;border-color:var(--note-color,var(--cyan));}
   .matrix-note-swatches{display:flex;gap:5px;margin-bottom:8px;flex-wrap:wrap;align-items:center;}
+  /* size controls + resize grip */
+  .note-size-row{
+    display:flex;align-items:center;gap:5px;margin-bottom:8px;flex-wrap:wrap;
+    font-family:'Share Tech Mono',monospace;font-size:9.5px;letter-spacing:1px;color:var(--text-muted);
+  }
+  .size-btn{
+    font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px;
+    background:rgba(255,255,255,0.04);border:1px solid var(--border-glass);color:var(--text-muted);
+    padding:3px 8px;border-radius:2px;cursor:pointer;transition:all .14s ease;
+  }
+  .size-btn:hover{color:var(--note-color,var(--cyan));border-color:var(--note-color,var(--cyan));}
+  .size-btn.active{color:#0A0C0F;background:var(--note-color,var(--cyan));border-color:transparent;font-weight:700;}
+  .note-resize-grip{
+    position:absolute;right:2px;bottom:2px;width:16px;height:16px;cursor:nwse-resize;
+    touch-action:none;opacity:0.45;transition:opacity .15s ease;
+    background:
+      linear-gradient(135deg,transparent 45%,var(--note-color,var(--cyan)) 45%,var(--note-color,var(--cyan)) 55%,transparent 55%),
+      linear-gradient(135deg,transparent 70%,var(--note-color,var(--cyan)) 70%,var(--note-color,var(--cyan)) 80%,transparent 80%);
+  }
+  .matrix-note:hover .note-resize-grip{opacity:1;}
   .note-todo-row{
     display:flex;align-items:center;gap:6px;font-size:12.5px;padding:5px 0;
     border-bottom:1px solid rgba(255,255,255,0.06);
@@ -448,7 +498,29 @@
   .note-todo-check{accent-color:var(--cyan);cursor:pointer;flex-shrink:0;}
   .note-todo-row.done .note-todo-text{text-decoration:line-through;opacity:0.55;}
   .note-todo-row.done .note-pts-input{opacity:0.5;}
-
+  /* expiry timer */
+  .note-expiry-row{
+    display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap;
+    padding-top:7px;border-top:1px dashed rgba(255,255,255,0.08);
+  }
+  .expiry-chip{
+    font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;
+    padding:3px 7px;border-radius:2px;border:1px solid var(--border-glass);color:var(--text-muted);
+  }
+  .expiry-chip.live{color:var(--gold);border-color:var(--gold);}
+  .expiry-chip.soon{color:var(--danger);border-color:var(--danger);animation:pulse-soon 1.6s ease-in-out infinite;}
+  @keyframes pulse-soon{0%,100%{opacity:1;}50%{opacity:0.45;}}
+  .expiry-select{
+    background:rgba(255,255,255,0.04);border:1px solid var(--border-glass);color:var(--text-muted);
+    font-family:'Share Tech Mono',monospace;font-size:10px;padding:3px 5px;border-radius:2px;cursor:pointer;
+  }
+  .expiry-select:focus{outline:none;border-color:var(--note-color,var(--cyan));}
+  .archive-row{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:9px 0;border-bottom:1px solid var(--border-glass);font-size:13px;
+  }
+  .archive-row:last-child{border-bottom:none;}
+  .archive-text{color:var(--text-muted);word-break:break-word;}
   /* ---------- BOARD SECTIONS (kanban-style lanes) ---------- */
   .section-lanes{
     display:flex;align-items:stretch;overflow-x:auto;border:1px solid var(--border-glass);
@@ -488,7 +560,6 @@
 </head>
 <body>
 <div class="wrap">
-
   <div class="topbar">
     <div>
       <div class="brand-eyebrow">Season 1 · Fall 26</div>
@@ -499,13 +570,10 @@
       <div id="authStatus" style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-muted);"></div>
     </div>
   </div>
-
   <div class="shared-note">
     <span><b>Live shared board.</b> Backed by a real database — open this page from either of your phones or laptops and you'll both see the same points update instantly.</span>
   </div>
-
   <div id="setupGate" style="display:none;"></div>
-
   <div id="loginGate" style="display:none;max-width:360px;margin:40px auto;">
     <div class="card" style="display:block;">
       <div class="panel-title" style="margin-top:0;">Sign in</div>
@@ -515,17 +583,15 @@
       <div id="loginError" style="color:var(--danger);font-size:12px;margin-top:8px;"></div>
     </div>
   </div>
-
   <div id="app" style="display:none;" class="layout">
     <aside class="side-col left" id="todayCol"></aside>
-
     <main class="main-col">
       <div class="banners" id="banners"></div>
-
       <div class="tabs" id="tabs">
         <button class="tab-btn" data-tab="daily">Daily</button>
         <button class="tab-btn" data-tab="achievements">Achievements</button>
         <button class="tab-btn" data-tab="quests">Quest Log</button>
+        <button class="tab-btn" data-tab="ideas">Ideas</button>
         <button class="tab-btn" data-tab="penalties">Penalties</button>
         <button class="tab-btn" data-tab="shop">Point Shop</button>
         <button class="tab-btn" data-tab="weekly">Weekly</button>
@@ -533,17 +599,12 @@
         <button class="tab-btn" data-tab="bets">Bets</button>
         <button class="tab-btn" data-tab="history">Log</button>
       </div>
-
       <div id="content">Loading squad data…</div>
     </main>
-
     <aside class="side-col right" id="todoCol"></aside>
   </div>
-
 </div>
-
 <script type="module">
-
 // =====================================================================
 // FIREBASE CONFIG — paste your own project's config object here.
 // Get this from: Firebase Console > Project Settings > General >
@@ -558,9 +619,7 @@ const firebaseConfig = {
   appId: "1:985175072746:web:6d1b60323a2c7f2853dc93"
 };
 // =====================================================================
-
 const NEEDS_SETUP = firebaseConfig.apiKey === "YOUR_API_KEY";
-
 if (NEEDS_SETUP) {
   document.getElementById('setupGate').style.display = 'block';
   document.getElementById('setupGate').innerHTML = `
@@ -578,12 +637,10 @@ if (NEEDS_SETUP) {
   const { getFirestore, doc, onSnapshot, setDoc } = await import("https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js");
   const { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } =
     await import("https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js");
-
   const fbApp = initializeApp(firebaseConfig);
   const db = getFirestore(fbApp);
   const stateRef = doc(db, "apex_tracker", "state");
   const auth = getAuth(fbApp);
-
   window.__auth = {
     signIn(){
       const email = document.getElementById('loginEmail').value.trim();
@@ -597,7 +654,6 @@ if (NEEDS_SETUP) {
       signOut(auth);
     }
   };
-
   let started = false;
   onAuthStateChanged(auth, (user)=>{
     if(user){
@@ -615,10 +671,8 @@ if (NEEDS_SETUP) {
     }
   });
 }
-
 function runApp({ onSnapshot, setDoc, stateRef }){
 document.getElementById('app').style.display = 'grid';
-
 const DAILY = [
   {id:'workout', label:'Workout completed', pts:2000},
   {id:'skincare', label:'Skincare routine done', pts:1000},
@@ -630,7 +684,6 @@ const DAILY = [
   {id:'chores', label:'Chores completed', pts:1500},
   {id:'pomodoro', label:'Completed a Pomodoro cycle (60/15)', pts:2500},
 ];
-
 const ACHIEVEMENTS = [
   {id:'pr_gym', label:'Hit a PR in the gym', pts:3000},
   {id:'aced_assignment', label:'Aced a major assignment', pts:5000},
@@ -638,7 +691,6 @@ const ACHIEVEMENTS = [
   {id:'meals_tracked_week', label:'One full week of meals tracked', pts:5000},
   {id:'assignments_on_time', label:'Assignments on time all week', pts:5000},
 ];
-
 const PENALTIES = [
   {id:'forgot_tracking', label:'Forgetting to keep track of points', pts:-5000},
   {id:'junk_food', label:'Ate junk food / binge meal', pts:-2000},
@@ -651,7 +703,6 @@ const PENALTIES = [
   {id:'downplaying', label:'Downplaying events', pts:-1500},
   {id:'feeling_bad_ex', label:'Feeling bad for ex', pts:-1500},
 ];
-
 const QUESTS = {
   abir: [
     {id:'organize_room_a', label:'Organize room', pts:2000},
@@ -676,7 +727,6 @@ const QUESTS = {
     {id:'flower_language', label:'Flower language', pts:1000},
   ]
 };
-
 const SHOP = {
   jade: [
     {id:'bookshelf', label:'Rotating bookshelf', pts:60000, note:'$60'},
@@ -694,17 +744,32 @@ const SHOP = {
     {id:'nessie_plush', label:'Nessie plush', pts:null, note:'priceless'},
   ]
 };
-
 const TIER_COLORS = ['#E9ECEF','#3EC6E0','#B463FF','#FFC94A']; // white, blue, purple, gold
 const TIER_NAMES = ['White','Blue','Purple','Gold'];
 const TIER_SPAN = 15000;
 const STORAGE_KEY = 'apex_tracker_state';
-
+// sticky-note size presets — {w: note width px, h: textarea height px}
+const NOTE_SIZES = {
+  S: {w:180, h:48},
+  M: {w:230, h:70},
+  L: {w:300, h:120},
+  XL:{w:380, h:180}
+};
+const DEFAULT_NOTE_W = NOTE_SIZES.M.w;
+const DEFAULT_NOTE_H = NOTE_SIZES.M.h;
+// how long a note can stay pinned before it auto-archives, insta-notes style
+const EXPIRY_OPTIONS = [
+  {v:1,    label:'1 hour'},
+  {v:4,    label:'4 hours'},
+  {v:8,    label:'8 hours'},
+  {v:24,   label:'24 hours'},
+  {v:72,   label:'3 days'},
+  {v:168,  label:'1 week'},
+];
 let state = null;
 let activeTab = 'daily';
 let activeBoardId = null; // client-side only — which board you're viewing, not synced
 let activeBoardOwner = 'abir'; // client-side only — whose set of boards you're viewing
-
 function defaultState(){
   return {
     names: {abir:'Abir', jade:'Jade'},
@@ -719,12 +784,13 @@ function defaultState(){
     hiddenPenalties: [],
     hiddenShop: {abir:[], jade:[]},
     todos: {abir:[], jade:[]}, // {id,text} — plain to-do items, no points
-    boards: [], // {id, name, party, sections:[{id,name,max}], notes:[{id,text,color,x,y,section,todos:[{id,text,pts,done}]}]}
+    scratch: '', // shared notes margin under the daily leaderboard
+    ideas: [], // {id,text,author,ts,votes:{abir,jade},promotedTo}
+    boards: [], // {id, name, party, sections:[{id,name,max}], notes:[{id,text,color,x,y,w,h,expiresAt,section,todos:[{id,text,pts,done}]}]}
     bets: [], // {id,title,stake,status,winner,ts}
     history: [] // {ts, party, delta, reason, key}
   };
 }
-
 function mergeState(parsed){
   const d = defaultState();
   state = Object.assign(d, parsed);
@@ -740,37 +806,33 @@ function mergeState(parsed){
   state.hiddenPenalties = parsed.hiddenPenalties || [];
   state.hiddenShop = Object.assign({abir:[],jade:[]}, parsed.hiddenShop||{});
   state.todos = Object.assign({abir:[],jade:[]}, parsed.todos||{});
+  state.scratch = typeof parsed.scratch === 'string' ? parsed.scratch : '';
+  state.ideas = parsed.ideas || [];
   state.boards = parsed.boards || [];
   state.bets = parsed.bets || [];
   state.history = parsed.history || [];
 }
-
 function todayKey(){
   const d = new Date();
   return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
 }
-
 function getCountToday(party, key){
   const c = state.counts[party][key];
   if(!c || c.date !== todayKey()) return 0;
   return c.n;
 }
-
 function bumpCount(party, key){
   const day = todayKey();
   const c = state.counts[party][key];
   if(c && c.date === day){ c.n += 1; }
   else{ state.counts[party][key] = {date: day, n: 1}; }
 }
-
 function dropCount(party, key){
   const day = todayKey();
   const c = state.counts[party][key];
   if(c && c.date === day && c.n > 0){ c.n -= 1; }
 }
-
 let applyingRemote = false;
-
 function subscribeState(){
   onSnapshot(stateRef, (snap)=>{
     applyingRemote = true;
@@ -788,7 +850,6 @@ function subscribeState(){
       '<div class="empty-note">Could not reach the database. Double-check your Firebase config and Firestore security rules.</div>';
   });
 }
-
 async function saveState(){
   if(applyingRemote) return;
   try{
@@ -797,12 +858,10 @@ async function saveState(){
     console.error('save failed', e);
   }
 }
-
 function fmt(n){
   const sign = n < 0 ? '-' : (n > 0 ? '+' : '');
   return sign + Math.abs(n).toLocaleString();
 }
-
 function tierInfo(points){
   const idx = Math.max(0, Math.floor(points / TIER_SPAN));
   const color = TIER_COLORS[idx % 4];
@@ -811,12 +870,10 @@ function tierInfo(points){
   const progress = ((points % TIER_SPAN) + TIER_SPAN) % TIER_SPAN / TIER_SPAN;
   return {color, name, level, progress};
 }
-
 function addHistory(party, delta, reason, key){
   state.history.unshift({ts: Date.now(), party, delta, reason, key});
   if(state.history.length > 400) state.history.length = 400;
 }
-
 function claim(key, party, delta, reason){
   state.points[party] = (state.points[party]||0) + delta;
   bumpCount(party, key);
@@ -824,7 +881,6 @@ function claim(key, party, delta, reason){
   saveState();
   renderAll();
 }
-
 function undoLast(key, party){
   const idx = state.history.findIndex(h=>h.party===party && h.key===key);
   if(idx===-1) return;
@@ -835,7 +891,6 @@ function undoLast(key, party){
   saveState();
   renderAll();
 }
-
 function redeemShop(party, id, customCost){
   const item = SHOP[party].find(i=>i.id===id) || state.customShop[party].find(i=>i.id===id);
   const cost = customCost != null ? customCost : item.pts;
@@ -849,7 +904,6 @@ function redeemShop(party, id, customCost){
     claim('shop:'+id, party, 0, 'Claimed: '+item.label);
   }
 }
-
 function addCustomDaily(label, pts){
   if(!label || !pts) return;
   state.customDaily.push({id:'c_'+Date.now(), label, pts});
@@ -902,7 +956,6 @@ function hideBasePenalty(id){
   if(!state.hiddenPenalties.includes(id)) state.hiddenPenalties.push(id);
   saveState(); renderAll();
 }
-
 function addTodoItem(party, text){
   if(!text) return;
   state.todos[party].push({id:'td_'+Date.now(), text});
@@ -912,18 +965,76 @@ function completeTodoItem(party, id){
   state.todos[party] = state.todos[party].filter(t=>t.id!==id);
   saveState(); renderAll();
 }
-
+/* ---------------- notes margin (shared scratchpad) ---------------- */
+function saveScratch(text){
+  if(state.scratch === text) return;
+  state.scratch = text;
+  saveState();
+  const status = document.getElementById('scratchStatus');
+  if(status){
+    status.textContent = 'saved ' + new Date().toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'});
+  }
+}
+/* ---------------- ideas ---------------- */
+function ideaScore(idea){
+  const v = idea.votes || {};
+  return (v.abir?1:0) + (v.jade?1:0);
+}
+function addIdea(text, author){
+  if(!text) return;
+  state.ideas.unshift({
+    id:'idea_'+Date.now(), text, author: author||null, ts: Date.now(),
+    votes:{abir:false, jade:false}, promotedTo:null
+  });
+  saveState(); renderAll();
+}
+function removeIdea(id){
+  state.ideas = state.ideas.filter(i=>i.id!==id);
+  saveState(); renderAll();
+}
+function toggleIdeaVote(id, party){
+  const idea = state.ideas.find(i=>i.id===id);
+  if(!idea) return;
+  if(!idea.votes) idea.votes = {abir:false, jade:false};
+  idea.votes[party] = !idea.votes[party];
+  saveState(); renderAll();
+}
+function promoteIdea(id, target, pts){
+  const idea = state.ideas.find(i=>i.id===id);
+  if(!idea) return;
+  const label = idea.text;
+  let where = '';
+  if(target === 'daily'){
+    state.customDaily.push({id:'c_'+Date.now(), label, pts: Math.abs(pts)});
+    where = 'Daily habit';
+  } else if(target === 'quest:abir' || target === 'quest:jade'){
+    const party = target.split(':')[1];
+    state.customQuests[party].push({id:'c_'+Date.now(), label, pts: Math.abs(pts)});
+    where = state.names[party] + "'s goals";
+  } else if(target === 'penalty'){
+    state.customPenalties.push({id:'c_'+Date.now(), label, pts: -Math.abs(pts)});
+    where = 'Penalty';
+  } else if(target === 'shop:abir' || target === 'shop:jade'){
+    const party = target.split(':')[1];
+    state.customShop[party].push({id:'c_'+Date.now(), label, pts: Math.abs(pts), note:'from Ideas'});
+    where = state.names[party] + "'s shop";
+  } else if(target === 'todo:abir' || target === 'todo:jade'){
+    const party = target.split(':')[1];
+    state.todos[party].push({id:'td_'+Date.now(), text: label});
+    where = state.names[party] + "'s to-do";
+  }
+  idea.promotedTo = where;
+  saveState(); renderAll();
+}
 const NOTE_COLORS = ['#3EC6E0','#B463FF','#FFC94A','#FF5A1F','#4CD97B','#FF5252'];
 const ABIR_ACCENT_HEX = '#FF4D5E';
 const JADE_ACCENT_HEX = '#3ECF6E';
-
 function normalizeHex(hex){
   if(!hex) return null;
   let h = hex.trim();
   if(!h.startsWith('#')) h = '#'+h;
   return /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(h) ? h : null;
 }
-
 function addBoard(name, party){
   if(!name) return;
   const board = {id:'board_'+Date.now(), name, party: party || 'abir', notes: []};
@@ -950,7 +1061,7 @@ function setBoardBorderColor(boardId, hex){
   saveState(); renderAll();
   return true;
 }
-function addNote(boardId, text, color, sectionId){
+function addNote(boardId, text, color, sectionId, hours){
   const board = state.boards.find(b=>b.id===boardId);
   if(!board || !text) return;
   const targetSection = sectionId || ((board.sections && board.sections.length) ? board.sections[0].id : null);
@@ -958,7 +1069,14 @@ function addNote(boardId, text, color, sectionId){
   const n = siblings.length;
   const x = 4 + (n % 3) * 30;
   const y = 4 + Math.floor(n / 3) * 26;
-  board.notes.push({id:'note_'+Date.now(), text, color: color || NOTE_COLORS[board.notes.length % NOTE_COLORS.length], x, y, section: targetSection, todos: []});
+  board.notes.push({
+    id:'note_'+Date.now(), text,
+    color: color || NOTE_COLORS[board.notes.length % NOTE_COLORS.length],
+    x, y,
+    w: DEFAULT_NOTE_W, h: DEFAULT_NOTE_H,
+    expiresAt: hours ? Date.now() + hours*3600000 : null,
+    section: targetSection, todos: []
+  });
   saveState(); renderAll();
 }
 function addSection(boardId, name, max){
@@ -988,53 +1106,126 @@ function removeNote(boardId, noteId){
   board.notes = board.notes.filter(n=>n.id!==noteId);
   saveState(); renderAll();
 }
-function updateNoteText(boardId, noteId, text){
+function findNote(boardId, noteId){
   const board = state.boards.find(b=>b.id===boardId);
-  if(!board) return;
-  const note = board.notes.find(n=>n.id===noteId);
+  if(!board) return {board:null, note:null};
+  return {board, note: board.notes.find(n=>n.id===noteId) || null};
+}
+function updateNoteText(boardId, noteId, text){
+  const {note} = findNote(boardId, noteId);
   if(!note) return;
   note.text = text;
   saveState();
 }
 function setNoteColor(boardId, noteId, color){
-  const board = state.boards.find(b=>b.id===boardId);
-  if(!board) return;
-  const note = board.notes.find(n=>n.id===noteId);
+  const {note} = findNote(boardId, noteId);
   if(!note) return;
   note.color = color;
   saveState(); renderAll();
 }
-function moveNoteTo(boardId, noteId, sectionId, xPct, yPct){
-  const board = state.boards.find(b=>b.id===boardId);
-  if(!board) return;
-  const note = board.notes.find(n=>n.id===noteId);
+/* ---- note sizing ---- */
+function setNoteSize(boardId, noteId, w, h){
+  const {note} = findNote(boardId, noteId);
   if(!note) return;
-  if(sectionId !== undefined) note.section = sectionId;
-  note.x = Math.max(0, Math.min(96, xPct));
-  note.y = Math.max(0, Math.min(92, yPct));
+  note.w = Math.max(150, Math.round(w));
+  note.h = Math.max(40, Math.round(h));
   saveState(); renderAll();
 }
+function currentSizeName(note){
+  const w = note.w || DEFAULT_NOTE_W, h = note.h || DEFAULT_NOTE_H;
+  for(const key of Object.keys(NOTE_SIZES)){
+    if(NOTE_SIZES[key].w === w && NOTE_SIZES[key].h === h) return key;
+  }
+  return null;
+}
+function startNoteResize(evt, boardId, noteId){
+  evt.preventDefault();
+  evt.stopPropagation();
+  const el = document.getElementById('note_'+noteId);
+  if(!el) return;
+  const ta = el.querySelector('.matrix-note-text');
+  const startX = evt.clientX, startY = evt.clientY;
+  const startW = el.offsetWidth;
+  const startH = ta ? ta.offsetHeight : DEFAULT_NOTE_H;
+  el.classList.add('resizing');
+  let w = startW, h = startH;
+  function onMove(ev){
+    w = Math.max(150, startW + (ev.clientX - startX));
+    h = Math.max(40, startH + (ev.clientY - startY));
+    el.style.width = w + 'px';
+    if(ta) ta.style.height = h + 'px';
+  }
+  function onUp(){
+    document.removeEventListener('pointermove', onMove);
+    document.removeEventListener('pointerup', onUp);
+    el.classList.remove('resizing');
+    setNoteSize(boardId, noteId, w, h);
+  }
+  document.addEventListener('pointermove', onMove);
+  document.addEventListener('pointerup', onUp);
+}
+/* ---- note expiry ("keep it up for…") ---- */
+function isExpired(note){
+  return !!(note.expiresAt && Date.now() >= note.expiresAt);
+}
+function setNoteExpiry(boardId, noteId, hours){
+  const {note} = findNote(boardId, noteId);
+  if(!note) return;
+  note.expiresAt = hours ? Date.now() + hours*3600000 : null;
+  saveState(); renderAll();
+}
+function restoreNote(boardId, noteId){
+  const {note} = findNote(boardId, noteId);
+  if(!note) return;
+  note.expiresAt = null;
+  saveState(); renderAll();
+}
+function expiryLabel(ts){
+  let ms = ts - Date.now();
+  if(ms <= 0) return 'expired';
+  const mins = Math.floor(ms/60000);
+  const days = Math.floor(mins/1440);
+  const hrs = Math.floor((mins%1440)/60);
+  const m = mins%60;
+  if(days > 0) return days+'d '+hrs+'h left';
+  if(hrs > 0) return hrs+'h '+m+'m left';
+  if(m > 0) return m+'m left';
+  return '<1m left';
+}
+function expiryClass(ts){
+  const ms = ts - Date.now();
+  if(ms <= 3600000) return 'expiry-chip soon';
+  return 'expiry-chip live';
+}
+// keep countdowns honest without wiping anything the user is typing into
+function tickExpiry(){
+  let expiredSomething = false;
+  document.querySelectorAll('[data-expires]').forEach(el=>{
+    const t = parseInt(el.getAttribute('data-expires'), 10);
+    if(!t) return;
+    if(Date.now() >= t){ expiredSomething = true; return; }
+    el.textContent = expiryLabel(t);
+    el.className = expiryClass(t);
+  });
+  const ae = document.activeElement;
+  const typing = ae && (ae.tagName === 'TEXTAREA' || ae.tagName === 'INPUT');
+  if(expiredSomething && activeTab === 'boards' && !typing) renderContent();
+}
 function addNoteTodo(boardId, noteId, text, pts){
-  const board = state.boards.find(b=>b.id===boardId);
-  if(!board) return;
-  const note = board.notes.find(n=>n.id===noteId);
+  const {note} = findNote(boardId, noteId);
   if(!note || !text) return;
   if(!note.todos) note.todos = [];
   note.todos.push({id:'ntd_'+Date.now(), text, pts: pts || 0, done: false});
   saveState(); renderAll();
 }
 function removeNoteTodo(boardId, noteId, todoId){
-  const board = state.boards.find(b=>b.id===boardId);
-  if(!board) return;
-  const note = board.notes.find(n=>n.id===noteId);
+  const {note} = findNote(boardId, noteId);
   if(!note) return;
   note.todos = (note.todos||[]).filter(t=>t.id!==todoId);
   saveState(); renderAll();
 }
 function updateNoteTodoPts(boardId, noteId, todoId, val){
-  const board = state.boards.find(b=>b.id===boardId);
-  if(!board) return;
-  const note = board.notes.find(n=>n.id===noteId);
+  const {note} = findNote(boardId, noteId);
   if(!note) return;
   const todo = (note.todos||[]).find(t=>t.id===todoId);
   if(!todo) return;
@@ -1042,10 +1233,8 @@ function updateNoteTodoPts(boardId, noteId, todoId, val){
   saveState();
 }
 function toggleNoteTodo(boardId, noteId, todoId, ptsVal, checked){
-  const board = state.boards.find(b=>b.id===boardId);
-  if(!board) return;
-  const note = board.notes.find(n=>n.id===noteId);
-  if(!note) return;
+  const {board, note} = findNote(boardId, noteId);
+  if(!board || !note) return;
   const todo = (note.todos||[]).find(t=>t.id===todoId);
   if(!todo) return;
   if(checked && !todo.done){
@@ -1057,6 +1246,14 @@ function toggleNoteTodo(boardId, noteId, todoId, ptsVal, checked){
     todo.done = false;
     undoLast('note:'+noteId+':'+todoId, board.party);
   }
+}
+function moveNoteTo(boardId, noteId, sectionId, xPct, yPct){
+  const {note} = findNote(boardId, noteId);
+  if(!note) return;
+  if(sectionId !== undefined) note.section = sectionId;
+  note.x = Math.max(0, Math.min(96, xPct));
+  note.y = Math.max(0, Math.min(92, yPct));
+  saveState(); renderAll();
 }
 function startNoteDrag(evt, boardId, noteId, canvasElId){
   if(evt.target.closest('button') || evt.target.closest('input') || evt.target.closest('select') || evt.target.closest('textarea')) return;
@@ -1100,7 +1297,6 @@ function startNoteDrag(evt, boardId, noteId, canvasElId){
   document.addEventListener('pointermove', onMove);
   document.addEventListener('pointerup', onUp);
 }
-
 function fireConfetti(winnerParty){
   const palette = winnerParty === 'abir'
     ? ['#3EC6E0', '#FF5A1F', '#E9ECEF']  // Abir: cyan + flame
@@ -1128,7 +1324,6 @@ function fireConfetti(winnerParty){
   }
   setTimeout(()=>container.remove(), 4200);
 }
-
 function renameParty(party){
   const current = state.names[party];
   const next = prompt('Rename '+current, current);
@@ -1138,14 +1333,12 @@ function renameParty(party){
     renderAll();
   }
 }
-
 function resetSeason(){
   if(!confirm('Reset all points, claims, quests and history back to season start? This cannot be undone.')) return;
   state = defaultState();
   saveState();
   renderAll();
 }
-
 function cleanupOrphanedBetHistory(){
   const validBetIds = new Set(state.bets.map(b=>b.id));
   const before = state.history.length;
@@ -1161,9 +1354,7 @@ function cleanupOrphanedBetHistory(){
   });
   return before - state.history.length;
 }
-
 /* ---------------- RENDER ---------------- */
-
 function renderBanners(){
   const el = document.getElementById('banners');
   const leaderParty = state.points.abir === state.points.jade ? null : (state.points.abir > state.points.jade ? 'abir' : 'jade');
@@ -1183,7 +1374,6 @@ function renderBanners(){
       <div class="evo-track"><div class="evo-fill" style="width:${(t.progress*100).toFixed(1)}%"></div></div>
     </div>`;
   }).join('');
-
   const a = state.points.abir, j = state.points.jade;
   const rt = document.getElementById('rankingTag');
   if(a===j){
@@ -1198,7 +1388,6 @@ function renderBanners(){
     rt.innerHTML = `<div class="lead-eyebrow">Season Lead</div><div class="lead-name" style="color:${color}">${leader}</div><div class="lead-diff">+${diff.toLocaleString()} ahead</div>`;
   }
 }
-
 function claimCard(key, label, pts, note, removeAction, prereqKey, prereqLabel){
   const cA = getCountToday('abir', key);
   const cJ = getCountToday('jade', key);
@@ -1223,7 +1412,6 @@ function claimCard(key, label, pts, note, removeAction, prereqKey, prereqLabel){
     </div>
   </div>`;
 }
-
 function soloClaimCard(key, label, pts, party, note, removeAction){
   const c = getCountToday(party, key);
   const ptsClass = pts>0?'pos':(pts<0?'neg':'');
@@ -1241,7 +1429,6 @@ function soloClaimCard(key, label, pts, party, note, removeAction){
     </div>
   </div>`;
 }
-
 function addForm(labelPh, ptsPh, onClick, summaryText){
   return `<details class="add-details">
     <summary>+ ${summaryText || 'Add new'}</summary>
@@ -1252,7 +1439,6 @@ function addForm(labelPh, ptsPh, onClick, summaryText){
     </div>
   </details>`;
 }
-
 function renderDaily(){
   const base = DAILY.filter(item=>!state.hiddenDaily.includes(item.id)).map(item=>{
     const prereqItem = item.prereq ? DAILY.find(d=>d.id===item.prereq) : null;
@@ -1273,11 +1459,9 @@ function renderDaily(){
     'Add daily habit'
   );
 }
-
 function renderAchievements(){
   return ACHIEVEMENTS.map(item=>claimCard('ach:'+item.id, item.label, item.pts)).join('');
 }
-
 function renderQuests(){
   const col = (party)=>{
     const base = QUESTS[party].filter(item=>!state.hiddenQuests[party].includes(item.id)).map(item=>
@@ -1305,7 +1489,75 @@ function renderQuests(){
     </div>
   </div>`;
 }
-
+/* ---------------- IDEAS TAB ---------------- */
+function renderIdeas(){
+  const ideas = state.ideas.slice().sort((a,b)=>{
+    if(a.promotedTo && !b.promotedTo) return 1;
+    if(!a.promotedTo && b.promotedTo) return -1;
+    const s = ideaScore(b) - ideaScore(a);
+    if(s !== 0) return s;
+    return (b.ts||0) - (a.ts||0);
+  });
+  const form = `
+    <div class="bet-form">
+      <input id="newIdeaText" placeholder="Idea, feature, plan, anything…" onkeydown="if(event.key==='Enter'){__app.addIdea();}">
+      <select id="newIdeaAuthor" class="mini-select">
+        <option value="">Whose idea?</option>
+        <option value="abir">${escHtml(state.names.abir)}</option>
+        <option value="jade">${escHtml(state.names.jade)}</option>
+        <option value="both">Both of us</option>
+      </select>
+      <button class="btn-flame" onclick="__app.addIdea()">Add Idea</button>
+    </div>`;
+  if(ideas.length === 0){
+    return form + '<div class="empty-note">No ideas yet. Dump anything here — you can turn the good ones into habits, goals or shop items later.</div>';
+  }
+  const cards = ideas.map(idea=>{
+    const votes = idea.votes || {};
+    const score = ideaScore(idea);
+    const authorLabel = idea.author === 'both'
+      ? 'both of you'
+      : (idea.author ? state.names[idea.author] : 'unattributed');
+    const when = idea.ts ? new Date(idea.ts).toLocaleDateString(undefined,{month:'short',day:'numeric'}) : '';
+    const accent = idea.author === 'abir' ? 'var(--abir-accent)'
+      : (idea.author === 'jade' ? 'var(--jade-accent)' : 'var(--purple)');
+    const promoteBlock = idea.promotedTo
+      ? `<div class="promoted-tag">Added to ${escHtml(idea.promotedTo)}</div>`
+      : `<details class="add-details" style="margin-top:8px;">
+          <summary>→ Turn into something</summary>
+          <div class="bet-form" style="margin-top:10px;margin-bottom:0;">
+            <select id="promoteTarget_${idea.id}" class="mini-select" style="flex:1;min-width:150px;">
+              <option value="daily">Daily habit</option>
+              <option value="quest:abir">${escHtml(state.names.abir)}'s goals</option>
+              <option value="quest:jade">${escHtml(state.names.jade)}'s goals</option>
+              <option value="penalty">Penalty</option>
+              <option value="shop:abir">${escHtml(state.names.abir)}'s shop</option>
+              <option value="shop:jade">${escHtml(state.names.jade)}'s shop</option>
+              <option value="todo:abir">${escHtml(state.names.abir)}'s to-do</option>
+              <option value="todo:jade">${escHtml(state.names.jade)}'s to-do</option>
+            </select>
+            <input id="promotePts_${idea.id}" type="number" placeholder="Points" style="max-width:100px;">
+            <button class="btn-flame" onclick="__app.promoteIdea('${idea.id}')">Promote</button>
+          </div>
+        </details>`;
+    return `<div class="idea-card${idea.promotedTo?' promoted':''}" style="--idea-accent:${accent};">
+      <div class="idea-head">
+        <div style="flex:1;min-width:0;">
+          <div class="idea-text">${escHtml(idea.text)}</div>
+          <div class="idea-meta">from ${escHtml(authorLabel)}${when?(' · '+when):''}</div>
+        </div>
+        <div class="idea-score">${score?('👍 '+score):'—'}</div>
+      </div>
+      <div class="idea-actions">
+        <button class="pill abir${votes.abir?' on':''}" onclick="__app.toggleIdeaVote('${idea.id}','abir')">👍 ${escHtml(state.names.abir)}</button>
+        <button class="pill jade${votes.jade?' on':''}" onclick="__app.toggleIdeaVote('${idea.id}','jade')">👍 ${escHtml(state.names.jade)}</button>
+        <button class="card-remove-btn" style="margin-left:auto;" onclick="__app.removeIdea('${idea.id}')" title="Delete idea">⋯</button>
+      </div>
+      ${promoteBlock}
+    </div>`;
+  }).join('');
+  return form + cards;
+}
 function renderPenalties(){
   const base = PENALTIES.filter(item=>!state.hiddenPenalties.includes(item.id)).map(item=>
     claimCard('pen:'+item.id, item.label, item.pts, null, `__app.hidePenalty('${item.id}')`)
@@ -1320,7 +1572,6 @@ function renderPenalties(){
     'Add penalty'
   );
 }
-
 function shopCard(item, party, removeAction){
   const balance = state.points[party];
   const cA = getCountToday(party, 'shop:'+item.id);
@@ -1367,7 +1618,6 @@ function shopCard(item, party, removeAction){
     </div>
   </div>`;
 }
-
 function renderShop(){
   const col = (party)=>{
     const base = SHOP[party].filter(i=>!state.hiddenShop[party].includes(i.id)).map(i=>
@@ -1396,7 +1646,6 @@ function renderShop(){
     </div>
   </div>`;
 }
-
 function renderBets(){
   const open = state.bets.filter(b=>b.status==='open');
   const resolved = state.bets.filter(b=>b.status!=='open');
@@ -1437,7 +1686,6 @@ function renderBets(){
     </div>`).join('')}
   `;
 }
-
 function renderHistory(){
   if(state.history.length===0) return '<div class="empty-note">No actions logged yet — go claim something.</div>';
   return state.history.slice(0,150).map(h=>{
@@ -1453,7 +1701,6 @@ function renderHistory(){
     </div>`;
   }).join('');
 }
-
 function renderContent(){
   const el = document.getElementById('content');
   let inner = '';
@@ -1462,6 +1709,7 @@ function renderContent(){
     case 'daily': title='Daily Habits'; inner = renderDaily(); break;
     case 'achievements': title='Achievements'; inner = renderAchievements(); break;
     case 'quests': title=''; inner = renderQuests(); break;
+    case 'ideas': title='Idea Bank'; inner = renderIdeas(); break;
     case 'penalties': title='Penalties'; inner = renderPenalties(); break;
     case 'shop': title=''; inner = renderShop(); break;
     case 'weekly': title=''; inner = renderWeekly(); break;
@@ -1474,13 +1722,11 @@ function renderContent(){
     : '';
   el.innerHTML = (title?`<div class="panel-title">${title}</div>`:'') + topActions + inner;
 }
-
 function renderTabs(){
   document.querySelectorAll('.tab-btn').forEach(btn=>{
     btn.classList.toggle('active', btn.dataset.tab === activeTab);
   });
 }
-
 function renderAll(){
   renderBanners();
   renderTodaySidebar();
@@ -1488,31 +1734,27 @@ function renderAll(){
   renderTabs();
   renderContent();
 }
-
 /* ---------------- removal via subtle button or right-click ---------------- */
-
 function runRemove(call){
   if(!call) return;
   if(!confirm('Remove this item?')) return;
   (0, eval)(call);
 }
-
 document.addEventListener('click', e=>{
   const btn = e.target.closest('.card-remove-btn');
   if(!btn) return;
+  const call = btn.getAttribute('data-remove');
+  if(!call) return; // inline onclick handlers manage their own confirmation
   e.stopPropagation();
-  runRemove(btn.getAttribute('data-remove'));
+  runRemove(call);
 });
-
 document.addEventListener('contextmenu', e=>{
   const card = e.target.closest('.removable');
   if(!card) return;
   e.preventDefault();
   runRemove(card.getAttribute('data-remove'));
 });
-
 /* ---------------- daily leaderboard ---------------- */
-
 function todayTotals(){
   const day = todayKey();
   const totals = {abir:0, jade:0};
@@ -1525,7 +1767,6 @@ function todayTotals(){
   });
   return totals;
 }
-
 function getWeekStart(){
   const now = new Date();
   const dow = now.getDay(); // 0=Sun..6=Sat
@@ -1534,7 +1775,6 @@ function getWeekStart(){
   start.setHours(0,0,0,0);
   return start;
 }
-
 function weekDayTotals(){
   const start = getWeekStart();
   const days = [];
@@ -1557,7 +1797,6 @@ function weekDayTotals(){
   });
   return {days, totals};
 }
-
 function lineChartSvg(days, series, color, name, weekTotal){
   const w = 340, h = 210, padL = 8, padR = 8, padT = 20, padB = 26;
   const usableW = w - padL - padR, usableH = h - padT - padB;
@@ -1566,25 +1805,21 @@ function lineChartSvg(days, series, color, name, weekTotal){
   const baseline = padT + usableH/2;
   const stepX = usableW/(n-1);
   const todayStr = new Date().toDateString();
-
   const points = series.map((v,i)=>{
     const x = padL + stepX*i;
     const y = baseline - (v/maxAbs)*(usableH/2);
     return {x,y,v};
   });
-
   const pathD = points.map((p,i)=>(i===0?'M':'L')+p.x.toFixed(1)+','+p.y.toFixed(1)).join(' ');
   const areaD = pathD
     + ` L ${points[n-1].x.toFixed(1)},${baseline.toFixed(1)}`
     + ` L ${points[0].x.toFixed(1)},${baseline.toFixed(1)} Z`;
-
   const dots = points.map(p=>`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3.5" fill="${color}" stroke="#0A0C0F" stroke-width="1.5"/>`).join('');
   const dayLabels = days.map((d,i)=>{
     const isToday = d.toDateString() === todayStr;
     const lab = d.toLocaleDateString(undefined,{weekday:'short'});
     return `<text x="${points[i].x.toFixed(1)}" y="${h-6}" font-family="Share Tech Mono, monospace" font-size="10" fill="${isToday?'#EDEFF2':'#868C96'}" text-anchor="middle">${lab}${isToday?' •':''}</text>`;
   }).join('');
-
   return `
     <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;color:${color};">${name}</div>
     <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-muted);margin-bottom:6px;">${fmt(weekTotal)} this week</div>
@@ -1597,7 +1832,6 @@ function lineChartSvg(days, series, color, name, weekTotal){
     </svg>
   `;
 }
-
 function weekTotalsForRange(start, end){
   const totals = {abir:0, jade:0};
   state.history.forEach(h=>{
@@ -1608,17 +1842,14 @@ function weekTotalsForRange(start, end){
   });
   return totals;
 }
-
 function renderWeekly(){
   const {days, totals} = weekDayTotals();
   const abirSeries = totals.map(t=>t.abir);
   const jadeSeries = totals.map(t=>t.jade);
   const weekTotalAbir = abirSeries.reduce((s,v)=>s+v,0);
   const weekTotalJade = jadeSeries.reduce((s,v)=>s+v,0);
-
   const ABIR_COLOR = '#FF4D5E'; // Abir identity red
   const JADE_COLOR = '#3ECF6E'; // Jade identity green
-
   // previous week — auto-decided winner, computed fresh from the log every time (no manual step needed)
   const thisWeekStart = getWeekStart();
   const prevWeekStart = new Date(thisWeekStart);
@@ -1627,7 +1858,6 @@ function renderWeekly(){
   const prevTotals = weekTotalsForRange(prevWeekStart, prevWeekEnd);
   const prevRangeLabel = prevWeekStart.toLocaleDateString(undefined,{month:'short',day:'numeric'})
     + ' – ' + new Date(prevWeekEnd.getTime()-86400000).toLocaleDateString(undefined,{month:'short',day:'numeric'});
-
   let prevSummary;
   if(prevTotals.abir === 0 && prevTotals.jade === 0){
     prevSummary = `<div class="empty-note" style="padding:0;">No activity logged that week.</div>`;
@@ -1640,7 +1870,6 @@ function renderWeekly(){
     const diff = Math.abs(prevTotals.abir - prevTotals.jade);
     prevSummary = `<div style="font-family:'Share Tech Mono',monospace;font-size:13px;"><span style="color:${color};font-weight:700;">👑 ${winner}</span> won last week by ${diff.toLocaleString()}</div>`;
   }
-
   return `
     <div class="panel-title">Weekly Points <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-muted);">· resets Monday 12am</span></div>
     <div class="card" style="display:block;margin-bottom:16px;">
@@ -1657,17 +1886,18 @@ function renderWeekly(){
     </div>
   `;
 }
-
 function escAttr(str){
   return String(str).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,'\\n');
 }
 function escHtml(str){
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
-
 function renderNote(board, note, canvasElId){
   const boardId = board.id;
   const todos = note.todos || [];
+  const noteW = note.w || DEFAULT_NOTE_W;
+  const noteH = note.h || DEFAULT_NOTE_H;
+  const sizeName = currentSizeName(note);
   const todoRows = todos.length===0
     ? '<div class="empty-note" style="padding:4px 0;font-size:11.5px;">No checklist items yet.</div>'
     : todos.map(t=>`<div class="note-todo-row${t.done?' done':''}">
@@ -1677,16 +1907,36 @@ function renderNote(board, note, canvasElId){
         ${t.done?'':`<button class="card-remove-btn" style="opacity:0.5;" title="Remove item (no points)" onclick="__app.removeNoteTodo('${boardId}','${note.id}','${t.id}')">✕</button>`}
       </div>`).join('');
   const swatches = NOTE_COLORS.map(c=>`<button type="button" title="Set color" onclick="__app.setNoteColor('${boardId}','${note.id}','${c}')" style="width:16px;height:16px;border-radius:50%;background:${c};border:2px solid ${note.color===c?'#fff':'rgba(255,255,255,0.15)'};cursor:pointer;padding:0;"></button>`).join('');
-  return `<div class="matrix-note" id="note_${note.id}" style="--note-color:${note.color};left:${note.x||0}%;top:${note.y||0}%;">
+  const sizeButtons = Object.keys(NOTE_SIZES).map(k=>
+    `<button type="button" class="size-btn${sizeName===k?' active':''}" title="${NOTE_SIZES[k].w}px wide" onclick="__app.setNoteSize('${boardId}','${note.id}',${NOTE_SIZES[k].w},${NOTE_SIZES[k].h})">${k}</button>`
+  ).join('');
+  const expiryChip = note.expiresAt
+    ? `<span class="${expiryClass(note.expiresAt)}" data-expires="${note.expiresAt}">${expiryLabel(note.expiresAt)}</span>`
+    : `<span class="expiry-chip">stays up</span>`;
+  const expiryOptions = EXPIRY_OPTIONS.map(o=>`<option value="${o.v}">${o.label}</option>`).join('');
+  return `<div class="matrix-note" id="note_${note.id}" style="--note-color:${note.color};left:${note.x||0}%;top:${note.y||0}%;width:${noteW}px;">
     <div class="note-drag-handle" onpointerdown="__app.startNoteDrag(event,'${boardId}','${note.id}','${canvasElId}')">
       <span>⋮⋮ NOTE${board.sections && board.sections.length ? ' · drag to move sections' : ''}</span>
       <button class="card-remove-btn" style="padding:2px 6px;color:var(--note-color);" title="Remove note" onclick="__app.removeNote('${boardId}','${note.id}')">✕</button>
     </div>
-    <textarea class="matrix-note-text" onblur="__app.updateNoteText('${boardId}','${note.id}', this.value)" placeholder="Write something...">${escHtml(note.text)}</textarea>
+    <textarea class="matrix-note-text" style="height:${noteH}px;" onblur="__app.updateNoteText('${boardId}','${note.id}', this.value)" placeholder="Write something...">${escHtml(note.text)}</textarea>
+    <div class="note-size-row">
+      <span>SIZE</span>
+      ${sizeButtons}
+      <span style="opacity:0.6;">or drag ◢</span>
+    </div>
     <div class="matrix-note-swatches">
       ${swatches}
       <input class="hex-input" style="width:74px;margin-left:2px;" type="text" placeholder="#hex" id="noteHex_${note.id}" onkeydown="if(event.key==='Enter'){__app.setNoteColorHex('${boardId}','${note.id}', this.value); this.value='';}">
       <button class="pill" style="padding:4px 8px;font-size:10.5px;" title="Apply hex color" onclick="__app.setNoteColorHex('${boardId}','${note.id}', document.getElementById('noteHex_${note.id}').value); document.getElementById('noteHex_${note.id}').value='';">Set</button>
+    </div>
+    <div class="note-expiry-row">
+      ${expiryChip}
+      <select class="expiry-select" onchange="__app.setNoteExpiry('${boardId}','${note.id}', this.value); this.selectedIndex=0;">
+        <option value="">keep up for…</option>
+        ${expiryOptions}
+        <option value="0">forever (no timer)</option>
+      </select>
     </div>
     <details class="add-details" style="border-color:rgba(255,255,255,0.15);">
       <summary style="color:var(--text-muted);border-color:rgba(255,255,255,0.15);">+ Checklist${todos.length?' ('+todos.length+')':''}</summary>
@@ -1699,9 +1949,9 @@ function renderNote(board, note, canvasElId){
         </div>
       </div>
     </details>
+    <div class="note-resize-grip" title="Drag to resize" onpointerdown="__app.startNoteResize(event,'${boardId}','${note.id}')"></div>
   </div>`;
 }
-
 function renderBoards(){
   if(!['abir','jade'].includes(activeBoardOwner)) activeBoardOwner = 'abir';
   const ownerBoards = state.boards.filter(b=>b.party===activeBoardOwner);
@@ -1709,14 +1959,12 @@ function renderBoards(){
     activeBoardId = ownerBoards.length ? ownerBoards[0].id : null;
   }
   const ownerColorVar = activeBoardOwner==='abir' ? 'var(--abir-accent)' : 'var(--jade-accent)';
-
   const ownerRow = `<div class="board-owner-row">
     <div class="owner-toggle">
       <button class="owner-btn ${activeBoardOwner==='abir'?'active':''}" style="--owner-color:var(--abir-accent);" onclick="__app.selectBoardOwner('abir')">${escHtml(state.names.abir)}'s Boards</button>
       <button class="owner-btn ${activeBoardOwner==='jade'?'active':''}" style="--owner-color:var(--jade-accent);" onclick="__app.selectBoardOwner('jade')">${escHtml(state.names.jade)}'s Boards</button>
     </div>
   </div>`;
-
   const newBoardForm = `<details class="add-details" style="margin-top:0;margin-bottom:14px;">
     <summary>+ New board for ${escHtml(state.names[activeBoardOwner])}</summary>
     <div class="bet-form" style="margin-top:10px;">
@@ -1724,11 +1972,6 @@ function renderBoards(){
       <button class="btn-flame" onclick="__app.addBoard()">Create</button>
     </div>
   </details>`;
-
-  const boardTabs = ownerBoards.map(b=>`
-    <button class="board-tab removable ${b.id===activeBoardId?'active':''}" style="--owner-color:${ownerColorVar};" data-remove="__app.removeBoard('${b.id}')" onclick="__app.selectBoard('${b.id}')">${escHtml(b.name)}</button>
-  `).join('');
-
   if(!activeBoardId){
     return `
       <div class="panel-title">Thought Boards</div>
@@ -1737,20 +1980,29 @@ function renderBoards(){
       <div class="empty-note">No boards yet for ${escHtml(state.names[activeBoardOwner])} — create one above to start pinning notes.</div>
     `;
   }
-
   const board = ownerBoards.find(b=>b.id===activeBoardId);
   const sections = board.sections || [];
   const frameColor = board.borderColor || (activeBoardOwner==='abir' ? ABIR_ACCENT_HEX : JADE_ACCENT_HEX);
-
+  // vertical rail of board tabs down the left
+  const railTabs = ownerBoards.map(b=>`
+    <button class="board-tab removable ${b.id===activeBoardId?'active':''}" style="--owner-color:${ownerColorVar};" data-remove="__app.removeBoard('${b.id}')" onclick="__app.selectBoard('${b.id}')" title="${escHtml(b.name)}">${escHtml(b.name)}</button>
+  `).join('');
+  const rail = `<div class="board-rail">
+    <div class="board-rail-label">Boards</div>
+    ${railTabs}
+  </div>`;
+  // expired notes drop out of view but stay recoverable
+  const liveNotes = board.notes.filter(n=>!isExpired(n));
+  const expiredNotes = board.notes.filter(n=>isExpired(n));
   let bodyHtml;
   if(sections.length === 0){
-    const notesHtml = board.notes.length===0
+    const notesHtml = liveNotes.length===0
       ? '<div class="empty-note" style="padding:20px;">No sticky notes here yet — pin one below.</div>'
-      : board.notes.map(n=>renderNote(board, n, 'boardCanvas')).join('');
+      : liveNotes.map(n=>renderNote(board, n, 'boardCanvas')).join('');
     bodyHtml = `<div class="matrix-canvas" id="boardCanvas">${notesHtml}</div>`;
   } else {
     const laneHtml = sections.map((sec,i)=>{
-      const secNotes = board.notes.filter(n=>n.section===sec.id);
+      const secNotes = liveNotes.filter(n=>n.section===sec.id);
       const count = secNotes.length;
       const over = sec.max && count > sec.max;
       const canvasId = 'sectionCanvas_'+sec.id;
@@ -1771,14 +2023,25 @@ function renderBoards(){
     }).join('');
     bodyHtml = `<div class="section-lanes">${laneHtml}</div>`;
   }
-
+  const archiveBlock = expiredNotes.length === 0 ? '' : `
+    <details class="add-details" style="margin-top:12px;">
+      <summary>⏳ Expired notes (${expiredNotes.length})</summary>
+      <div class="card" style="display:block;margin-top:10px;">
+        ${expiredNotes.map(n=>`<div class="archive-row">
+          <span class="archive-text">${escHtml((n.text||'').slice(0,120) || '(empty note)')}</span>
+          <span style="display:flex;gap:6px;flex-shrink:0;">
+            <button class="pill" onclick="__app.restoreNote('${board.id}','${n.id}')">Put back</button>
+            <button class="card-remove-btn" onclick="__app.deleteExpiredNote('${board.id}','${n.id}')" title="Delete for good">✕</button>
+          </span>
+        </div>`).join('')}
+      </div>
+    </details>`;
   const frameControls = `<div class="frame-controls">
     <span class="frame-swatch" style="background:${frameColor};"></span>
     <span>Board border</span>
     <input class="hex-input" type="text" id="borderHex_${board.id}" placeholder="${frameColor}" onkeydown="if(event.key==='Enter'){__app.setBoardBorderColor('${board.id}', this.value); this.value='';}">
     <button class="pill" style="padding:6px 12px;" onclick="__app.setBoardBorderColor('${board.id}', document.getElementById('borderHex_${board.id}').value); document.getElementById('borderHex_${board.id}').value='';">Apply</button>
   </div>`;
-
   const addSectionForm = `<details class="add-details" style="margin-top:0;margin-bottom:14px;">
     <summary>+ Add section</summary>
     <div class="bet-form" style="margin-top:10px;">
@@ -1787,13 +2050,11 @@ function renderBoards(){
       <button class="btn-flame" onclick="__app.addSection('${board.id}')">Add</button>
     </div>
   </details>`;
-
   const sectionPicker = sections.length
-    ? `<select id="newNoteSection_${board.id}" style="background:var(--glass-light);border:1px solid var(--border-glass);color:var(--text);padding:9px 10px;font-family:'Inter',sans-serif;font-size:13px;border-radius:3px;">
+    ? `<select id="newNoteSection_${board.id}" class="mini-select" style="padding:9px 10px;font-size:13px;">
         ${sections.map(s=>`<option value="${s.id}">${escHtml(s.name)}</option>`).join('')}
       </select>`
     : '';
-
   const newNoteForm = `<details class="add-details" style="margin-top:12px;">
     <summary>+ New sticky note</summary>
     <div style="margin-top:10px;">
@@ -1802,23 +2063,39 @@ function renderBoards(){
       <div style="display:flex;gap:6px;margin:8px 0;align-items:center;flex-wrap:wrap;">
         ${NOTE_COLORS.map((c,i)=>`<button type="button" onclick="document.getElementById('newNoteColor_${board.id}').value='${c}'" style="width:20px;height:20px;border-radius:50%;background:${c};border:2px solid ${i===0?'var(--flame)':'var(--border-glass)'};cursor:pointer;"></button>`).join('')}
         ${sectionPicker}
+        <select id="newNoteExpiry_${board.id}" class="mini-select" style="padding:9px 10px;font-size:13px;">
+          <option value="0">Keep up forever</option>
+          ${EXPIRY_OPTIONS.map(o=>`<option value="${o.v}">Keep up ${o.label}</option>`).join('')}
+        </select>
       </div>
       <button class="btn-flame" onclick="__app.addNote('${board.id}')">Pin Note</button>
     </div>
   </details>`;
-
-  return `
-    <div class="panel-title">Thought Boards</div>
-    ${ownerRow}
-    ${newBoardForm}
-    <div class="board-tabs">${boardTabs}</div>
+  const main = `<div class="board-main">
     ${addSectionForm}
     ${frameControls}
     <div class="board-frame" style="--frame-color:${frameColor};">${bodyHtml}</div>
     ${newNoteForm}
+    ${archiveBlock}
+  </div>`;
+  return `
+    <div class="panel-title">Thought Boards</div>
+    ${ownerRow}
+    ${newBoardForm}
+    <div class="board-shell">
+      ${rail}
+      ${main}
+    </div>
   `;
 }
-
+function scratchPanelHtml(){
+  return `<div class="side-panel" style="border-top-color:var(--cyan);">
+    <div class="side-panel-title" style="color:var(--cyan);">Notes Margin</div>
+    <div class="side-panel-sub">Shared scratchpad · saves when you click away</div>
+    <textarea class="scratch-area" id="scratchPad" placeholder="Little notes for each other, reminders, running jokes…" onblur="__app.saveScratch(this.value)">${escHtml(state.scratch||'')}</textarea>
+    <div class="scratch-status" id="scratchStatus"></div>
+  </div>`;
+}
 function renderTodaySidebar(){
   const el = document.getElementById('todayCol');
   if(!el) return;
@@ -1846,7 +2123,7 @@ function renderTodaySidebar(){
     const color = abirLeads ? '#FF4D5E' : '#3ECF6E';
     leadHtml = `<b style="color:${color}">${abirLeads?state.names.abir:state.names.jade}</b> +${diff.toLocaleString()} today`;
   }
-  el.innerHTML = `<div class="side-panel">
+  const leaderHtml = `<div class="side-panel">
     <div class="side-panel-title">Today's Leaderboard</div>
     <div class="side-panel-sub">${leadHtml}</div>
     <div class="side-group">
@@ -1858,8 +2135,16 @@ function renderTodaySidebar(){
       ${rowsFor('jade')}
     </div>
   </div>`;
+  // keep the scratchpad in its own node so live updates never wipe what's being typed
+  if(!el.querySelector('#scratchWrap')){
+    el.innerHTML = '<div id="leaderPanel"></div><div id="scratchWrap"></div>';
+  }
+  document.getElementById('leaderPanel').innerHTML = leaderHtml;
+  const pad = document.getElementById('scratchPad');
+  if(!pad || document.activeElement !== pad){
+    document.getElementById('scratchWrap').innerHTML = scratchPanelHtml();
+  }
 }
-
 function renderTodoSidebar(){
   const el = document.getElementById('todoCol');
   if(!el) return;
@@ -1883,7 +2168,6 @@ function renderTodoSidebar(){
   };
   el.innerHTML = section('jade', state.names.jade + "'s To-Do") + section('abir', state.names.abir + "'s To-Do");
 }
-
 document.getElementById('tabs').addEventListener('click', e=>{
   const btn = e.target.closest('.tab-btn');
   if(!btn) return;
@@ -1891,7 +2175,6 @@ document.getElementById('tabs').addEventListener('click', e=>{
   renderTabs();
   renderContent();
 });
-
 const __app = {
   renameParty,
   claim(key, party, pts, label){ claim(key, party, pts, label); },
@@ -1943,6 +2226,27 @@ const __app = {
     addTodoItem(party, text);
   },
   completeTodo(party,id){ completeTodoItem(party, id); },
+  saveScratch(text){ saveScratch(text); },
+  addIdea(){
+    const input = document.getElementById('newIdeaText');
+    const authorEl = document.getElementById('newIdeaAuthor');
+    const text = input.value.trim();
+    if(!text){ alert('Write the idea down first.'); return; }
+    addIdea(text, authorEl.value || null);
+  },
+  removeIdea(id){
+    if(!confirm('Delete this idea?')) return;
+    removeIdea(id);
+  },
+  toggleIdeaVote(id, party){ toggleIdeaVote(id, party); },
+  promoteIdea(id){
+    const target = document.getElementById('promoteTarget_'+id).value;
+    const ptsRaw = document.getElementById('promotePts_'+id).value;
+    const pts = parseInt(ptsRaw,10) || 0;
+    const needsPoints = target.indexOf('todo:') !== 0;
+    if(needsPoints && !pts){ alert('Give it a point value first.'); return; }
+    promoteIdea(id, target, pts);
+  },
   addBoard(){
     const input = document.getElementById('newBoardName');
     const name = input.value.trim();
@@ -1956,13 +2260,30 @@ const __app = {
     const textEl = document.getElementById('newNoteText_'+boardId);
     const colorEl = document.getElementById('newNoteColor_'+boardId);
     const sectionEl = document.getElementById('newNoteSection_'+boardId);
+    const expiryEl = document.getElementById('newNoteExpiry_'+boardId);
     const text = textEl.value.trim();
     if(!text){ alert('Write something on the note first.'); return; }
-    addNote(boardId, text, colorEl.value, sectionEl ? sectionEl.value : null);
+    const hours = expiryEl ? (parseFloat(expiryEl.value) || 0) : 0;
+    addNote(boardId, text, colorEl.value, sectionEl ? sectionEl.value : null, hours);
   },
-  removeNote(boardId, noteId){ removeNote(boardId, noteId); },
+  removeNote(boardId, noteId){
+    if(!confirm('Remove this note?')) return;
+    removeNote(boardId, noteId);
+  },
+  deleteExpiredNote(boardId, noteId){
+    if(!confirm('Delete this expired note for good?')) return;
+    removeNote(boardId, noteId);
+  },
+  restoreNote(boardId, noteId){ restoreNote(boardId, noteId); },
   updateNoteText(boardId, noteId, text){ updateNoteText(boardId, noteId, text); },
   setNoteColor(boardId, noteId, color){ setNoteColor(boardId, noteId, color); },
+  setNoteSize(boardId, noteId, w, h){ setNoteSize(boardId, noteId, w, h); },
+  startNoteResize(evt, boardId, noteId){ startNoteResize(evt, boardId, noteId); },
+  setNoteExpiry(boardId, noteId, val){
+    const hours = parseFloat(val);
+    if(val === '' || isNaN(hours)) return;
+    setNoteExpiry(boardId, noteId, hours);
+  },
   addNoteTodo(boardId, noteId, text, pts){ addNoteTodo(boardId, noteId, (text||'').trim(), pts||0); },
   removeNoteTodo(boardId, noteId, todoId){ removeNoteTodo(boardId, noteId, todoId); },
   updateNoteTodoPts(boardId, noteId, todoId, val){ updateNoteTodoPts(boardId, noteId, todoId, val); },
@@ -2054,11 +2375,10 @@ const __app = {
   resetSeason
 };
 window.__app = __app;
-
 /* ---------------- init ---------------- */
 state = defaultState();
 subscribeState();
-
+setInterval(tickExpiry, 20000);
 } // end runApp
 </script>
 </body>
