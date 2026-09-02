@@ -1,0 +1,3426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Points</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#050A10">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Points">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" id="favicon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E">
+<link rel="apple-touch-icon" id="faviconTouch" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<!-- The one font link. Its href is REPLACED on every switch, never appended
+     to, so nothing accumulates. -->
+<link rel="stylesheet" id="themeFont" href="">
+<!-- The sorting screen shows every house in its own typeface at once, so it
+     needs their display faces together. One more managed link, set once and
+     reused — never appended to. -->
+<link rel="stylesheet" id="pickerFont" href="">
+
+<!-- ==========================================================================
+     THEMES — the contract, then one file per theme.
+     Classic scripts on purpose: they must have registered on
+     window.ORIGIN_THEMES before the deferred module below runs.
+     Adding a sixth theme is one <script> line here and one new file.
+     ========================================================================== -->
+<script src="themes/contract.js"></script>
+<script src="themes/pano.js"></script>
+<script src="themes/diorama.js"></script>
+<script src="themes/gryffindor.js"></script>
+<script src="themes/slytherin.js"></script>
+<script src="themes/origin.js"></script>
+
+<style id="coreCSS">
+
+/* ============================================================
+   CORE — structure only.
+   There is not one colour, typeface or corner radius in this
+   stylesheet. Every one of them is a token, and every token is
+   declared in full by the active theme (themes/*.js). If you
+   find yourself typing a hex value below, it belongs in a theme.
+   The :root block here exists solely so the page is not naked
+   for the ~1 frame before the first theme is applied.
+   ============================================================ */
+:root{
+  color-scheme:dark;
+  --void:#08080A; --deep:#0C0C10; --surface:rgba(20,20,26,.7); --surface-2:rgba(255,255,255,.04);
+  --surface-hover:rgba(255,255,255,.06); --raised:#12121A; --toast:#12121A;
+  --overlay:rgba(0,0,0,.72); --track:rgba(0,0,0,.5); --input:rgba(0,0,0,.4); --scroll:#26262E;
+  --line:rgba(255,255,255,.14); --line-soft:rgba(255,255,255,.08); --line-hard:rgba(255,255,255,.3);
+  --txt:#EDEDF0; --txt-2:#A0A0AC; --txt-3:#6E6E7C; --on-accent:#08080A;
+  --accent:#8899AA; --accent-hi:#B8C4D0; --accent-dim:#4A5560; --accent-wash:rgba(136,153,170,.12);
+  --gold:#C9A94E; --warn:#D9A441; --danger:#D9534F; --ok:#4CAF7D; --info:#5B8DD9;
+  --milestone:#C9A94E; --penalty:#D9534F;
+  --focus-work:#5B8DD9; --focus-break:#4CAF7D; --focus-long:#C9A94E;
+  --f-display:system-ui,sans-serif; --f-body:system-ui,sans-serif; --f-mono:ui-monospace,monospace;
+  --f-display-scale:1; --f-ui-scale:1; --tt-display:none; --ls-display:0;
+  --f-label:var(--f-mono); --tt-label:uppercase; --ls-label:.12em;
+  --radius:4px; --radius-lg:8px; --chip-radius:20px; --border-w:1px;
+  --panel-clip:none; --card-clip:none;
+
+  /* set by the engine from theme.ops — never authored in CSS */
+  --op-a:#D9534F; --op-b:#4CAF7D;
+  /* motion, set from theme.motion */
+  --ease:cubic-bezier(.2,.8,.2,1); --dur:.18s; --dur-enter:.22s;
+
+  --shadow:rgba(0,0,0,.7);
+
+  /* The sorting screen is the one surface that belongs to no house — it is
+     where you are standing before you have one, and it shows all four at
+     once, so it cannot borrow any of their palettes. These five are its own,
+     and they are the only colours in this file that no theme can reach. */
+  --cer-bg:#07070A; --cer-txt:#F2F2F6; --cer-txt-2:#9C9CA8;
+  --cer-txt-3:#8A8A96; --cer-hover:#D2D2DA; --cer-shadow:#000;
+
+  --rail-w:84px;
+  --shell-max:1620px;
+}
+
+/* The theme paints the page ground; #sky carries theme.texture, which the
+   engine writes into the managed stylesheet. Nothing here knows what it
+   looks like. */
+#sky{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+
+/* Crossfade on theme switch. The engine adds .theming for one beat; with
+   prefers-reduced-motion the whole thing is a no-op via the global rule
+   at the foot of this file. */
+/* the header emblem: a theme may draw live art here, or nothing at all */
+#emblem{display:flex;align-items:center;flex:none;}
+#emblem:empty{display:none;}
+#emblem svg{display:block;width:56px;height:56px;}
+@media(max-width:620px){#emblem svg{width:42px;height:42px;}}
+
+/* ============================================================
+   THE SORTING
+   One screen, four cards, no scrolling at 390px. Each card paints
+   itself from its own house's tokens, which are set inline by the
+   renderer — there is not one house colour in this block.
+   ============================================================ */
+#ceremony{position:fixed;inset:0;z-index:400;display:none;overflow:hidden;
+  background:var(--cer-bg);padding:max(14px,env(safe-area-inset-top)) 14px 14px;}
+#ceremony.on{display:flex;flex-direction:column;justify-content:center;gap:10px;}
+body.sorting{overflow:hidden;}
+.cer-head{text-align:center;flex:none;}
+.cer-head .k{font-family:var(--f-label);font-size:9.5px;letter-spacing:.3em;
+  text-transform:uppercase;color:var(--cer-txt-3);}
+.cer-head h2{margin:6px 0 0;font-size:clamp(18px,3.2vw,25px);color:var(--cer-txt);
+  font-family:var(--f-display);text-transform:none;letter-spacing:.01em;}
+.cer-head p{margin:5px auto 0;max-width:48ch;font-size:12px;line-height:1.5;color:var(--cer-txt-2);}
+.cer-grid{
+  flex:0 1 auto;min-height:0;display:grid;gap:10px;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  grid-template-rows:repeat(2,minmax(0,1fr));
+  max-height:min(680px,100%);
+}
+@media(min-width:900px){
+  .cer-grid{grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:minmax(0,1fr);
+    max-height:min(430px,100%);}
+}
+.cer-card{
+  position:relative;overflow:hidden;text-align:left;padding:0;min-height:0;
+  border:1px solid var(--ch-line);border-radius:var(--ch-radius);
+  background:var(--ch-bg);color:var(--ch-txt);cursor:pointer;display:block;
+  transition:transform .22s cubic-bezier(.2,.8,.2,1),box-shadow .22s,border-color .22s;
+}
+.cer-card:hover,.cer-card:focus-visible{transform:translateY(-4px);outline:none;
+  border-color:var(--ch-accent);box-shadow:0 16px 40px -16px var(--cer-shadow),0 0 0 1px var(--ch-accent);}
+.cer-card.chosen{box-shadow:0 0 0 2px var(--ch-accent);}
+.cer-card.dim{opacity:.2;transform:scale(.97);}
+.cer-tex{position:absolute;inset:0;pointer-events:none;}
+.cer-body{position:relative;height:100%;padding:13px;display:flex;flex-direction:column;gap:8px;}
+.cer-crest{width:38px;height:38px;flex:none;color:var(--ch-accent);}
+.cer-crest svg{width:100%;height:100%;}
+.cer-name{font-family:var(--ch-fdisp);font-size:clamp(16px,2.1vw,21px);line-height:1.08;
+  color:var(--ch-txt);text-transform:var(--ch-tt);letter-spacing:var(--ch-ls);}
+.cer-tag{font-family:var(--ch-fbody);font-size:11px;line-height:1.45;color:var(--ch-txt2);}
+/* a working miniature of the house's own chrome, so the card previews the
+   thing it is offering rather than describing it */
+.cer-prev{margin-top:auto;display:flex;flex-direction:column;gap:7px;min-height:0;}
+.cer-panel{border:1px solid var(--ch-line);border-radius:var(--ch-radius);
+  background:var(--ch-surface);padding:8px 9px;display:flex;flex-direction:column;gap:6px;
+  clip-path:var(--ch-clip);}
+.cer-panel .ttl{font-family:var(--ch-flabel);font-size:8px;letter-spacing:var(--ch-lslabel);
+  text-transform:var(--ch-ttlabel);color:var(--ch-txt2);}
+.cer-row{display:flex;align-items:center;gap:6px;}
+.cer-row .cer-mk{width:12px;height:12px;flex:none;display:block;color:var(--ch-mark);}
+.cer-row .cer-mk svg{display:block;width:12px;height:12px;}
+.cer-row .nm{flex:1;min-width:0;font-family:var(--ch-fbody);font-size:10.5px;
+  color:var(--ch-txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cer-row .vl{font-family:var(--ch-fmono);font-size:9.5px;color:var(--ch-accent);}
+.cer-bar{height:7px;border-radius:2px;background:var(--ch-track);overflow:hidden;}
+.cer-bar i{display:block;height:100%;width:58%;background:var(--ch-accent);}
+.cer-act{display:flex;align-items:center;gap:6px;}
+.cer-act .b{font-family:var(--ch-fdisp);font-size:9.5px;padding:4px 11px;
+  border-radius:var(--ch-btnr);background:var(--ch-accent);color:var(--ch-on);
+  text-transform:var(--ch-tt);letter-spacing:var(--ch-ls);}
+.cer-act .g{font-family:var(--ch-flabel);font-size:8px;letter-spacing:var(--ch-lslabel);
+  text-transform:var(--ch-ttlabel);color:var(--ch-txt2);}
+.cer-foot{flex:none;text-align:center;padding-top:4px;}
+.cer-foot button{background:none;border:0;color:var(--cer-txt-3);font-size:11.5px;
+  text-decoration:underline;text-underline-offset:3px;padding:5px 9px;}
+.cer-foot button:hover{color:var(--cer-hover);}
+.cer-sep{color:var(--cer-txt-3);opacity:.6;}
+@media(prefers-reduced-motion:reduce){
+  .cer-card,.cer-card.chosen,.cer-card.dim{transition:none;transform:none;}
+}
+
+#themeVeil{position:fixed;inset:0;z-index:500;pointer-events:none;opacity:0;
+  background:var(--void);transition:opacity .2s linear;}
+#themeVeil.on{opacity:1;}
+
+*{box-sizing:border-box;}
+html{-webkit-text-size-adjust:100%;}
+body{
+  margin:0;background:var(--void);color:var(--txt);
+  font-family:var(--f-body);font-size:14px;line-height:1.5;
+  min-height:100vh;overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--accent);color:var(--on-accent);}
+::-webkit-scrollbar{width:9px;height:9px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--scroll);border-radius:9px;}
+::-webkit-scrollbar-thumb:hover{background:var(--accent-dim);}
+button,input,select,textarea{font-family:inherit;color:inherit;}
+button{cursor:pointer;}
+a{color:var(--accent);}
+
+/* ============================================================
+   Type
+   ============================================================ */
+.mono{font-family:var(--f-mono);}
+.hd{font-family:var(--f-display);font-weight:600;text-transform:var(--tt-display);letter-spacing:var(--ls-display);}
+.eyebrow{font-family:var(--f-label);font-size:10px;letter-spacing:var(--ls-label);
+  text-transform:var(--tt-label);color:var(--txt-3);}
+h1,h2,h3{margin:0;font-family:var(--f-display);font-weight:700;
+  text-transform:var(--tt-display);letter-spacing:var(--ls-display);}
+
+/* ============================================================
+   Chrome — panels, buttons, inputs
+   ============================================================ */
+.panel{
+  background:var(--surface);border:1px solid var(--line);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-radius:var(--radius);position:relative;
+}
+.panel.cut{clip-path:var(--panel-clip);}
+.panel-h{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:11px 14px;border-bottom:1px solid var(--line-soft);
+}
+.panel-h .t{font-family:var(--f-display);font-weight:600;font-size:calc(12.5px * var(--f-ui-scale));
+  text-transform:var(--tt-display);letter-spacing:var(--ls-display);color:var(--txt);}
+.panel-b{padding:14px;}
+.sect-title{
+  font-family:var(--f-label);font-weight:600;font-size:calc(12px * var(--f-ui-scale));
+  letter-spacing:var(--ls-label);text-transform:var(--tt-label);color:var(--txt-3);margin:22px 0 10px;
+  display:flex;align-items:center;gap:10px;
+}
+.sect-title:first-child{margin-top:0;}
+.sect-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent);}
+
+.btn{
+  font-family:var(--f-display);font-weight:600;font-size:calc(12px * var(--f-ui-scale));
+  letter-spacing:var(--ls-display);text-transform:var(--tt-display);
+  background:var(--surface-2);border:var(--border-w) solid var(--line);
+  color:var(--txt-2);padding:8px 14px;border-radius:var(--radius);
+  transition:border-color var(--dur) var(--ease),color var(--dur) var(--ease),background var(--dur) var(--ease),box-shadow var(--dur) var(--ease),transform .08s;
+  white-space:nowrap;
+}
+.btn:hover:not(:disabled){color:var(--accent);border-color:var(--line-hard);background:var(--accent-wash);}
+.btn:active:not(:disabled){transform:scale(.96);}
+.btn:disabled{opacity:.3;cursor:not-allowed;}
+.btn.pri{background:linear-gradient(135deg,var(--accent),var(--accent-hi));
+  color:var(--on-accent);border-color:transparent;box-shadow:0 3px 16px var(--accent-wash);}
+.btn.pri:hover:not(:disabled){filter:brightness(1.08);color:var(--on-accent);}
+.btn.gold{border-color:var(--gold);color:var(--gold);}
+.btn.gold:hover:not(:disabled){background:color-mix(in srgb,var(--gold) 12%,transparent);border-color:var(--gold);color:var(--gold);}
+.btn.warn:hover:not(:disabled){color:var(--danger);border-color:var(--danger);background:color-mix(in srgb,var(--danger) 10%,transparent);}
+.btn.a{border-color:color-mix(in srgb,var(--op-a) 45%,transparent);color:var(--op-a);}
+.btn.a:hover:not(:disabled){border-color:var(--op-a);color:var(--op-a);background:color-mix(in srgb,var(--op-a) 12%,transparent);}
+.btn.b{border-color:color-mix(in srgb,var(--op-b) 45%,transparent);color:var(--op-b);}
+.btn.b:hover:not(:disabled){border-color:var(--op-b);color:var(--op-b);background:color-mix(in srgb,var(--op-b) 12%,transparent);}
+.btn.sm{padding:5px 9px;font-size:11px;}
+.btn.icon{padding:6px 9px;background:none;border-color:transparent;color:var(--txt-3);font-size:13px;}
+.btn.icon:hover:not(:disabled){color:var(--accent);background:var(--surface-2);}
+.btn.icon.warn:hover:not(:disabled){color:var(--danger);}
+.btn.on{border-color:var(--accent);color:var(--accent);background:var(--accent-wash);}
+
+.inp{
+  background:var(--input);border:1px solid var(--line);color:var(--txt);
+  padding:9px 11px;font-size:13.5px;border-radius:var(--radius);width:100%;
+  transition:border-color .15s,box-shadow .15s;
+}
+.inp:focus{outline:none;border-color:var(--accent-dim);box-shadow:0 0 0 3px var(--accent-wash);}
+.inp::placeholder{color:var(--txt-3);}
+select.inp{cursor:pointer;appearance:none;
+  background-image:linear-gradient(45deg,transparent 50%,var(--txt-3) 50%),linear-gradient(135deg,var(--txt-3) 50%,transparent 50%);
+  background-position:calc(100% - 15px) 50%,calc(100% - 10px) 50%;
+  background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:30px;}
+select.inp option{background:var(--raised);}
+input[type="color"].inp{height:42px;padding:4px;cursor:pointer;}
+input[type="date"].inp{color-scheme:inherit;}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.grow{flex:1;min-width:0;}
+.muted{color:var(--txt-3);}
+.empty{color:var(--txt-3);font-size:13px;padding:16px 4px;font-style:italic;}
+.chip{
+  display:inline-flex;align-items:center;gap:5px;font-family:var(--f-label);
+  font-size:10px;letter-spacing:var(--ls-label);text-transform:var(--tt-label);padding:2px 7px;
+  border:1px solid var(--line);border-radius:2px;color:var(--txt-3);white-space:nowrap;
+}
+.pos{color:var(--ok);} .neg{color:var(--penalty);}
+details>summary{list-style:none;cursor:pointer;}
+details>summary::-webkit-details-marker{display:none;}
+.add-sum{
+  font-family:var(--f-label);font-weight:600;font-size:11.5px;letter-spacing:var(--ls-label);
+  text-transform:var(--tt-label);color:var(--txt-3);border:1px dashed var(--line);
+  padding:8px 14px;border-radius:var(--radius);display:inline-block;transition:all .15s;
+}
+.add-sum:hover{color:var(--accent);border-color:var(--line-hard);}
+details[open]>.add-sum{color:var(--accent);border-style:solid;margin-bottom:10px;}
+
+/* ============================================================
+   Shell layout
+   ============================================================ */
+#shell{position:relative;z-index:1;max-width:var(--shell-max);margin:0 auto;
+  padding:0 14px calc(84px + env(safe-area-inset-bottom));}
+@media(min-width:900px){#shell{padding:0 20px 40px;}}
+
+/* --- Operator header --- */
+#hud{padding:16px 0 14px;}
+.hud-top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:14px;}
+.brandmark{display:flex;align-items:center;gap:12px;}
+.brand-glyph{
+  width:38px;height:38px;flex-shrink:0;display:flex;
+  background:linear-gradient(150deg,var(--accent),var(--gold));
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 22px var(--accent-wash);
+}
+.brand-glyph span{font-family:var(--f-display);font-weight:700;font-size:15px;color:var(--on-accent);
+  line-height:1;}
+.brand-title{font-size:calc(clamp(17px,2.6vw,22px) * var(--f-display-scale));
+  letter-spacing:var(--ls-display);color:var(--txt);}
+.hud-status{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
+#syncDot{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 8px var(--ok);flex-shrink:0;}
+#syncDot.saving{background:var(--gold);box-shadow:0 0 8px var(--gold);}
+#syncDot.off{background:var(--danger);box-shadow:0 0 8px var(--danger);}
+
+/* --- Standing bars --- */
+.ops{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:620px){.ops{gap:8px;}}
+.op{
+  position:relative;overflow:hidden;padding:13px 15px;
+  background:linear-gradient(150deg,var(--surface-2),var(--surface));
+  border:1px solid var(--line);border-left:2px solid var(--op);
+  clip-path:var(--card-clip);
+}
+.op.lead{box-shadow:0 0 0 1px color-mix(in srgb,var(--gold) 30%,transparent),0 8px 30px -12px var(--op);}
+.op-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;}
+.op-name{font-family:var(--f-display);font-weight:700;font-size:calc(15px * var(--f-display-scale));
+  letter-spacing:var(--ls-display);text-transform:var(--tt-display);color:var(--op);cursor:pointer;display:flex;align-items:center;gap:6px;min-width:0;}
+.op-name .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+/* the small permanent mark of whichever house this operator is in */
+.house-mark{display:flex;flex:none;opacity:.9;}
+.house-mark svg{display:block;}
+@media(max-width:620px){
+  /* the crest must never cost the name: shrink the mark and let the rank
+     block give way before the name does */
+  .house-mark svg{width:12px !important;height:12px !important;}
+  .op-name{gap:4px;}
+  .op-rank{font-size:9px;min-width:0;flex-shrink:1;overflow:hidden;}
+  .op-top{gap:5px;}
+}
+.op-name:hover{filter:brightness(1.2);}
+.op-rank{font-family:var(--f-mono);font-size:10px;letter-spacing:.12em;color:var(--txt-3);
+  text-align:right;white-space:nowrap;}
+.op-pts{font-family:var(--f-mono);font-size:clamp(22px,4.4vw,30px);font-weight:700;
+  letter-spacing:.02em;margin:6px 0 1px;line-height:1;}
+.op-sub{font-family:var(--f-mono);font-size:10.5px;color:var(--txt-3);
+  display:flex;gap:8px;flex-wrap:wrap;margin-bottom:9px;}
+.op-track{height:4px;background:var(--track);border-radius:4px;overflow:hidden;}
+.op-fill{height:100%;background:var(--tier);border-radius:4px;
+  transition:width .6s var(--ease);}
+.op-delta{font-family:var(--f-mono);font-size:11px;}
+.streak{color:var(--gold);}
+
+/* --- Nav rail / bottom bar. Wraps; never a clipped scroller. --- */
+#nav{
+  display:flex;gap:6px;flex-wrap:wrap;margin:16px 0 18px;
+  padding:5px;background:var(--surface);border:1px solid var(--line-soft);border-radius:var(--radius);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+}
+.nav-btn{
+  display:flex;align-items:center;gap:8px;flex:1 1 auto;justify-content:center;
+  font-family:var(--f-display);font-weight:600;font-size:calc(12px * var(--f-ui-scale));
+  letter-spacing:var(--ls-display);text-transform:var(--tt-display);
+  background:transparent;border:var(--border-w) solid transparent;
+  color:var(--txt-3);padding:9px 12px;border-radius:var(--radius);transition:all var(--dur) var(--ease);
+}
+.nav-btn .ic{font-size:14px;line-height:1;}
+.nav-btn:hover{color:var(--txt);background:var(--surface-2);}
+.nav-btn.on{color:var(--on-accent);background:linear-gradient(135deg,var(--accent),var(--accent-hi));
+  box-shadow:0 3px 14px var(--accent-wash);}
+.nav-btn .kbd{font-family:var(--f-mono);font-size:9px;opacity:.5;}
+@media(max-width:760px){
+  #nav{position:fixed;left:0;right:0;bottom:0;z-index:60;margin:0;border-radius:0;
+    border:0;border-top:1px solid var(--line);background:var(--deep);flex-wrap:nowrap;
+    padding:6px 4px calc(6px + env(safe-area-inset-bottom));}
+  .nav-btn,:root[data-theme] .nav-btn{flex-direction:column;gap:3px;font-size:9px;letter-spacing:.06em;
+    padding:6px 2px;flex:1 1 0;min-width:0;}
+  .nav-btn .ic{font-size:17px;}
+  .nav-btn .kbd{display:none;}
+  /* themed labels run long ("Headmaster's Office") — clip rather than wrap */
+  .nav-btn .lbl{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+}
+
+/* --- Main grid --- */
+#main{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px;align-items:start;}
+@media(max-width:1180px){#main{grid-template-columns:minmax(0,1fr);}}
+#aside{display:flex;flex-direction:column;gap:14px;position:sticky;top:14px;}
+@media(max-width:1180px){#aside{position:static;}}
+#view{min-width:0;}
+
+/* ============================================================
+   STAR CHART
+   ============================================================ */
+.planet-strip{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0 4px;}
+.pl-chip{
+  display:flex;align-items:center;gap:7px;padding:7px 12px;border-radius:var(--chip-radius);
+  background:var(--surface-2);border:1px solid var(--line-soft);color:var(--txt-3);
+  font-family:var(--f-display);font-weight:600;font-size:11.5px;letter-spacing:var(--ls-display);
+  text-transform:var(--tt-display);transition:all var(--dur) var(--ease);
+}
+.pl-chip .dot{width:9px;height:9px;border-radius:50%;background:var(--pc);flex-shrink:0;
+  box-shadow:0 0 8px var(--pc);}
+.pl-chip:hover{color:var(--txt);border-color:var(--line);}
+.pl-chip.on{color:var(--txt);border-color:var(--pc);background:color-mix(in srgb,var(--pc) 14%,transparent);
+  box-shadow:0 0 16px -6px var(--pc);}
+.pl-chip .n{font-family:var(--f-mono);font-size:10px;opacity:.6;}
+
+.planet-head{
+  display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;
+  padding:16px 0 12px;border-bottom:1px solid var(--line-soft);margin-bottom:16px;
+}
+.planet-head h2{font-size:calc(clamp(20px,3.4vw,28px) * var(--f-display-scale));letter-spacing:var(--ls-display);color:var(--pc);
+  text-shadow:0 0 26px color-mix(in srgb,var(--pc) 45%,transparent);}
+.planet-head .sub{font-family:var(--f-mono);font-size:11px;color:var(--txt-3);margin-top:3px;}
+
+.node-grid{position:relative;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;}
+@media(max-width:560px){.node-grid{grid-template-columns:1fr;}}
+#links{position:absolute;inset:0;pointer-events:none;overflow:visible;z-index:0;}
+#links path{fill:none;stroke:var(--line-hard);stroke-width:1.2;stroke-dasharray:4 4;opacity:.7;}
+#links path.locked{stroke:color-mix(in srgb,var(--penalty) 55%,transparent);}
+
+.node{
+  position:relative;z-index:1;padding:12px 13px;background:var(--surface);
+  border:1px solid var(--line-soft);border-left:2px solid var(--nc,var(--line));
+  border-radius:var(--radius);transition:border-color var(--dur) var(--ease),transform var(--dur) var(--ease),box-shadow var(--dur) var(--ease);
+  display:flex;flex-direction:column;gap:9px;
+}
+.node:hover{border-color:var(--line);border-left-color:var(--nc);transform:translateY(-2px);
+  box-shadow:0 10px 26px -12px var(--shadow),0 0 22px -14px var(--nc);}
+.node.locked{opacity:.55;}
+.node.boss{border-left-color:var(--milestone);background:linear-gradient(150deg,color-mix(in srgb,var(--milestone) 9%,transparent),var(--surface));}
+.node.infested{border-left-color:var(--penalty);}
+.node-top{display:flex;align-items:flex-start;gap:9px;}
+/* the mark is drawn by the theme; the core only reserves the box */
+.node-mark{width:16px;height:16px;flex-shrink:0;margin-top:2px;color:var(--nc);
+  display:flex;align-items:center;justify-content:center;}
+.node-mark svg{width:100%;height:100%;}
+.node.locked .node-mark{color:var(--txt-3);}
+.node-name{font-size:13.5px;font-weight:500;line-height:1.35;word-break:break-word;}
+.node-meta{font-family:var(--f-mono);font-size:10.5px;color:var(--txt-3);
+  margin-top:3px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.node-val{font-family:var(--f-mono);font-size:12px;font-weight:700;white-space:nowrap;}
+.node-acts{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.node-acts .spacer{flex:1;}
+.claim-n{font-family:var(--f-mono);font-size:10px;opacity:.8;}
+
+/* ============================================================
+   FOUNDRY (tasks)
+   ============================================================ */
+.fd-add{position:relative;margin-bottom:14px;}
+.fd-add .inp{padding:13px 15px;font-size:14.5px;border-color:var(--line);background:var(--input);}
+.fd-hint{font-family:var(--f-mono);font-size:10.5px;color:var(--txt-3);
+  margin-top:6px;display:flex;gap:12px;flex-wrap:wrap;}
+.fd-hint b{color:var(--accent);font-weight:400;}
+.fd-preview{
+  position:absolute;left:0;right:0;top:calc(100% + 5px);z-index:30;
+  background:var(--raised);border:1px solid var(--line-hard);border-radius:var(--radius);padding:9px 12px;
+  font-family:var(--f-mono);font-size:11px;color:var(--txt-2);
+  display:flex;gap:9px;flex-wrap:wrap;box-shadow:0 12px 30px -10px var(--shadow);
+}
+.fd-lists{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px;align-items:center;}
+.fd-body{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;}
+.tk{
+  display:flex;align-items:flex-start;gap:11px;padding:10px 12px;
+  background:var(--surface);border:1px solid var(--line-soft);border-radius:var(--radius);
+  border-left:2px solid var(--tc,transparent);
+  transition:border-color .15s,background .15s,opacity .2s;
+}
+.tk:hover{border-color:var(--line);background:var(--surface-hover);}
+.tk.done{opacity:.42;}
+.tk.done .tk-text{text-decoration:line-through;}
+.tk.over{border-left-color:var(--penalty);}
+.tk-box{
+  width:19px;height:19px;flex-shrink:0;margin-top:1px;border:1.5px solid var(--line-hard);
+  border-radius:2px;background:none;display:flex;align-items:center;justify-content:center;
+  color:transparent;font-size:12px;transition:all var(--dur) var(--ease);padding:0;
+}
+.tk-box:hover{border-color:var(--accent);background:var(--accent-wash);color:var(--accent);}
+.tk.done .tk-box{background:var(--accent);border-color:var(--accent);color:var(--on-accent);}
+.tk-main{flex:1;min-width:0;}
+.tk-text{font-size:13.5px;line-height:1.4;word-break:break-word;}
+.tk-meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:4px;
+  font-family:var(--f-mono);font-size:10px;color:var(--txt-3);}
+.tk-meta .due.today{color:var(--gold);}
+.tk-meta .due.over{color:var(--penalty);}
+.tk-meta .pts{color:var(--accent);}
+.tk-meta .own{padding:1px 6px;border:1px solid currentColor;border-radius:2px;}
+.tk-acts{display:flex;gap:2px;align-items:center;flex-shrink:0;opacity:0;transition:opacity .15s;}
+.tk:hover .tk-acts,.tk:focus-within .tk-acts{opacity:1;}
+@media(hover:none){.tk-acts{opacity:1;}}
+.tk-sub{margin:7px 0 0 0;display:flex;flex-direction:column;gap:4px;}
+.tk-sub-row{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--txt-2);}
+.tk-sub-row.done{text-decoration:line-through;opacity:.5;}
+.tk-sub-box{width:14px;height:14px;border:1.5px solid var(--line);border-radius:2px;background:none;
+  flex-shrink:0;padding:0;color:transparent;font-size:9px;display:flex;align-items:center;justify-content:center;}
+.tk-sub-row.done .tk-sub-box{background:var(--txt-3);border-color:var(--txt-3);color:var(--on-accent);}
+.tk-edit{width:100%;background:var(--input);border:1px solid var(--accent-dim);color:var(--txt);
+  padding:6px 8px;font-size:13.5px;border-radius:2px;}
+.tk-edit:focus{outline:none;}
+.day-h{
+  font-family:var(--f-label);font-weight:600;font-size:11px;letter-spacing:var(--ls-label);
+  text-transform:var(--tt-label);color:var(--txt-3);margin:16px 0 2px;display:flex;gap:9px;align-items:center;
+}
+.day-h:first-child{margin-top:0;}
+.day-h.over{color:var(--penalty);}
+.day-h.today{color:var(--gold);}
+.day-h .c{font-family:var(--f-mono);opacity:.6;}
+
+/* ============================================================
+   MARKET / CONCLAVE / CODEX
+   ============================================================ */
+.mk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;}
+.mk{padding:13px;background:var(--surface);border:1px solid var(--line-soft);border-radius:var(--radius);
+  display:flex;flex-direction:column;gap:10px;border-top:2px solid var(--oc);}
+.mk-name{font-size:13.5px;font-weight:500;}
+.mk-cost{font-family:var(--f-mono);font-size:12px;color:var(--gold);}
+.mk-cost.no{color:var(--txt-3);}
+.mk-bar{height:3px;background:var(--track);border-radius:3px;overflow:hidden;}
+.mk-bar i{display:block;height:100%;background:var(--oc);box-shadow:0 0 8px var(--oc);}
+
+.log-row{display:flex;justify-content:space-between;gap:12px;padding:9px 2px;
+  border-bottom:1px solid var(--line-soft);font-size:13px;}
+.log-row:last-child{border-bottom:none;}
+.log-meta{font-family:var(--f-mono);font-size:10.5px;color:var(--txt-3);margin-top:2px;}
+.log-d{font-family:var(--f-mono);font-weight:700;white-space:nowrap;font-size:13px;}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:6px;}
+.stat{padding:12px;background:var(--surface-2);border:1px solid var(--line-soft);border-radius:var(--radius);}
+.stat .v{font-family:var(--f-mono);font-size:20px;font-weight:700;}
+.stat .l{font-family:var(--f-label);font-size:10px;letter-spacing:var(--ls-label);
+  text-transform:var(--tt-label);color:var(--txt-3);margin-top:2px;}
+
+/* ============================================================
+   FOCUS
+   ============================================================ */
+.focus-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 0 4px;}
+.focus-ring{position:relative;width:min(300px,74vw);aspect-ratio:1;}
+.focus-ring svg{width:100%;height:100%;transform:rotate(-90deg);}
+.focus-ring .bg{fill:none;stroke:var(--track);stroke-width:5;}
+.focus-ring .fg{fill:none;stroke:var(--fc);stroke-width:5;stroke-linecap:round;
+  filter:drop-shadow(0 0 8px var(--fc));transition:stroke-dashoffset .9s linear;}
+.focus-mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;}
+.focus-time{font-family:var(--f-mono);font-size:clamp(34px,9vw,50px);font-weight:700;
+  letter-spacing:.02em;line-height:1;}
+.focus-phase{font-family:var(--f-label);font-weight:600;font-size:12px;letter-spacing:var(--ls-label);
+  text-transform:var(--tt-label);color:var(--fc);}
+.focus-cyc{font-family:var(--f-mono);font-size:10.5px;color:var(--txt-3);}
+.focus-mini{display:flex;align-items:center;gap:10px;}
+.focus-mini .t{font-family:var(--f-mono);font-size:19px;font-weight:700;}
+.focus-mini .p{font-family:var(--f-label);font-size:9.5px;letter-spacing:var(--ls-label);
+  text-transform:var(--tt-label);color:var(--fc);}
+
+/* ============================================================
+   Aside panels
+   ============================================================ */
+.feed-row{display:flex;justify-content:space-between;gap:9px;padding:6px 0;
+  border-bottom:1px solid var(--line-soft);font-size:12.5px;}
+.feed-row:last-child{border-bottom:none;}
+.feed-row .who{font-family:var(--f-mono);font-size:9.5px;color:var(--txt-3);}
+.cm{padding:8px 0;border-bottom:1px solid var(--line-soft);font-size:13px;}
+.cm:last-of-type{border-bottom:none;}
+.cm .h{display:flex;justify-content:space-between;gap:8px;font-family:var(--f-mono);
+  font-size:9.5px;color:var(--txt-3);margin-bottom:2px;}
+.cm .b{word-break:break-word;white-space:pre-wrap;}
+.cm.pin{border-left:2px solid var(--gold);padding-left:9px;}
+
+/* ============================================================
+   Overlays — toast, modal, palette
+   ============================================================ */
+#toasts{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(88px + env(safe-area-inset-bottom));
+  z-index:200;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;width:min(440px,94vw);}
+@media(min-width:761px){#toasts{bottom:24px;}}
+.toast{
+  pointer-events:auto;display:flex;align-items:center;gap:11px;width:100%;
+  background:var(--toast);border:1px solid var(--line-hard);border-left:3px solid var(--tcol,var(--accent));
+  padding:10px 13px;border-radius:var(--radius);box-shadow:0 14px 34px -12px var(--shadow);
+  animation:toast-in var(--dur-enter) var(--ease);font-size:13px;
+}
+.toast.out{animation:toast-out .2s forwards;}
+@keyframes toast-in{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:none;}}
+@keyframes toast-out{to{opacity:0;transform:translateY(8px);}}
+.toast .msg{flex:1;min-width:0;}
+.toast .amt{font-family:var(--f-mono);font-weight:700;}
+
+#modalWrap{position:fixed;inset:0;z-index:300;display:none;align-items:center;justify-content:center;
+  background:var(--overlay);backdrop-filter:blur(4px);padding:16px;}
+#modalWrap.on{display:flex;}
+.modal{width:min(520px,100%);max-height:86vh;overflow:auto;background:var(--raised);
+  border:1px solid var(--line-hard);border-radius:var(--radius);box-shadow:0 30px 70px -20px var(--shadow);
+  clip-path:var(--panel-clip);}
+.modal-h{padding:16px 18px 12px;border-bottom:1px solid var(--line-soft);}
+.modal-h h3{font-size:calc(14px * var(--f-display-scale));letter-spacing:var(--ls-display);}
+.modal-h p{margin:6px 0 0;font-size:12.5px;color:var(--txt-2);}
+.modal-b{padding:16px 18px;display:flex;flex-direction:column;gap:11px;}
+.modal-f{padding:12px 18px 16px;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;}
+.field label{display:block;font-family:var(--f-label);font-size:10px;letter-spacing:var(--ls-label);
+  text-transform:var(--tt-label);color:var(--txt-3);margin-bottom:5px;}
+
+#palWrap{position:fixed;inset:0;z-index:280;display:none;justify-content:center;
+  background:var(--overlay);backdrop-filter:blur(3px);padding:12vh 16px 16px;}
+#palWrap.on{display:flex;}
+.pal{width:min(560px,100%);height:fit-content;max-height:70vh;display:flex;flex-direction:column;
+  background:var(--raised);border:1px solid var(--line-hard);border-radius:var(--radius);overflow:hidden;
+  box-shadow:0 30px 70px -20px var(--shadow);}
+.pal input{width:100%;background:none;border:0;border-bottom:1px solid var(--line);color:var(--txt);
+  padding:15px 17px;font-size:15px;}
+.pal input:focus{outline:none;}
+.pal-list{overflow:auto;padding:6px;}
+.pal-item{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:var(--radius);cursor:pointer;font-size:13.5px;}
+.pal-item .k{font-family:var(--f-mono);font-size:10px;color:var(--txt-3);
+  padding:1px 6px;border:1px solid var(--line);border-radius:2px;margin-left:auto;white-space:nowrap;}
+.pal-item.sel{background:var(--accent-wash);}
+.pal-item .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
+/* login / setup */
+#gate{max-width:390px;margin:8vh auto;}
+.gate-glyph{width:52px;height:52px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(150deg,var(--accent),var(--gold));box-shadow:0 0 34px var(--accent-wash);}
+#loginErr{color:var(--danger);font-size:12.5px;min-height:16px;}
+.hide{display:none !important;}
+@keyframes pop{0%{transform:scale(1);}45%{transform:scale(1.14);}100%{transform:scale(1);}}
+@keyframes fall{
+  0%{transform:translate(0,0) rotate(0deg);opacity:1;}
+  100%{transform:translate(var(--dx,20px),108vh) rotate(680deg);opacity:.35;}
+}
+.pop{animation:pop .32s cubic-bezier(.2,.9,.3,1);}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;transition-duration:.01ms !important;}
+}
+</style>
+
+<!-- The active theme's chrome. It MUST come after the core stylesheet: a
+     theme overrides core component rules at equal specificity, so it has to
+     win on order. Replaced in place on every switch, never appended to. -->
+<style id="themeCSS"></style>
+</head>
+<body>
+<script>
+/* First paint, before Firestore has said anything. We cache the last applied
+   theme's ground colour and font link so the app opens in the right house
+   instead of flashing a default and then correcting itself. The engine takes
+   over the moment the module boots. */
+(function () {
+  try {
+    var c = JSON.parse(localStorage.getItem('origin_theme_paint') || 'null');
+    if (!c) return;
+    document.documentElement.setAttribute('data-theme', c.id);
+    var r = document.documentElement.style;
+    for (var k in c.tokens) r.setProperty('--' + k, c.tokens[k]);
+    if (c.font) document.getElementById('themeFont').href = c.font;
+    if (c.favicon) {
+      document.getElementById('favicon').href = c.favicon;
+      document.getElementById('faviconTouch').href = c.favicon;
+    }
+    var m = document.querySelector('meta[name="theme-color"]');
+    if (m && c.themeColor) m.setAttribute('content', c.themeColor);
+  } catch (e) {}
+})();
+</script>
+<div id="sky"></div>
+<div id="themeVeil"></div>
+<div id="ceremony" role="dialog" aria-modal="true" aria-label="Choose your house"></div>
+
+<div id="shell">
+  <!-- ===== SETUP / LOGIN GATES ===== -->
+  <div id="setupGate" class="hide">
+    <div class="panel cut" id="gate">
+      <div class="panel-b">
+        <div class="gate-glyph"></div>
+        <h2 style="text-align:center;font-size:15px;">No database linked</h2>
+        <p style="font-size:13px;color:var(--txt-2);line-height:1.6;margin-top:12px;">
+          Open <code>index.html</code> in a text editor, find the <code>firebaseConfig</code> block near the
+          top of the <code>&lt;script&gt;</code> tag, and paste in your Firebase project's config. Then reload.
+          Full steps are in the README.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div id="loginGate" class="hide">
+    <div class="panel cut" id="gate">
+      <div class="panel-b">
+        <div class="gate-glyph"></div>
+        <h2 style="text-align:center;font-size:16px;margin:4px 0 18px;">Sign in</h2>
+        <div class="field" style="margin-bottom:10px;">
+          <label for="loginEmail">Email</label>
+          <input id="loginEmail" class="inp" type="email" autocomplete="username" placeholder="you@email.com">
+        </div>
+        <div class="field" style="margin-bottom:14px;">
+          <label for="loginPassword">Password</label>
+          <input id="loginPassword" class="inp" type="password" autocomplete="current-password" placeholder="••••••••">
+        </div>
+        <button class="btn pri" style="width:100%;justify-content:center;" data-act="signin">Sign in</button>
+        <div id="loginErr" style="margin-top:10px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== APP ===== -->
+  <div id="app" class="hide">
+    <header id="hud">
+      <div class="hud-top">
+        <div class="brandmark">
+          <div class="brand-glyph"></div>
+          <div>
+            <div class="eyebrow" id="seasonTag">Origin System</div>
+            <h1 class="brand-title" id="seasonName">Battle For The Top</h1>
+            <div class="creed" id="creed"></div>
+          </div>
+          <div id="emblem"></div>
+        </div>
+        <div class="hud-status">
+          <div class="chip" id="leadChip">—</div>
+          <div class="chip" style="gap:7px;"><span id="syncDot"></span><span id="syncTxt">live</span></div>
+          <button class="btn icon" id="themeBtn" data-act="theme"></button>
+          <button class="btn icon" id="searchBtn" data-act="palette" title="Search / jump (press K)"></button>
+          <button class="btn icon" id="settingsBtn" data-act="settings" title="Settings"></button>
+          <button class="btn icon hide" id="signOutBtn" data-act="signout" title="Sign out"></button>
+        </div>
+      </div>
+      <div class="ops" id="ops"></div>
+    </header>
+
+    <nav id="nav">
+      <button class="nav-btn" data-nav="chart"><span class="ic"></span><span class="lbl"></span><span class="kbd">1</span></button>
+      <button class="nav-btn" data-nav="foundry"><span class="ic"></span><span class="lbl"></span><span class="kbd">2</span></button>
+      <button class="nav-btn" data-nav="focus"><span class="ic"></span><span class="lbl"></span><span class="kbd">3</span></button>
+      <button class="nav-btn" data-nav="market"><span class="ic"></span><span class="lbl"></span><span class="kbd">4</span></button>
+      <button class="nav-btn" data-nav="conclave"><span class="ic"></span><span class="lbl"></span><span class="kbd">5</span></button>
+      <button class="nav-btn" data-nav="codex"><span class="ic"></span><span class="lbl"></span><span class="kbd">6</span></button>
+    </nav>
+
+    <div id="main">
+      <main id="view"></main>
+      <aside id="aside"></aside>
+    </div>
+  </div>
+</div>
+
+<div id="toasts"></div>
+<div id="modalWrap"><div class="modal" id="modal"></div></div>
+<div id="palWrap">
+  <div class="pal">
+    <input id="palInput" placeholder="Search…" autocomplete="off" spellcheck="false">
+    <div class="pal-list" id="palList"></div>
+  </div>
+</div>
+<script type="module">
+/* ==========================================================================
+   ORIGIN SYSTEM — a two-operator standing economy for real life.
+   Single file. No build step. Firebase (Firestore + Auth) is the only dep.
+   --------------------------------------------------------------------------
+   FIREBASE CONFIG — paste your own project's config below.
+   Firebase Console > Project Settings > General > Your apps > SDK config.
+   ========================================================================== */
+const firebaseConfig = {
+  apiKey: "AIzaSyAPDL1kF7BoXfxxoNsaZtvM2sNk75Vg_ZI",
+  authDomain: "point-tracker-fd222.firebaseapp.com",
+  projectId: "point-tracker-fd222",
+  storageBucket: "point-tracker-fd222.firebasestorage.app",
+  messagingSenderId: "985175072746",
+  appId: "1:985175072746:web:6d1b60323a2c7f2853dc93"
+};
+/* Legacy path — kept on purpose so every point, bet and note ever logged
+   survives the rebuild. Renaming it would start you both from zero. */
+const DOC_PATH = ["apex_tracker", "state"];
+/* ========================================================================== */
+
+const DEMO = new URLSearchParams(location.search).has('demo');
+const $  = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+const show = (el, on) => { if (el) el.classList.toggle('hide', !on); };
+
+/* ---- store: either Firestore, or a local sandbox for `?demo=1` ---- */
+function localStore() {
+  const KEY = 'origin_system_demo';
+  let cb = null;
+  const read = () => { try { return JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { return null; } };
+  return {
+    mode: 'demo',
+    subscribe(fn) { cb = fn; setTimeout(() => cb(read()), 0); },
+    async save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+  };
+}
+
+async function firebaseStore() {
+  const { initializeApp } = await import("https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js");
+  const fs = await import("https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js");
+  const { getFirestore, doc, onSnapshot, setDoc, initializeFirestore,
+          persistentLocalCache, persistentMultipleTabManager } = fs;
+  const { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } =
+    await import("https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js");
+
+  const fbApp = initializeApp(firebaseConfig);
+  /* offline cache: claims made on a phone with no signal land as soon as it
+     reconnects, instead of being lost */
+  let db;
+  try {
+    db = initializeFirestore(fbApp, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) });
+  } catch (e) {
+    db = getFirestore(fbApp);
+  }
+  const ref = doc(db, DOC_PATH[0], DOC_PATH[1]);
+  const auth = getAuth(fbApp);
+  try { await setPersistence(auth, browserLocalPersistence); } catch (e) {}
+
+  return {
+    mode: 'live',
+    auth, signIn: signInWithEmailAndPassword, signOut, onAuthStateChanged,
+    subscribe(fn, onErr) { onSnapshot(ref, snap => fn(snap.exists() ? snap.data() : null), onErr); },
+    save(s) { return setDoc(ref, s); }
+  };
+}
+
+let STORE = null;
+if (DEMO) {
+  STORE = localStore();
+  boot();
+} else if (!firebaseConfig.apiKey || firebaseConfig.apiKey === "YOUR_API_KEY") {
+  show($('#setupGate'), true);
+} else {
+  STORE = await firebaseStore();
+  let started = false;
+  $('#loginGate').addEventListener('click', e => {
+    if (e.target.closest('[data-act="signin"]')) doSignIn();
+  });
+  $('#loginGate').addEventListener('keydown', e => { if (e.key === 'Enter') doSignIn(); });
+  function doSignIn() {
+    const email = $('#loginEmail').value.trim();
+    const pass = $('#loginPassword').value;
+    $('#loginErr').textContent = '';
+    STORE.signIn(STORE.auth, email, pass)
+      .catch(() => { $('#loginErr').textContent = 'Sign-in failed — check the email and password.'; });
+  }
+  STORE.onAuthStateChanged(STORE.auth, user => {
+    if (user) {
+      show($('#loginGate'), false);
+      show($('#app'), true);
+      window.__signOut = () => STORE.signOut(STORE.auth);
+      window.__userEmail = user.email;
+      if (!started) { started = true; boot(); }
+    } else {
+      show($('#app'), false);
+      show($('#loginGate'), true);
+    }
+  });
+}
+
+function boot() {
+  show($('#app'), true);
+  startApp(STORE);
+}
+
+/* ==========================================================================
+   APP
+   ========================================================================== */
+function startApp(store) {
+
+/* ---------------- constants ---------------- */
+const PARTIES = ['abir', 'jade'];
+/* ==========================================================================
+   THEME ENGINE
+   --------------------------------------------------------------------------
+   The core knows no theme by name. It knows the contract in
+   themes/contract.js, and it knows how to put one on:
+
+     tokens  -> CSS custom properties on <html>
+     css     -> the single managed <style id="themeCSS">, replaced not appended
+     fonts   -> the single managed <link id="themeFont">, href swapped
+     favicon -> both <link rel=icon> hrefs
+     ops     -> --op-a / --op-b, re-derived per theme so neither operator
+                ever collides with the house chrome
+     motion  -> --ease / --dur / --dur-enter
+
+   Applying a theme touches no state, cancels no timer, and re-renders through
+   the same renderAll() as everything else — so a running focus block and a
+   half-typed task both survive it.
+   ========================================================================== */
+
+const REG = window.ORIGIN_THEMES;
+if (!REG || !Object.keys(REG.list).length) {
+  document.body.innerHTML = '<pre style="padding:24px;font:13px ui-monospace,monospace;color:#f66">'
+    + 'No themes registered.\n\n' + ((REG && REG.problems) || []).join('\n') + '</pre>';
+  throw new Error('no themes');
+}
+/* A theme that failed validation never reaches the registry. If any did,
+   say so loudly rather than letting a half-dressed house ship. */
+if (REG.problems.length) {
+  console.error('[themes] ' + REG.problems.length + ' problem(s) — those themes were refused.');
+  if (DEMO || new URLSearchParams(location.search).has('dev')) {
+    const bar = document.createElement('pre');
+    bar.style.cssText = 'position:fixed;left:0;right:0;top:0;z-index:9999;margin:0;padding:10px 14px;'
+      + 'background:#3B0A0A;color:#FFB4B4;font:11px/1.5 ui-monospace,monospace;max-height:34vh;overflow:auto;';
+    bar.textContent = 'THEME CONTRACT VIOLATIONS\n' + REG.problems.join('\n');
+    document.body.appendChild(bar);
+  }
+}
+
+const THEME_IDS = REG.order.slice();
+let THEME = THEME_IDS[0];
+const theme = () => REG.list[THEME];
+
+/* ---- the accessors every render function goes through ---- */
+/* copy: no user-visible string is written anywhere but a theme file */
+function C(key, vars) {
+  let v = (theme().copy || {})[key];
+  if (v == null) { console.warn('[copy] missing "' + key + '" in theme ' + THEME); return key; }
+  if (vars) for (const k in vars) v = v.split('{' + k + '}').join(vars[k]);
+  return v;
+}
+/* icons: drawn SVG from the theme, never a glyph */
+function ICON(key, size, extra) {
+  const raw = (theme().icons || {})[key];
+  if (!raw) { console.warn('[icon] missing "' + key + '" in theme ' + THEME); return ''; }
+  return size ? raw.replace('<svg', '<svg width="' + size + '" height="' + size + '"') : raw;
+}
+/* A house may rename any room — Snape's office and McGonagall's office are the
+   same room with the same deeds in it. */
+function placeName(pl) {
+  const m = (theme().copy || {}).places;
+  return (m && m[pl.id]) || pl.name;
+}
+const ops     = () => theme().ops;
+const OPC_FOR = p => (p === 'abir' ? ops().a : p === 'jade' ? ops().b : 'var(--txt-3)');
+const ranks   = () => theme().ranks;
+/* the four node types, named by the house */
+const typeName = t => C(t === 'ritual' ? 'typeRitual' : t === 'ops' ? 'typeGoal'
+                      : t === 'milestone' ? 'typeMilestone' : 'typePenalty');
+const cadName  = c => C(c === 'weekly' ? 'cadWeekly' : c === 'once' ? 'cadOnce' : 'cadDaily');
+
+/* ---- putting one on ---- */
+let themeApplying = false;
+function applyTheme(id, opts) {
+  const o = opts || {};
+  if (!REG.list[id]) return;
+  const t = REG.list[id];
+  const first = o.first === true;
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+  const paint = () => {
+    THEME = id;
+    const root = document.documentElement;
+    root.setAttribute('data-theme', id);
+
+    /* tokens — the complete set, every time; nothing is left over from the
+       theme before because the contract guarantees all of them are present */
+    const r = root.style;
+    REG.TOKENS.forEach(k => r.setProperty('--' + k, t.tokens[k]));
+    /* the two identity colours, derived per theme, not inherited */
+    r.setProperty('--op-a', t.ops.a);
+    r.setProperty('--op-b', t.ops.b);
+    /* motion */
+    r.setProperty('--ease', t.motion.ease);
+    r.setProperty('--dur', t.motion.dur);
+    r.setProperty('--dur-enter', t.motion.enter);
+
+    /* the one stylesheet and the one font link, replaced in place */
+    const st = document.getElementById('themeCSS');
+    st.textContent = '#sky{background:' + t.texture + ';}\n' + t.css;
+    const fl = document.getElementById('themeFont');
+    if (fl.getAttribute('href') !== t.fonts.googleHref) fl.href = t.fonts.googleHref;
+
+    document.getElementById('favicon').href = t.favicon;
+    document.getElementById('faviconTouch').href = t.favicon;
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', t.themeColor);
+    document.title = t.copy.brand + ' · ' + t.copy.score;
+
+    /* cache just enough to paint the next cold start in the right house */
+    try {
+      localStorage.setItem('origin_theme_paint', JSON.stringify({
+        id, tokens: t.tokens, font: t.fonts.googleHref,
+        favicon: t.favicon, themeColor: t.themeColor
+      }));
+    } catch (e) {}
+
+    if (!first) { try { renderAll(); } catch (e) { console.error(e); } }
+  };
+
+  if (first || reduce || o.instant) { paint(); return; }
+
+  /* crossfade: veil in, repaint behind it, veil out. No layout is touched,
+     so nothing shifts — the page underneath is the same size throughout. */
+  if (themeApplying) return;
+  themeApplying = true;
+  const veil = document.getElementById('themeVeil');
+  veil.classList.add('on');
+  setTimeout(() => {
+    paint();
+    requestAnimationFrame(() => {
+      veil.classList.remove('on');
+      setTimeout(() => { themeApplying = false; }, 210);
+    });
+  }, 200);
+}
+
+/* Whose house this device shows. state.themes is the shared record; ME is the
+   per-device identity that decides which of the two we render. */
+function themeFor(party) {
+  const t = (state.themes || {})[party];
+  return REG.list[t] ? t : null;
+}
+function myTheme() { return themeFor(ME) || THEME_IDS[0]; }
+function syncThemeToMe(opts) {
+  const want = themeFor(ME);
+  if (want && want !== THEME) applyTheme(want, opts);
+}
+
+const HISTORY_CAP = 600;
+
+/* ---------------- default star chart ----------------
+   Node ids are deliberately identical to the old app's history keys, so every
+   claim, count and undo ever recorded still lines up after the rebuild.
+   Point values are untouched from Season 1.                                */
+const PLANETS = [
+  { id: 'venus',  name: 'Quidditch Practice', sub: 'Body',        color: '#C8843C', orbit: 1, r: 7 },
+  { id: 'earth',  name: 'Dormitories',        sub: 'Daily Rituals', color: '#C0562E', orbit: 2, r: 9 },
+  { id: 'mars',   name: 'Library',            sub: 'The Grind',   color: '#8E6A2E', orbit: 3, r: 7.5 },
+  { id: 'deimos', name: "McGonagall's Office", sub: 'Points Docked', color: '#8A2530', orbit: 4, r: 5.5 },
+  { id: 'ceres',  name: 'Great Hall',         sub: 'Craft & Code', color: '#B0472E', orbit: 5, r: 6.5 },
+  { id: 'europa', name: 'Astronomy Tower',    sub: 'Mind',        color: '#6C7FA8', orbit: 6, r: 6.5 },
+  { id: 'saturn', name: 'Common Room',        sub: 'Life Admin',  color: '#D6A03C', orbit: 0, r: 8.5 }
+];
+
+const NODES = [
+  /* EARTH — the shared daily foundation */
+  { id: 'daily:out_of_bed',    p: 'earth', n: 'Got out of bed',                   pts: 1000, t: 'ritual', o: 'both' },
+  { id: 'daily:wake_on_time',  p: 'earth', n: 'Woke up on time (before 11am)',    pts: 2000, t: 'ritual', o: 'both', req: 'daily:out_of_bed' },
+  { id: 'daily:sleep_on_time', p: 'earth', n: 'Slept on time (before 1am)',       pts: 2000, t: 'ritual', o: 'both' },
+  { id: 'daily:skincare',      p: 'earth', n: 'Skincare routine done',            pts: 1000, t: 'ritual', o: 'both' },
+  { id: 'daily:meals',         p: 'earth', n: 'Ate 3 balanced meals',             pts: 1500, t: 'ritual', o: 'both' },
+  { id: 'daily:chores',        p: 'earth', n: 'Chores completed',                 pts: 1500, t: 'ritual', o: 'both', mt: 'SABOTAGE' },
+  { id: 'ach:perfect_sleep_week', p: 'earth', n: 'One full week of perfect sleep', pts: 5000, t: 'milestone', o: 'both', cad: 'weekly' },
+
+  /* VENUS — body */
+  { id: 'daily:workout',       p: 'venus', n: 'Workout completed',                pts: 2000, t: 'ritual', o: 'both', mt: 'EXTERMINATE' },
+  { id: 'ach:pr_gym',          p: 'venus', n: 'Hit a PR in the gym',              pts: 3000, t: 'milestone', o: 'both' },
+  { id: 'ach:meals_tracked_week', p: 'venus', n: 'One full week of meals tracked', pts: 5000, t: 'milestone', o: 'both', cad: 'weekly' },
+
+  /* MARS — study & deep work */
+  { id: 'daily:studied',       p: 'mars', n: 'Studied / worked productively (2+ hrs)', pts: 2500, t: 'ritual', o: 'both' },
+  { id: 'daily:pomodoro',      p: 'mars', n: 'Completed a Focus cycle (50/10)',   pts: 2500, t: 'ritual', o: 'both', mt: 'DEFENSE' },
+  { id: 'ach:aced_assignment', p: 'mars', n: 'Aced a major assignment',           pts: 5000, t: 'milestone', o: 'both' },
+  { id: 'ach:assignments_on_time', p: 'mars', n: 'Assignments on time all week',  pts: 5000, t: 'milestone', o: 'both', cad: 'weekly' },
+
+  /* CERES — code */
+  { id: 'quest:abir:leetcode_easy', p: 'ceres', n: 'LeetCode: 2 easy solved',     pts: 1000, t: 'ops', o: 'abir' },
+  { id: 'quest:abir:leetcode_med',  p: 'ceres', n: 'LeetCode: 1 medium solved',   pts: 2000, t: 'ops', o: 'abir' },
+  { id: 'quest:abir:leetcode_hard', p: 'ceres', n: 'LeetCode: 1 hard solved',     pts: 3000, t: 'ops', o: 'abir' },
+  { id: 'quest:abir:git_commits',   p: 'ceres', n: '3–5 Git commits today',       pts: 4000, t: 'ops', o: 'abir', mt: 'DEFENSE' },
+
+  /* EUROPA — reading, language, reflection */
+  { id: 'quest:jade:criminology',     p: 'europa', n: 'Read criminology textbook (45 min)', pts: 2500, t: 'ops', o: 'jade' },
+  { id: 'quest:jade:forensic',        p: 'europa', n: 'Read forensic textbook',             pts: 2000, t: 'ops', o: 'jade' },
+  { id: 'quest:jade:career_textbook', p: 'europa', n: 'Read career textbook (45 min, notes = bonus)', pts: 2000, t: 'ops', o: 'jade' },
+  { id: 'quest:jade:journaling',      p: 'europa', n: 'Journaling',                         pts: 3000, t: 'ops', o: 'jade' },
+  { id: 'quest:jade:french',          p: 'europa', n: 'French practice',                    pts: 2000, t: 'ops', o: 'jade' },
+  { id: 'quest:jade:flower_language', p: 'europa', n: 'Flower language',                    pts: 1000, t: 'ops', o: 'jade' },
+
+  /* SATURN — admin, errands, adult-life unlocks */
+  { id: 'quest:abir:organize_room_a', p: 'saturn', n: 'Organize room',            pts: 2000, t: 'ops', o: 'abir' },
+  { id: 'quest:jade:organize_room_j', p: 'saturn', n: 'Organize room',            pts: 2000, t: 'ops', o: 'jade' },
+  { id: 'quest:jade:cook_meal',       p: 'saturn', n: 'Cook meal (2x this week)', pts: 2500, t: 'ops', o: 'jade' },
+  { id: 'quest:abir:move_out',        p: 'saturn', n: 'Move-out finalization',    pts: 2500, t: 'milestone', o: 'abir', cad: 'once' },
+  { id: 'quest:abir:moto_license',    p: 'saturn', n: 'Get motorcycle license',   pts: 3000, t: 'milestone', o: 'abir', cad: 'once' },
+  { id: 'quest:jade:permit_test',     p: 'saturn', n: 'Permit test',              pts: 3000, t: 'milestone', o: 'jade', cad: 'once' },
+  { id: 'quest:jade:license_j',       p: 'saturn', n: 'License',                  pts: 3000, t: 'milestone', o: 'jade', cad: 'once', req: 'quest:jade:permit_test' },
+  { id: 'quest:jade:online_desk_job', p: 'saturn', n: 'Look into online desk job', pts: 3000, t: 'ops', o: 'jade' },
+
+  /* DEIMOS — the Infestation. Everything here subtracts. */
+  { id: 'pen:forgot_tracking',  p: 'deimos', n: 'Forgetting to keep track of points', pts: -5000, t: 'infested', o: 'both' },
+  { id: 'pen:slept_in',         p: 'deimos', n: 'Slept in past 9am',                  pts: -5000, t: 'infested', o: 'both' },
+  { id: 'pen:stayed_up',        p: 'deimos', n: 'Stayed up past midnight–1am',        pts: -3500, t: 'infested', o: 'both' },
+  { id: 'pen:skipped_workout',  p: 'deimos', n: 'Skipped workout',                    pts: -2500, t: 'infested', o: 'both' },
+  { id: 'pen:junk_food',        p: 'deimos', n: 'Ate junk food / binge meal',         pts: -2000, t: 'infested', o: 'both' },
+  { id: 'pen:ignored_chores',   p: 'deimos', n: 'Ignored chores (2+ days)',           pts: -2000, t: 'infested', o: 'both' },
+  { id: 'pen:laziness',         p: 'deimos', n: 'Laziness / procrastination',         pts: -1500, t: 'infested', o: 'both' },
+  { id: 'pen:downplaying',      p: 'deimos', n: 'Downplaying events',                 pts: -1500, t: 'infested', o: 'both' },
+  { id: 'pen:feeling_bad_ex',   p: 'deimos', n: 'Feeling bad for ex',                 pts: -1500, t: 'infested', o: 'both' },
+  { id: 'pen:skipped_skincare', p: 'deimos', n: 'Skipped skincare',                   pts: -1000, t: 'infested', o: 'both' }
+];
+
+/* Shop prices are Season-1 values × 1.5 — the dollar figures are unchanged,
+   standing just buys less than it used to. */
+const SHOP = [
+  { id: 'shop:apex_coins_a',   o: 'abir', n: 'Apex coin pack · 2150', pts: 30000, note: '$20' },
+  { id: 'shop:exotic_shard_a', o: 'abir', n: 'Exotic shard pack · 50', pts: 60000, note: '$40' },
+  { id: 'shop:mousepad',       o: 'abir', n: 'Mousepad',               pts: 43500, note: '$29' },
+  { id: 'shop:wishlist_a',     o: 'abir', n: 'Amazon wishlist pick',   pts: 30000, note: 'flexible', flex: true },
+  { id: 'shop:nessie_plush',   o: 'abir', n: 'Nessie plush',           pts: null,  note: 'priceless' },
+  { id: 'shop:bookshelf',      o: 'jade', n: 'Rotating bookshelf',     pts: 90000, note: '$60' },
+  { id: 'shop:exotic_shard_j', o: 'jade', n: 'Exotic shard pack · 50', pts: 60000, note: '$40' },
+  { id: 'shop:upgrade_bp',     o: 'jade', n: 'Battle Pass upgrade',    pts: 30000, note: '$20' },
+  { id: 'shop:apex_coins_j',   o: 'jade', n: 'Apex coin pack · 2150',  pts: 30000, note: '$20' },
+  { id: 'shop:wishlist_j',     o: 'jade', n: 'Amazon wishlist pick',   pts: 30000, note: 'up to $20+', flex: true },
+  { id: 'shop:candle',         o: 'jade', n: 'A candle :)',            pts: null,  note: 'priceless' }
+];
+
+/* ---------------- state ---------------- */
+function defaultState() {
+  return {
+    schema: 2,
+    season: { n: 2, name: 'Battle For The Top', started: Date.now() },
+    names: { abir: 'Abir', jade: 'Jade' },
+    points: { abir: 0, jade: 0 },
+    counts: { abir: {}, jade: {} },
+    planets: PLANETS.map((p, i) => ({ ...p, order: i })),
+    nodes: NODES.map((n, i) => ({ ...n, order: i })),
+    lists: [
+      { id: 'list_shared', name: 'Shared', o: 'both', order: 0 },
+      { id: 'list_abir',   name: 'Abir',   o: 'abir', order: 1 },
+      { id: 'list_jade',   name: 'Jade',   o: 'jade', order: 2 }
+    ],
+    tasks: [],
+    shop: SHOP.slice(),
+    bets: [],
+    comms: [],
+    history: [],
+    focus: {},
+    /* The only field added to the document: which house each operator wears.
+       Abir is a Gryffindor and Jade is a Slytherin — assigned, not sorted, so
+       a fresh document opens straight into the right two houses. Anyone whose
+       house is null still gets the sorting screen, and the crest in the header
+       reopens it for either of them at any time. */
+    themes: { abir: 'gryffindor', jade: 'slytherin' },
+    settings: { work: 50, brk: 10, longEvery: 0, longBrk: 30, autoClaimFocus: true, sound: true },
+    archive: []
+  };
+}
+
+/* The groups were planets before they were rooms. Rename them in place, once,
+   and only where the old name is still sitting there — so a room you renamed
+   yourself is never overwritten. */
+const ROOM_RENAME = {
+  venus:  ['Venus',  'Quidditch Practice', 'Body'],
+  earth:  ['Earth',  'Dormitories',        'Daily Rituals'],
+  mars:   ['Mars',   'Library',            'The Grind'],
+  deimos: ['Deimos', "McGonagall's Office", 'Points Docked'],
+  ceres:  ['Ceres',  'Great Hall',         'Craft & Code'],
+  europa: ['Europa', 'Astronomy Tower',    'Mind'],
+  saturn: ['Saturn', 'Common Room',        'Life Admin']
+};
+const ROOM_TINT = { venus:'#C8843C', earth:'#C0562E', mars:'#8E6A2E', deimos:'#8A2530',
+                    ceres:'#B0472E', europa:'#6C7FA8', saturn:'#D6A03C' };
+function normalizeRooms(s) {
+  (s.planets || []).forEach(pl => {
+    const r = ROOM_RENAME[pl.id];
+    if (!r) return;
+    if (pl.name === r[0]) { pl.name = r[1]; pl.sub = r[2]; pl.color = ROOM_TINT[pl.id] || pl.color; }
+  });
+  /* the common room is where you land */
+  const cr = (s.planets || []).find(p => p.id === 'saturn');
+  if (cr && cr.orbit > 0) cr.orbit = 0;
+  return s;
+}
+
+const A = (v, d) => (Array.isArray(v) ? v : d);
+const O = (v, d) => (v && typeof v === 'object' && !Array.isArray(v) ? v : d);
+
+/* Merge a remote document over a fresh default so a doc written by an older
+   version of the app never leaves a field undefined. */
+function mergeState(raw) {
+  const d = defaultState();
+  if (!raw) return d;
+  const s = Object.assign(d, raw);
+  s.names   = Object.assign(d.names, O(raw.names, {}));
+  s.points  = Object.assign({ abir: 0, jade: 0 }, O(raw.points, {}));
+  s.counts  = Object.assign({ abir: {}, jade: {} }, O(raw.counts, {}));
+  s.counts.abir = O(s.counts.abir, {});
+  s.counts.jade = O(s.counts.jade, {});
+  s.season  = Object.assign(d.season, O(raw.season, {}));
+  s.settings = Object.assign(d.settings, O(raw.settings, {}));
+  s.themes  = Object.assign({ abir: 'gryffindor', jade: 'slytherin' }, O(raw.themes, {}));
+  s.focus   = O(raw.focus, {});
+  s.history = A(raw.history, []);
+  s.bets    = A(raw.bets, []);
+  s.comms   = A(raw.comms, []);
+  s.archive = A(raw.archive, []);
+  if (Array.isArray(raw.planets) && raw.planets.length) s.planets = raw.planets;
+  if (Array.isArray(raw.nodes)   && raw.nodes.length)   s.nodes   = raw.nodes;
+  if (Array.isArray(raw.lists)   && raw.lists.length)   s.lists   = raw.lists;
+  if (Array.isArray(raw.shop)    && raw.shop.length)    s.shop    = raw.shop;
+  s.tasks = A(raw.tasks, []);
+  return normalizeRooms(migrate(s, raw));
+}
+
+/* ---------------- one-time migration off the Season-1 document ----------------
+   Season 1 stored flat lists (customDaily / customQuests / hiddenX / boards /
+   ideas / todos / scratch). Everything is folded into the v2 model here, once,
+   and the old fields are dropped. Points, counts, history and bets are never
+   touched — the leaderboard survives untouched.                                */
+function migrate(s, raw) {
+  if (s.schema >= 2 && !raw.customDaily && !raw.boards && !raw.todos && !raw.hiddenDaily) {
+    s.schema = 2; return s;
+  }
+  const hiddenDaily = A(raw.hiddenDaily, []);
+  const hiddenPen   = A(raw.hiddenPenalties, []);
+  const hiddenQ     = O(raw.hiddenQuests, { abir: [], jade: [] });
+  const hiddenShop  = O(raw.hiddenShop, { abir: [], jade: [] });
+
+  /* items you had removed in Season 1 stay removed */
+  s.nodes = s.nodes.filter(n => {
+    if (n.id.startsWith('daily:')) return !hiddenDaily.includes(n.id.slice(6));
+    if (n.id.startsWith('pen:'))   return !hiddenPen.includes(n.id.slice(4));
+    if (n.id.startsWith('quest:')) {
+      const [, party, qid] = n.id.split(':');
+      return !A(hiddenQ[party], []).includes(qid);
+    }
+    return true;
+  });
+  s.shop = s.shop.filter(i => !A(hiddenShop[i.o], []).includes(i.id.slice(5)));
+
+  /* custom entries you added in Season 1 become nodes on sensible planets */
+  let ord = s.nodes.length;
+  A(raw.customDaily, []).forEach(it => {
+    s.nodes.push({ id: 'daily:' + it.id, p: 'earth', n: it.label, pts: it.pts, t: 'ritual', o: 'both', order: ord++ });
+  });
+  A(raw.customPenalties, []).forEach(it => {
+    s.nodes.push({ id: 'pen:' + it.id, p: 'deimos', n: it.label, pts: -Math.abs(it.pts), t: 'infested', o: 'both', order: ord++ });
+  });
+  PARTIES.forEach(party => {
+    A(O(raw.customQuests, {})[party], []).forEach(it => {
+      s.nodes.push({ id: 'quest:' + party + ':' + it.id, p: 'saturn', n: it.label, pts: it.pts, t: 'ops', o: party, order: ord++ });
+    });
+    /* custom shop items get the same 1.5× price bump as the built-ins */
+    A(O(raw.customShop, {})[party], []).forEach(it => {
+      s.shop.push({ id: 'shop:' + it.id, o: party, n: it.label, pts: it.pts ? Math.round(it.pts * 1.5) : null, note: it.note || '' });
+    });
+  });
+
+  /* boards → task lists, sticky notes → tasks, note checklists → subtasks */
+  let torder = 0;
+  A(raw.boards, []).forEach(b => {
+    const listId = 'list_' + b.id;
+    s.lists.push({ id: listId, name: b.name || 'Board', o: b.party || 'both', order: s.lists.length });
+    A(b.notes, []).forEach(nt => {
+      const subs = A(nt.todos, []).map(t => ({ id: t.id, text: t.text, done: !!t.done }));
+      const text = (nt.text || '').trim();
+      if (!text && !subs.length) return;
+      s.tasks.push({
+        id: 'task_' + nt.id, list: listId, text: text || '(untitled note)',
+        pts: 0, o: b.party || 'both', due: null, done: false, sub: subs,
+        created: nt.createdAt || Date.now(), order: torder++
+      });
+    });
+  });
+
+  /* plain to-dos → tasks on that person's list */
+  PARTIES.forEach(party => {
+    A(O(raw.todos, {})[party], []).forEach(t => {
+      s.tasks.push({
+        id: 'task_' + t.id, list: 'list_' + party, text: t.text, pts: 0, o: party,
+        due: null, done: false, sub: [], created: Date.now(), order: torder++
+      });
+    });
+  });
+
+  /* idea bank → an Ideas list, so nothing you wrote down disappears */
+  const ideas = A(raw.ideas, []);
+  if (ideas.length) {
+    s.lists.push({ id: 'list_ideas', name: 'Ideas', o: 'both', order: s.lists.length });
+    ideas.forEach(i => {
+      s.tasks.push({
+        id: 'task_' + i.id, list: 'list_ideas', text: i.text, pts: 0,
+        o: (i.author === 'both' || !i.author) ? 'both' : i.author,
+        due: null, done: !!i.promotedTo, sub: [], created: i.ts || Date.now(), order: torder++
+      });
+    });
+  }
+
+  /* the shared scratchpad becomes a pinned transmission */
+  if (typeof raw.scratch === 'string' && raw.scratch.trim()) {
+    s.comms.unshift({ id: 'cm_migrated', party: 'both', text: raw.scratch.trim(), ts: Date.now(), pin: true });
+  }
+
+  if (raw.season && raw.season.n) s.season = Object.assign(s.season, raw.season);
+  else s.season = { n: 2, name: 'Battle For The Top', started: Date.now() };
+
+  ['customDaily', 'customQuests', 'customShop', 'customPenalties', 'hiddenDaily', 'hiddenQuests',
+   'hiddenPenalties', 'hiddenShop', 'todos', 'scratch', 'ideas', 'boards'].forEach(k => { delete s[k]; });
+  s.schema = 2;
+  s.migratedAt = Date.now();
+  return s;
+}
+
+/* ==========================================================================
+   CORE — sync, helpers, economy
+   ========================================================================== */
+let state = defaultState();
+let applying = false;      // rendering a remote snapshot; local writes stand down
+let pendingSave = false;   // a debounced write is queued; our copy is newest
+let saveTimer = null;
+let booted = false;
+
+let boardOpen = window.innerWidth > 900;
+const route = {
+  view: 'chart',
+  planet: 'saturn',   /* you arrive in the common room */
+  list: 'all',
+  who: 'all',        // star chart operator filter
+  logWho: 'all',
+  logLimit: 60,
+  codex: 'log'
+};
+
+/* ---------------- helpers ---------------- */
+const esc = s => String(s == null ? '' : s)
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+const num = n => Math.round(n || 0).toLocaleString();
+const fmt = n => (n > 0 ? '+' : n < 0 ? '−' : '') + Math.abs(Math.round(n || 0)).toLocaleString();
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const uid = p => p + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+/* "2026-08-27" must mean that calendar day where you live — `new Date(str)`
+   would read it as UTC midnight and land a day early west of Greenwich. */
+function dayDate(v) {
+  if (typeof v === 'string') {
+    const m = v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+    if (m) return new Date(+m[1], +m[2] - 1, +m[3]);
+  }
+  return new Date(v);
+}
+const dayKey = d => { const x = dayDate(d); return x.getFullYear() + '-' + (x.getMonth() + 1) + '-' + x.getDate(); };
+const todayKey = () => dayKey(Date.now());
+const startOfDay = d => { const x = dayDate(d); x.setHours(0, 0, 0, 0); return x; };
+const nameOf = p => (p === 'both' ? 'Both' : (state.names[p] || p));
+const other = p => (p === 'abir' ? 'jade' : 'abir');
+
+function weekStart(from) {
+  const now = from ? new Date(from) : new Date();
+  const off = (now.getDay() + 6) % 7;           // days since Monday
+  return startOfDay(new Date(now.getFullYear(), now.getMonth(), now.getDate() - off));
+}
+function relTime(ts) {
+  const s = Math.floor((Date.now() - ts) / 1000);
+  if (s < 45) return 'just now';
+  if (s < 3600) return Math.floor(s / 60) + 'm ago';
+  if (s < 86400) return Math.floor(s / 3600) + 'h ago';
+  const d = Math.floor(s / 86400);
+  if (d < 7) return d + 'd ago';
+  return new Date(ts).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+function dueLabel(iso) {
+  if (!iso) return null;
+  const d = startOfDay(iso), t = startOfDay(Date.now());
+  const diff = Math.round((d - t) / 86400000);
+  if (diff < -1) return { txt: Math.abs(diff) + 'd overdue', cls: 'over' };
+  if (diff === -1) return { txt: 'yesterday', cls: 'over' };
+  if (diff === 0) return { txt: 'today', cls: 'today' };
+  if (diff === 1) return { txt: 'tomorrow', cls: 'soon' };
+  if (diff < 7) return { txt: dayDate(iso).toLocaleDateString(undefined, { weekday: 'long' }), cls: '' };
+  return { txt: dayDate(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }), cls: '' };
+}
+const isoDay = d => { const x = new Date(d); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); };
+
+/* ---------------- sync ---------------- */
+let inFlight = 0;
+/* Local edits are debounced into one whole-document write. `pendingSave` only
+   covers the debounce window — once a write is actually issued we go back to
+   accepting remote snapshots, so an unacknowledged write (a phone with no
+   signal, with the offline cache queueing it) can never freeze the other
+   person's updates out. */
+function save(force) {
+  if (applying && !force) return;
+  pendingSave = true;
+  syncDot('saving');
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(flush, 350);
+}
+function flush() {
+  clearTimeout(saveTimer);
+  if (!pendingSave) return;
+  pendingSave = false;
+  const snapshot = JSON.parse(JSON.stringify(state));
+  inFlight++;
+  Promise.resolve(store.save(snapshot)).then(() => {
+    inFlight = Math.max(0, inFlight - 1);
+    if (!inFlight && !pendingSave) syncDot('ok');
+  }).catch(e => {
+    console.error('save failed', e);
+    inFlight = Math.max(0, inFlight - 1);
+    syncDot('off');
+    toast('Could not reach the database — that change is queued.', { kind: 'warn' });
+  });
+}
+window.addEventListener('online', () => syncDot('ok'));
+window.addEventListener('offline', () => syncDot('off'));
+function syncDot(k) {
+  const dot = $('#syncDot'), txt = $('#syncTxt');
+  if (!dot) return;
+  dot.className = k === 'ok' ? '' : k;
+  txt.textContent = k === 'ok' ? (store.mode === 'demo' ? 'sandbox' : 'live') : k === 'saving' ? 'saving' : 'offline';
+}
+function subscribe() {
+  store.subscribe(raw => {
+    if (pendingSave && booted) return;           // our copy is newer; ignore the echo
+    applying = true;
+    const fresh = !raw;
+    const needsMigration = !!raw && raw.schema !== 2;
+    state = mergeState(raw);
+    applying = false;
+    booted = true;
+    if (fresh || needsMigration) save(true);   // persist the new/migrated shape once
+    syncThemeToMe({ instant: !booted });        // this device wears ME's house
+    renderAll();
+    syncDot('ok');
+  }, err => {
+    console.error('listen failed', err);
+    syncDot('off');
+    $('#view').innerHTML = '<div class="panel cut"><div class="panel-b"><b>Could not reach the database.</b>'
+      + '<p class="muted" style="font-size:13px;">Check the Firebase config and your Firestore security rules.</p></div></div>';
+  });
+}
+
+/* ---------------- economy ---------------- */
+function tierInfo(points) {
+  const R = ranks();
+  const span = R.span || 15000, tiers = R.tiers;
+  const idx = Math.max(0, Math.floor(points / span));
+  const t = tiers[idx % tiers.length];
+  const cycle = Math.floor(idx / tiers.length);
+  const marks = R.cycles || ['', ' II', ' III', ' IV', ' V', ' VI', ' VII', ' VIII'];
+  const rn = marks[clamp(cycle, 0, marks.length - 1)];
+  return {
+    color: t.c, name: t.n + rn, level: idx + 1,
+    progress: (((points % span) + span) % span) / span,
+    toNext: span - ((((points % span) + span) % span))
+  };
+}
+function countToday(party, key) {
+  const c = state.counts[party] && state.counts[party][key];
+  return c && c.date === todayKey() ? c.n : 0;
+}
+function bump(party, key, by) {
+  const day = todayKey();
+  const c = state.counts[party][key];
+  if (c && c.date === day) c.n = Math.max(0, c.n + by);
+  else if (by > 0) state.counts[party][key] = { date: day, n: by };
+}
+function addHistory(party, delta, reason, key) {
+  state.history.unshift({ ts: Date.now(), party, delta, reason, key });
+  if (state.history.length > HISTORY_CAP) state.history.length = HISTORY_CAP;
+}
+/* the single point of entry for every standing change in the app */
+function claim(key, party, delta, reason, opts) {
+  const o = opts || {};
+  state.points[party] = (state.points[party] || 0) + delta;
+  bump(party, key, 1);
+  addHistory(party, delta, reason, key);
+  save();
+  renderAll();
+  if (!o.quiet) {
+    toast(C('toastAwarded', { who: `<b>${esc(nameOf(party))}</b>`, what: esc(reason) }), {
+      kind: delta < 0 ? 'bad' : 'good', color: OPC_FOR(party),
+      amount: fmt(delta),
+      undo: () => undoLast(key, party)
+    });
+    beep(delta < 0 ? 'down' : 'up');
+    flashLead();
+  }
+}
+function undoLast(key, party) {
+  const idx = state.history.findIndex(h => h.party === party && h.key === key);
+  if (idx === -1) { toast(esc(C('toastNothingToUndo')), { kind: 'warn' }); return; }
+  const e = state.history[idx];
+  state.points[party] = (state.points[party] || 0) - e.delta;
+  bump(party, key, -1);
+  state.history.splice(idx, 1);
+  save();
+  renderAll();
+  toast(C('toastReverted', { what: esc(e.reason) }), { kind: 'warn', amount: fmt(-e.delta) });
+}
+function streak(party) {
+  const days = new Set(state.history.filter(h => h.party === party && h.delta > 0).map(h => dayKey(h.ts)));
+  let n = 0;
+  const cur = new Date();
+  if (!days.has(dayKey(cur))) cur.setDate(cur.getDate() - 1);   // today not logged yet is fine
+  while (days.has(dayKey(cur))) { n++; cur.setDate(cur.getDate() - 1); }
+  return n;
+}
+function totalsForRange(from, to) {
+  const t = { abir: 0, jade: 0 };
+  state.history.forEach(h => { if (h.ts >= from && h.ts < to && t[h.party] !== undefined) t[h.party] += h.delta; });
+  return t;
+}
+function todayTotals() { return totalsForRange(startOfDay(Date.now()).getTime(), Date.now() + 1); }
+
+const nodeById = id => state.nodes.find(n => n.id === id);
+const planetById = id => state.planets.find(p => p.id === id);
+const visibleNodes = pid => state.nodes
+  .filter(n => n.p === pid)
+  .filter(n => route.who === 'all' || n.o === 'both' || n.o === route.who)
+  .sort((a, b) => (a.order || 0) - (b.order || 0));
+function nodeLocked(node, party) {
+  if (!node.req) return false;
+  return countToday(party, node.req) === 0;
+}
+
+/* ---------------- toast ---------------- */
+const TOAST_COLORS = { good: 'var(--ok)', bad: 'var(--penalty)', warn: 'var(--warn)', info: 'var(--info)' };
+function toast(html, opts) {
+  const o = opts || {};
+  const wrap = $('#toasts');
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.style.setProperty('--tcol', o.color || TOAST_COLORS[o.kind || 'info']);
+  const amt = o.amount ? `<span class="amt" style="color:${o.color || TOAST_COLORS[o.kind || 'info']}">${esc(o.amount)}</span>` : '';
+  el.innerHTML = `<div class="msg">${html}</div>${amt}`;
+  if (o.undo) {
+    const b = document.createElement('button');
+    b.className = 'btn sm'; b.textContent = 'Undo';
+    b.onclick = () => { o.undo(); kill(); };
+    el.appendChild(b);
+  }
+  wrap.appendChild(el);
+  const kill = () => { el.classList.add('out'); setTimeout(() => el.remove(), 220); };
+  const t = setTimeout(kill, o.undo ? 6500 : 3600);
+  el.addEventListener('click', e => { if (!e.target.closest('button')) { clearTimeout(t); kill(); } });
+  while (wrap.children.length > 4) wrap.firstChild.remove();
+}
+function flashLead() {
+  const el = $('#leadChip');
+  if (el) { el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
+}
+
+/* ---------------- sound (WebAudio, no assets) ---------------- */
+let actx = null;
+function beep(kind) {
+  if (!state.settings.sound) return;
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    if (actx.state === 'suspended') actx.resume();
+    const voice = theme().sound[kind === 'down' ? 'down' : kind === 'phase' ? 'phase' : 'up'];
+    (voice.seq).forEach(([f, t]) => {
+      const o = actx.createOscillator(), g = actx.createGain();
+      o.type = voice.type || 'sine'; o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, actx.currentTime + t);
+      g.gain.exponentialRampToValueAtTime(voice.gain || 0.16, actx.currentTime + t + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + t + 0.19);
+      o.connect(g); g.connect(actx.destination);
+      o.start(actx.currentTime + t); o.stop(actx.currentTime + t + 0.22);
+    });
+  } catch (e) {}
+}
+
+/* ---------------- modal ---------------- */
+let modalResolve = null;
+function closeModal(val) {
+  $('#modalWrap').classList.remove('on');
+  if (modalResolve) { const r = modalResolve; modalResolve = null; r(val); }
+}
+function confirmBox(title, body, okLabel, danger) {
+  return new Promise(res => {
+    modalResolve = res;
+    $('#modal').innerHTML = `
+      <div class="modal-h"><h3>${esc(title)}</h3>${body ? `<p>${esc(body)}</p>` : ''}</div>
+      <div class="modal-f">
+        <button class="btn" data-act="modal-cancel">Cancel</button>
+        <button class="btn ${danger ? 'warn' : 'pri'}" data-act="modal-ok">${esc(okLabel || 'Confirm')}</button>
+      </div>`;
+    $('#modalWrap').classList.add('on');
+    setTimeout(() => { const b = $('#modal [data-act="modal-ok"]'); if (b) b.focus(); }, 30);
+  });
+}
+/* fields: [{k,label,type,value,ph,options,hint}] → resolves to {k:value} or null */
+function formBox(title, fields, okLabel, sub) {
+  return new Promise(res => {
+    modalResolve = res;
+    const body = fields.map(f => {
+      if (f.type === 'select') {
+        return `<div class="field"><label>${esc(f.label)}</label>
+          <select class="inp" data-f="${esc(f.k)}">${f.options.map(o =>
+            `<option value="${esc(o.v)}"${String(o.v) === String(f.value) ? ' selected' : ''}>${esc(o.n)}</option>`).join('')}</select>
+          ${f.hint ? `<div class="eyebrow" style="margin-top:5px;">${esc(f.hint)}</div>` : ''}</div>`;
+      }
+      if (f.type === 'textarea') {
+        return `<div class="field"><label>${esc(f.label)}</label>
+          <textarea class="inp" rows="3" data-f="${esc(f.k)}" placeholder="${esc(f.ph || '')}">${esc(f.value || '')}</textarea></div>`;
+      }
+      if (f.type === 'check') {
+        return `<label class="row" style="gap:9px;cursor:pointer;font-size:13px;">
+          <input type="checkbox" data-f="${esc(f.k)}" ${f.value ? 'checked' : ''} style="accent-color:var(--accent);width:16px;height:16px;">
+          <span>${esc(f.label)}</span></label>`;
+      }
+      return `<div class="field"><label>${esc(f.label)}</label>
+        <input class="inp" type="${f.type || 'text'}" data-f="${esc(f.k)}" value="${esc(f.value == null ? '' : f.value)}" placeholder="${esc(f.ph || '')}">
+        ${f.hint ? `<div class="eyebrow" style="margin-top:5px;">${esc(f.hint)}</div>` : ''}</div>`;
+    }).join('');
+    $('#modal').innerHTML = `
+      <div class="modal-h"><h3>${esc(title)}</h3>${sub ? `<p>${esc(sub)}</p>` : ''}</div>
+      <div class="modal-b">${body}</div>
+      <div class="modal-f">
+        <button class="btn" data-act="modal-cancel">Cancel</button>
+        <button class="btn pri" data-act="modal-submit">${esc(okLabel || 'Save')}</button>
+      </div>`;
+    $('#modalWrap').classList.add('on');
+    setTimeout(() => { const i = $('#modal .inp'); if (i) { i.focus(); if (i.select) i.select(); } }, 30);
+  });
+}
+function readForm() {
+  const out = {};
+  $$('#modal [data-f]').forEach(el => {
+    out[el.dataset.f] = el.type === 'checkbox' ? el.checked : el.value.trim();
+  });
+  return out;
+}
+
+/* ==========================================================================
+   HUD + NAV
+   ========================================================================== */
+function renderHud() {
+  const s = state;
+  const th = theme();
+
+  $('#seasonName').textContent = s.season.name || 'Battle For The Top';
+  const started = s.season.started ? new Date(s.season.started) : null;
+  $('#seasonTag').textContent = C('brand') + (started ? ' · since ' + started.toLocaleDateString(undefined, { month: 'short', year: 'numeric' }) : '');
+  const creed = $('#creed');
+  if (creed) creed.textContent = th.tagline;
+
+  const tb = $('#themeBtn');
+  if (tb) { tb.innerHTML = ICON('crest', 17); tb.title = th.name + ' — change house'; }
+  $('#searchBtn').innerHTML = ICON('search', 15);
+  $('#settingsBtn').innerHTML = ICON('settings', 15);
+  $('#signOutBtn').innerHTML = ICON('signout', 15);
+  $('.brand-glyph').innerHTML = ICON('crest', 24);
+
+  const t = todayTotals();
+  const lead = s.points.abir === s.points.jade ? null : (s.points.abir > s.points.jade ? 'abir' : 'jade');
+  const chip = $('#leadChip');
+  if (!lead) chip.innerHTML = 'Dead even';
+  else chip.innerHTML = `<span style="color:${OPC_FOR(lead)}">${ICON('lead', 11)} ${esc(nameOf(lead))}</span> +${num(Math.abs(s.points.abir - s.points.jade))}`;
+
+  /* the header emblem — optional, and may show live state */
+  const em = $('#emblem');
+  if (em) {
+    if (typeof th.emblem === 'function') {
+      const span = Math.max(1, Math.abs(s.points.abir) + Math.abs(s.points.jade));
+      try {
+        em.innerHTML = th.emblem({
+          lead, gap: Math.abs(s.points.abir - s.points.jade),
+          progress: clamp(Math.abs(s.points.abir - s.points.jade) / span, 0, 1),
+          dayProgress: (Date.now() - startOfDay(Date.now()).getTime()) / 86400000,
+          a: s.points.abir, b: s.points.jade, esc
+        });
+      } catch (e) { console.error('emblem failed', e); em.innerHTML = ''; }
+    } else em.innerHTML = '';
+  }
+
+  /* a house that draws its own standings — a nameplate on the wall rather
+     than a progress bar — takes the whole block */
+  if (typeof th.scoreboard === 'function') {
+    try {
+      $('#ops').innerHTML = th.scoreboard({
+        parties: PARTIES, lead, esc, num, fmt, C, ICON,
+        nameOf, opc: OPC_FOR, boardOpen: () => boardOpen, houseMark, houseOf: themeFor,
+        of: p => {
+          const pts = s.points[p] || 0, ti = tierInfo(pts);
+          return { party: p, name: nameOf(p), points: pts, today: t[p] || 0,
+                   streak: streak(p), rank: ti, lead: lead === p, color: OPC_FOR(p) };
+        }
+      });
+      return;
+    } catch (e) { console.error('scoreboard failed for ' + THEME, e); }
+  }
+  $('#ops').innerHTML = PARTIES.map(p => {
+    const pts = s.points[p] || 0;
+    const ti = tierInfo(pts);
+    const st = streak(p);
+    const dt = t[p] || 0;
+    return `<div class="op${lead === p ? ' lead' : ''}" style="--op:${OPC_FOR(p)};--tier:${ti.color}">
+      <div class="op-top">
+        <div class="op-name" data-act="rename" data-p="${p}" title="Rename">
+          ${lead === p ? `<span style="color:var(--gold);display:flex;">${ICON('lead', 13)}</span>` : ''}
+          ${houseMark(p)}<span class="nm">${esc(nameOf(p))}</span>
+        </div>
+        <div class="op-rank">${esc(ti.name)}<br><span style="opacity:.6">${esc(C('rank'))} ${ti.level}</span></div>
+      </div>
+      <div class="op-pts mono">${num(pts)}</div>
+      <div class="op-sub">
+        <span class="op-delta ${dt > 0 ? 'pos' : dt < 0 ? 'neg' : ''}">${fmt(dt)} today</span>
+        ${st > 1 ? `<span class="streak">${ICON('streak', 10)} ${st}-day streak</span>` : ''}
+        <span style="opacity:.6">${num(ti.toNext)} to ${esc(C('rank').toLowerCase())} ${ti.level + 1}</span>
+      </div>
+      <div class="op-track"><div class="op-fill" style="width:${(ti.progress * 100).toFixed(1)}%"></div></div>
+    </div>`;
+  }).join('');
+}
+/* Whose house each operator is in, drawn on their own leaderboard card in
+   their own identity colour. Half the point of separate houses is seeing the
+   other one on the board, so it is permanent rather than a hover. */
+function houseMark(party) {
+  const id = themeFor(party);
+  const t = id && REG.list[id];
+  if (!t) return '';
+  const svg = t.icons.crest.replace('<svg', '<svg width="15" height="15"');
+  return `<span class="house-mark" style="color:${OPC_FOR(party)}" title="${esc(t.name)}">${svg}</span>`;
+}
+
+function renderNav() {
+  $$('#nav .nav-btn').forEach(b => {
+    b.classList.toggle('on', b.dataset.nav === route.view);
+    const key = VIEW_COPY[b.dataset.nav];
+    const lbl = b.querySelector('.lbl');
+    if (lbl) lbl.textContent = C(key);
+    const ic = b.querySelector('.ic');
+    if (ic) ic.innerHTML = ICON(key, 16);
+    b.title = C(VIEW_COPY[b.dataset.nav] + 'Fn');
+  });
+}
+/* Route ids are structural and never change; the words for them are the
+   theme's. The tooltip always states the plain function, so a house's
+   vocabulary can never cost you the ability to find a screen. */
+const VIEW_COPY = { chart: 'chart', foundry: 'tasks', focus: 'focus',
+                    market: 'market', conclave: 'wagers', codex: 'log' };
+
+/* ==========================================================================
+   STAR CHART
+   ========================================================================== */
+/* --------------------------------------------------------------------------
+   The hub scene. Each pack draws its own — a star chart, a castle tower, a
+   depth sounding, a colonnade. All the core asks is that every sector is
+   reachable: give the clickable group `class="hub-hit"` plus the two data
+   attributes below, and the app wires the rest.
+   -------------------------------------------------------------------------- */
+function hubContext() {
+  const places = state.planets.slice().sort((a, b) => (a.orbit || 0) - (b.orbit || 0));
+  return {
+    places,
+    active: route.planet,
+    /* every pack needs these, and none of them should reach for globals */
+    name: placeName,
+    count: id => state.nodes.filter(n => n.p === id).length,
+    earned: id => state.history
+      .filter(h => dayKey(h.ts) === todayKey() && state.nodes.some(n => n.id === h.key && n.p === id))
+      .reduce((a, h) => a + h.delta, 0),
+    esc,
+    /* the standard hit target — keeps click wiring identical across packs */
+    hit: (pl, inner, transform) =>
+      `<g class="hub-hit${pl.id === route.planet ? ' on' : ''}" data-act="planet" data-p="${esc(pl.id)}"` +
+      (transform ? ` transform="${transform}"` : '') + `>${inner}</g>`
+  };
+}
+/* --------------------------------------------------------------------------
+   Everything a house needs to draw the room screen itself, precomputed, so a
+   theme writes markup and never reaches for a global. The wiring contract is
+   the only thing the core insists on: a claim button carries data-act="claim"
+   with data-id and data-p, and a room target carries data-act="planet".
+   -------------------------------------------------------------------------- */
+function deedData(nd) {
+  const isPen = nd.pts < 0;
+  const owners = nd.o === 'both' ? PARTIES : [nd.o];
+  const req = nd.req ? nodeById(nd.req) : null;
+  return {
+    id: nd.id, name: nd.n, pts: nd.pts, type: nd.t, isPen,
+    kind: nd.t === 'milestone' ? 'milestone' : isPen ? 'penalty' : 'ritual',
+    typeName: nd.mt || typeName(nd.t), cad: cadName(nd.cad),
+    owner: nd.o, ownerName: nd.o === 'both' ? null : nameOf(nd.o),
+    req: req ? { id: req.id, name: req.n } : null,
+    claims: owners.map(p => ({
+      party: p, name: nameOf(p), color: OPC_FOR(p),
+      n: countToday(p, nd.id), locked: !!(req && nodeLocked(nd, p))
+    }))
+  };
+}
+function roomContext() {
+  const places = state.planets.slice().sort((a, b) => (a.orbit || 0) - (b.orbit || 0));
+  const active = planetById(route.planet) || places[0] || null;
+  if (active) route.planet = active.id;
+  const nodes = active ? visibleNodes(active.id) : [];
+  return {
+    places, active, nodes: nodes.map(deedData),
+    esc, num, fmt, C, ICON, clamp,
+    name: placeName, parties: PARTIES, who: route.who,
+    nameOf, opc: OPC_FOR, boardOpen: () => boardOpen,
+    count: id => state.nodes.filter(n => n.p === id).length,
+    earned: id => state.history
+      .filter(h => dayKey(h.ts) === todayKey() && state.nodes.some(n => n.id === h.key && n.p === id))
+      .reduce((a, h) => a + h.delta, 0),
+    hit: (pl, inner, transform) =>
+      `<g class="hub-hit${pl.id === route.planet ? ' on' : ''}" data-act="planet" data-p="${esc(pl.id)}"` +
+      (transform ? ` transform="${transform}"` : '') + `>${inner}</g>`,
+    /* deterministic per-id jitter, so a pinned note hangs at the same angle
+       every render instead of twitching */
+    jit: (seed, i) => {
+      let h = 0;
+      const t = String(seed) + ':' + i;
+      for (let k = 0; k < t.length; k++) h = (h * 31 + t.charCodeAt(k)) | 0;
+      return ((h >>> 0) % 1000) / 1000;
+    }
+  };
+}
+function hubScene() {
+  const t = theme();
+  if (typeof t.backdrop !== 'function') return '';
+  try { return t.backdrop(hubContext()); }
+  catch (e) { console.error('Backdrop failed for theme ' + THEME, e); return ''; }
+}
+
+function nodeCard(nd) {
+  const pl = planetById(nd.p) || { color: 'var(--line)' };
+  const isPen = nd.pts < 0;
+  const color = nd.t === 'milestone' ? 'var(--milestone)' : isPen ? 'var(--penalty)' : pl.color;
+  const owners = nd.o === 'both' ? PARTIES : [nd.o];
+  const mt = nd.mt || typeName(nd.t);
+  const cad = cadName(nd.cad);
+  const reqNode = nd.req ? nodeById(nd.req) : null;
+
+  const acts = owners.map(p => {
+    const c = countToday(p, nd.id);
+    const locked = reqNode && nodeLocked(nd, p);
+    const lbl = nd.o === 'both' ? esc(nameOf(p)) : (c ? C('scoreVerbPast') : C('scoreVerb'));
+    return `<button class="btn sm ${p === 'abir' ? 'a' : 'b'}" data-act="claim" data-id="${esc(nd.id)}" data-p="${p}"
+        ${locked ? `disabled title="Locked — ${esc(reqNode.n)} first"` : ''}>
+        ${locked ? ICON('lock', 11) + ' ' : ''}${lbl}${c ? ` <span class="claim-n">×${c}</span>` : ''}</button>`
+      + (c ? `<button class="btn icon sm" data-act="undo" data-id="${esc(nd.id)}" data-p="${p}"
+          title="${esc(C('scoreVerbPast'))} — undo">${ICON('undo', 13)}</button>` : '');
+  }).join('');
+
+  const anyLocked = owners.some(p => nodeLocked(nd, p));
+  return `<div class="node${nd.t === 'milestone' ? ' boss' : ''}${isPen ? ' infested' : ''}${anyLocked ? ' locked' : ''}"
+      style="--nc:${color}" data-node="${esc(nd.id)}">
+    <div class="node-top">
+      <div class="node-mark">${ICON(nd.t === 'milestone' ? 'markMilestone' : isPen ? 'markPenalty' : 'markRitual', 16)}</div>
+      <div class="grow">
+        <div class="node-name">${esc(nd.n)}</div>
+        <div class="node-meta">
+          <span>${esc(mt)}</span><span style="opacity:.4">·</span><span>${cad}</span>
+          ${nd.o !== 'both' ? `<span style="color:${OPC_FOR(nd.o)}">${esc(nameOf(nd.o))}</span>` : ''}
+          ${reqNode ? `<span style="opacity:.8">${esc(C('toastLocked', { item: reqNode.n }))}</span>` : ''}
+        </div>
+      </div>
+      <div class="node-val ${isPen ? 'neg' : 'pos'}">${fmt(nd.pts)}</div>
+    </div>
+    <div class="node-acts">${acts}<span class="spacer"></span>
+      <button class="btn icon sm" data-act="node-edit" data-id="${esc(nd.id)}" title="Edit">${ICON('more', 13)}</button>
+    </div>
+  </div>`;
+}
+
+function renderChart() {
+  /* a house that owns this screen renders the whole thing itself */
+  if (typeof theme().roomView === 'function') {
+    try { return theme().roomView(roomContext()); }
+    catch (e) { console.error('roomView failed for ' + THEME, e); }
+  }
+  return renderChartDefault();
+}
+function renderChartDefault() {
+  const pl = planetById(route.planet) || state.planets[0];
+  if (!pl) return `<div class="empty">${esc(C('emptyGroup'))}</div>`;
+  route.planet = pl.id;
+  const nodes = visibleNodes(pl.id);
+  const day = todayKey();
+  const earnedHere = state.history
+    .filter(h => dayKey(h.ts) === day && state.nodes.some(n => n.id === h.key && n.p === pl.id))
+    .reduce((a, h) => a + h.delta, 0);
+
+  const strip = state.planets.slice().sort((a, b) => (a.orbit || 0) - (b.orbit || 0)).map(p => {
+    const c = state.nodes.filter(n => n.p === p.id).length;
+    return `<button class="pl-chip${p.id === route.planet ? ' on' : ''}" style="--pc:${esc(p.color)}" data-act="planet" data-p="${esc(p.id)}">
+      <span class="dot"></span>${esc(placeName(p))}<span class="n">${c}</span></button>`;
+  }).join('') + `<button class="pl-chip" style="--pc:var(--txt-3)" data-act="planet-new" title="New ${esc(C('group').toLowerCase())}"><span class="dot"></span>+ ${esc(C('group'))}</button>`;
+
+  const filter = ['all'].concat(PARTIES).map(w =>
+    `<button class="btn sm${route.who === w ? ' on' : ''}" data-act="who" data-w="${w}">${w === 'all' ? 'Both' : esc(nameOf(w))}</button>`).join('');
+
+  return `
+    <div class="panel cut" id="mapPanel" style="overflow:hidden;">
+      <div class="panel-b" style="padding:10px;"><div id="mapHost">${hubScene()}</div></div>
+    </div>
+    <div class="planet-strip">${strip}</div>
+    <div class="planet-head" style="--pc:${esc(pl.color)}">
+      <div>
+        <div class="eyebrow">${esc(pl.sub || C('group'))}</div>
+        <h2>${esc(placeName(pl))}</h2>
+        <div class="sub">${nodes.length} ${esc((nodes.length === 1 ? C('item') : C('items')).toLowerCase())} · ${fmt(earnedHere)} ${esc(C('score').toLowerCase())} here today</div>
+      </div>
+      <div class="row">
+        ${filter}
+        <button class="btn sm" data-act="node-new">+ ${esc(C('item'))}</button>
+        <button class="btn icon" data-act="planet-edit" title="Edit ${esc(C('group').toLowerCase())}">${ICON('more', 14)}</button>
+      </div>
+    </div>
+    <div class="node-grid" id="nodeGrid">
+      <svg id="links" preserveAspectRatio="none"></svg>
+      ${nodes.length ? nodes.map(nodeCard).join('')
+        : `<div class="empty">${esc(C('emptyGroup'))}</div>`}
+    </div>`;
+}
+
+/* dashed connector lines between a node and the node it unlocks from */
+function drawLinks() {
+  const grid = $('#nodeGrid'), svg = $('#links');
+  if (!grid || !svg) return;
+  const gr = grid.getBoundingClientRect();
+  svg.setAttribute('viewBox', `0 0 ${gr.width} ${gr.height}`);
+  svg.setAttribute('width', gr.width);
+  svg.setAttribute('height', gr.height);
+  const paths = [];
+  $$('.node', grid).forEach(el => {
+    const nd = nodeById(el.dataset.node);
+    if (!nd || !nd.req) return;
+    const src = $(`.node[data-node="${CSS.escape(nd.req)}"]`, grid);
+    if (!src) return;
+    const a = src.getBoundingClientRect(), b = el.getBoundingClientRect();
+    const locked = PARTIES.some(p => nodeLocked(nd, p));
+    const cls = locked ? 'locked' : '';
+    let d;
+    if (Math.abs(a.top - b.top) < 12) {
+      /* same row — run the line between facing edges */
+      const left = a.left < b.left;
+      const x1 = (left ? a.right : a.left) - gr.left, x2 = (left ? b.left : b.right) - gr.left;
+      const y = a.top + a.height / 2 - gr.top, mid = (x1 + x2) / 2;
+      d = `M${x1},${y} C${mid},${y} ${mid},${y} ${x2},${y}`;
+    } else {
+      const x1 = a.left + a.width / 2 - gr.left, y1 = a.bottom - gr.top;
+      const x2 = b.left + b.width / 2 - gr.left, y2 = b.top - gr.top;
+      const mid = (y1 + y2) / 2;
+      d = `M${x1},${y1} C${x1},${mid} ${x2},${mid} ${x2},${y2}`;
+    }
+    const t = theme();
+    paths.push(typeof t.connector === 'function'
+      ? t.connector({ d, locked, cls, a, b })
+      : `<path class="${cls}" d="${d}"/>`);
+  });
+  svg.innerHTML = paths.join('');
+}
+
+/* ---------------- planet + node editing ---------------- */
+async function newPlanet() {
+  const v = await formBox('New ' + C('group').toLowerCase(), [
+    { k: 'name', label: C('group') + ' name', ph: 'What to call it' },
+    { k: 'sub', label: 'What it covers', ph: 'e.g. Money & bills' },
+    { k: 'color', label: 'Colour', type: 'color', value: theme().tokens.accent }
+  ], 'Add ' + C('group').toLowerCase());
+  if (!v || !v.name) return;
+  state.planets.push({
+    id: uid('pl'), name: v.name, sub: v.sub || '', color: v.color || theme().tokens.accent,
+    orbit: state.planets.length + 1, r: 7
+  });
+  route.planet = state.planets[state.planets.length - 1].id;
+  save(); renderAll();
+  toast(`<b>${esc(v.name)}</b> added.`, { kind: 'good' });
+}
+async function editPlanet(id) {
+  const p = planetById(id); if (!p) return;
+  const v = await formBox('Edit ' + p.name, [
+    { k: 'name', label: 'Name', value: p.name },
+    { k: 'sub', label: 'What it covers', value: p.sub || '' },
+    { k: 'color', label: 'Colour', type: 'color', value: p.color },
+    { k: 'del', label: 'Delete this ' + C('group').toLowerCase() + ' and everything on it', type: 'check', value: false }
+  ], 'Save');
+  if (!v) return;
+  if (v.del) {
+    const n = state.nodes.filter(x => x.p === id).length;
+    const ok = await confirmBox('Delete ' + p.name + '?', `${n} ${(n === 1 ? C('item') : C('items')).toLowerCase()} will be removed. ${C('score')} already earned stays in the log.`, 'Delete', true);
+    if (!ok) return;
+    state.planets = state.planets.filter(x => x.id !== id);
+    state.nodes = state.nodes.filter(x => x.p !== id);
+    route.planet = state.planets[0] ? state.planets[0].id : null;
+  } else {
+    if (v.name && v.name !== p.name) { p.name = v.name; p.renamed = true; }
+    p.sub = v.sub; p.color = v.color || p.color;
+  }
+  save(); renderAll();
+}
+function nodeFields(nd) {
+  const planetOpts = state.planets.map(p => ({ v: p.id, n: p.name }));
+  const reqOpts = [{ v: '', n: '— none —' }].concat(
+    state.nodes.filter(x => !nd || x.id !== nd.id).map(x => ({ v: x.id, n: (planetById(x.p) || {}).name + ' · ' + x.n })));
+  return [
+    { k: 'n', label: C('item') + ' name', value: nd ? nd.n : '', ph: 'What you actually do' },
+    { k: 'pts', label: C('score'), type: 'number', value: nd ? nd.pts : 1500, hint: 'Negative for a penalty node' },
+    { k: 'p', label: C('group'), type: 'select', value: nd ? nd.p : route.planet, options: planetOpts },
+    { k: 't', label: C('item') + ' type', type: 'select', value: nd ? nd.t : 'ritual', options: [
+      { v: 'ritual',    n: C('typeRitual')    + ' — ' + C('typeRitualHint') },
+      { v: 'ops',       n: C('typeGoal')      + ' — ' + C('typeGoalHint') },
+      { v: 'milestone', n: C('typeMilestone') + ' — ' + C('typeMilestoneHint') },
+      { v: 'infested',  n: C('typePenalty')   + ' — ' + C('typePenaltyHint') }] },
+    { k: 'o', label: 'Who can ' + C('scoreVerb').toLowerCase() + ' it', type: 'select', value: nd ? nd.o : 'both', options: [
+      { v: 'both', n: 'Both of you' }, { v: 'abir', n: nameOf('abir') }, { v: 'jade', n: nameOf('jade') }] },
+    { k: 'cad', label: 'Resets', type: 'select', value: nd ? (nd.cad || 'daily') : 'daily', options: [
+      { v: 'daily', n: C('cadDaily') }, { v: 'weekly', n: C('cadWeekly') }, { v: 'once', n: C('cadOnce') }] },
+    { k: 'req', label: 'Locked behind', type: 'select', value: nd ? (nd.req || '') : '', options: reqOpts,
+      hint: 'Stays locked until that one is ' + C('scoreVerbPast').toLowerCase() + ' today' }
+  ];
+}
+async function newNode() {
+  const v = await formBox('New ' + C('item').toLowerCase(), nodeFields(null), 'Add ' + C('item').toLowerCase());
+  if (!v || !v.n) return;
+  const pts = parseInt(v.pts, 10) || 0;
+  state.nodes.push({
+    id: 'node:' + uid('n'), n: v.n, pts: v.t === 'infested' ? -Math.abs(pts) : pts,
+    p: v.p, t: v.t, o: v.o, cad: v.cad, req: v.req || null, order: state.nodes.length
+  });
+  route.planet = v.p;
+  save(); renderAll();
+  toast(`<b>${esc(v.n)}</b> — ${esc((planetById(v.p) || {}).name)}`, { kind: 'good' });
+}
+async function editNode(id) {
+  const nd = nodeById(id); if (!nd) return;
+  const f = nodeFields(nd).concat([{ k: 'del', label: 'Delete this ' + C('item').toLowerCase(), type: 'check', value: false }]);
+  const v = await formBox('Edit ' + C('item').toLowerCase(), f, 'Save');
+  if (!v) return;
+  if (v.del) {
+    const ok = await confirmBox('Delete "' + nd.n + '"?', C('score') + ' already earned from it stays in the log.', 'Delete', true);
+    if (!ok) return;
+    state.nodes = state.nodes.filter(x => x.id !== id);
+    state.nodes.forEach(x => { if (x.req === id) x.req = null; });
+  } else {
+    const pts = parseInt(v.pts, 10) || 0;
+    Object.assign(nd, {
+      n: v.n || nd.n, pts: v.t === 'infested' ? -Math.abs(pts) : pts,
+      p: v.p, t: v.t, o: v.o, cad: v.cad, req: v.req || null
+    });
+    route.planet = v.p;
+  }
+  save(); renderAll();
+}
+
+/* ==========================================================================
+   FOUNDRY — tasks. Built to be faster than the notes app you're not using.
+   ========================================================================== */
+const ME_KEY = 'origin_me';
+let ME = (() => { try { return localStorage.getItem(ME_KEY); } catch (e) { return null; } })();
+function setMe(p) { ME = p; try { localStorage.setItem(ME_KEY, p); } catch (e) {} }
+
+const MONTHS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+
+/* ---- one-line parser: "gym tomorrow !2000 @abir #shared *weekly" ---- */
+function parseQuick(raw) {
+  let s = ' ' + raw + ' ';
+  const out = { pts: 0, owner: null, list: null, listNew: null, due: null, repeat: null };
+  const eat = re => { const m = s.match(re); if (m) { s = s.replace(m[0], ' '); } return m; };
+
+  let m;
+  if ((m = eat(/\s!(\d+(?:\.\d+)?)(k?)\s/i))) out.pts = Math.round(parseFloat(m[1]) * (m[2] ? 1000 : 1));
+  if ((m = eat(/\s@(\w+)\s/i))) {
+    const w = m[1].toLowerCase();
+    if (w === 'both' || w === 'us') out.owner = 'both';
+    else { const hit = PARTIES.find(p => nameOf(p).toLowerCase().startsWith(w) || p.startsWith(w)); if (hit) out.owner = hit; }
+  }
+  if ((m = eat(/\s#([\w-]+)\s/i))) {
+    const w = m[1].toLowerCase();
+    const hit = state.lists.find(l => l.name.toLowerCase().replace(/\s+/g, '-').startsWith(w));
+    if (hit) out.list = hit.id; else out.listNew = m[1];
+  }
+  if ((m = eat(/\s(?:\*(daily|weekly|monthly|weekdays)|every\s+(day|week|month|weekday|weekdays))\s/i))) {
+    const w = (m[1] || m[2] || '').toLowerCase();
+    out.repeat = w.startsWith('week') && w !== 'weekdays' && w !== 'weekday' ? 'weekly'
+      : w.startsWith('month') ? 'monthly' : w.startsWith('weekday') ? 'weekdays' : 'daily';
+  }
+
+  const today = startOfDay(Date.now());
+  const at = d => { out.due = isoDay(d); };
+  if ((m = eat(/\s(\d{4})-(\d{1,2})-(\d{1,2})\s/))) at(new Date(+m[1], +m[2] - 1, +m[3]));
+  else if ((m = eat(/\s(today|tod|tonight)\s/i))) at(today);
+  else if ((m = eat(/\s(tomorrow|tmrw|tmr)\s/i))) { const d = new Date(today); d.setDate(d.getDate() + 1); at(d); }
+  else if ((m = eat(/\sin\s+(\d+)\s*(day|days|d|week|weeks|w|month|months)\s/i))) {
+    const d = new Date(today), n = +m[1], u = m[2][0].toLowerCase();
+    d.setDate(d.getDate() + (u === 'w' ? n * 7 : u === 'm' ? 0 : n));
+    if (u === 'm') d.setMonth(d.getMonth() + n);
+    at(d);
+  } else if ((m = eat(/\snext\s+(week|month)\s/i))) {
+    const d = new Date(today);
+    if (m[1].toLowerCase() === 'week') d.setDate(d.getDate() + 7); else d.setMonth(d.getMonth() + 1);
+    at(d);
+  } else if ((m = eat(new RegExp('\\s(' + MONTHS.join('|') + ')[a-z]*\\s+(\\d{1,2})\\s', 'i')))) {
+    const d = new Date(today.getFullYear(), MONTHS.indexOf(m[1].toLowerCase()), +m[2]);
+    if (d < today) d.setFullYear(d.getFullYear() + 1);
+    at(d);
+  } else if ((m = eat(new RegExp('\\s(\\d{1,2})\\s+(' + MONTHS.join('|') + ')[a-z]*\\s', 'i')))) {
+    const d = new Date(today.getFullYear(), MONTHS.indexOf(m[2].toLowerCase()), +m[1]);
+    if (d < today) d.setFullYear(d.getFullYear() + 1);
+    at(d);
+  } else if ((m = eat(/\s(?:on\s+)?(sun|mon|tue|tues|wed|thu|thur|thurs|fri|sat)(?:day|nesday|rsday|urday)?\s/i))) {
+    const want = { sun: 0, mon: 1, tue: 2, tues: 2, wed: 3, thu: 4, thur: 4, thurs: 4, fri: 5, sat: 6 }[m[1].toLowerCase()];
+    const d = new Date(today);
+    let add = (want - d.getDay() + 7) % 7; if (add === 0) add = 7;
+    d.setDate(d.getDate() + add);
+    at(d);
+  }
+  out.text = s.replace(/\s+/g, ' ').trim();
+  return out;
+}
+
+function quickPreview(raw) {
+  if (!raw.trim()) return '';
+  const p = parseQuick(raw);
+  const bits = [];
+  if (p.due) { const dl = dueLabel(p.due); bits.push(`<span class="due ${dl.cls}">${ICON('due', 10)} ${esc(dl.txt)}</span>`); }
+  if (p.repeat) bits.push(`<span>${ICON('repeat', 10)} ${esc(p.repeat)}</span>`);
+  if (p.pts) bits.push(`<span style="color:var(--accent)">${ICON('score', 10)} ${num(p.pts)} ${esc(C('score').toLowerCase())}</span>`);
+  if (p.owner) bits.push(`<span style="color:${p.owner === 'both' ? 'var(--txt-2)' : OPC_FOR(p.owner)}">${esc(nameOf(p.owner))}</span>`);
+  if (p.list) bits.push(`<span>${ICON('list', 10)} ${esc((state.lists.find(l => l.id === p.list) || {}).name)}</span>`);
+  if (p.listNew) bits.push(`<span style="color:var(--gold)">${ICON('list', 10)} new list “${esc(p.listNew)}”</span>`);
+  if (!bits.length) return '';
+  return `<div class="fd-preview"><span style="color:var(--txt);">${esc(p.text || '…')}</span>${bits.join('')}</div>`;
+}
+
+function addQuick(raw) {
+  const p = parseQuick(raw);
+  if (!p.text) return false;
+  let list = p.list;
+  if (p.listNew) {
+    const l = { id: uid('list'), name: p.listNew, o: 'both', order: state.lists.length };
+    state.lists.push(l); list = l.id;
+  }
+  if (!list) list = route.list !== 'all' && route.list !== 'today' ? route.list
+    : (state.lists.find(l => l.o === (ME || 'both')) || state.lists[0] || {}).id;
+  const listObj = state.lists.find(l => l.id === list);
+  state.tasks.unshift({
+    id: uid('task'), list, text: p.text, pts: p.pts || 0,
+    o: p.owner || (listObj && listObj.o !== 'both' ? listObj.o : (ME || 'both')),
+    due: p.due, repeat: p.repeat, done: false, sub: [], created: Date.now(),
+    order: -Date.now()
+  });
+  save(); renderAll();
+  return true;
+}
+
+function tasksInScope() {
+  let t = state.tasks.slice();
+  if (route.list === 'today') {
+    const end = startOfDay(Date.now()).getTime() + 86400000;
+    t = t.filter(x => x.due && startOfDay(x.due).getTime() < end);
+  } else if (route.list !== 'all') t = t.filter(x => x.list === route.list);
+  return t;
+}
+function taskGroups(list) {
+  const t0 = startOfDay(Date.now()).getTime();
+  const g = { over: [], today: [], tmr: [], week: [], later: [], none: [], done: [] };
+  list.forEach(t => {
+    if (t.done) { g.done.push(t); return; }
+    if (!t.due) { g.none.push(t); return; }
+    const d = startOfDay(t.due).getTime();
+    if (d < t0) g.over.push(t);
+    else if (d === t0) g.today.push(t);
+    else if (d === t0 + 86400000) g.tmr.push(t);
+    else if (d < t0 + 7 * 86400000) g.week.push(t);
+    else g.later.push(t);
+  });
+  const bydue = (a, b) => (startOfDay(a.due) - startOfDay(b.due)) || (a.order || 0) - (b.order || 0);
+  ['over', 'today', 'tmr', 'week', 'later'].forEach(k => g[k].sort(bydue));
+  g.none.sort((a, b) => (a.order || 0) - (b.order || 0));
+  g.done.sort((a, b) => (b.doneAt || 0) - (a.doneAt || 0));
+  return g;
+}
+
+function taskRow(t) {
+  const l = state.lists.find(x => x.id === t.list);
+  const dl = dueLabel(t.due);
+  const oc = t.o && t.o !== 'both' ? OPC_FOR(t.o) : 'var(--txt-3)';
+  const subs = (t.sub || []);
+  const doneSubs = subs.filter(s => s.done).length;
+  return `<div class="tk${t.done ? ' done' : ''}${dl && dl.cls === 'over' ? ' over' : ''}" style="--tc:${oc}" data-task="${esc(t.id)}">
+    <button class="tk-box" data-act="task-toggle" data-id="${esc(t.id)}" title="${t.done ? 'Reopen' : 'Complete'}">${ICON('check', 12)}</button>
+    <div class="tk-main">
+      <div class="tk-text" data-act="task-inline" data-id="${esc(t.id)}">${esc(t.text)}</div>
+      <div class="tk-meta">
+        ${route.list === 'all' || route.list === 'today' ? `<span>${ICON('list', 10)} ${esc(l ? l.name : '—')}</span>` : ''}
+        ${dl ? `<span class="due ${dl.cls}">${ICON('due', 10)} ${esc(dl.txt)}</span>` : ''}
+        ${t.repeat ? `<span>${ICON('repeat', 10)} ${esc(t.repeat)}</span>` : ''}
+        ${t.pts ? `<span class="pts">${ICON('score', 10)} ${num(t.pts)}</span>` : ''}
+        ${t.o && t.o !== 'both' ? `<span class="own" style="color:${OPC_FOR(t.o)}">${esc(nameOf(t.o))}</span>` : ''}
+        ${subs.length ? `<span>${ICON('check', 10)} ${doneSubs}/${subs.length}</span>` : ''}
+      </div>
+      ${subs.length ? `<div class="tk-sub">${subs.map(s => `
+        <div class="tk-sub-row${s.done ? ' done' : ''}">
+          <button class="tk-sub-box" data-act="sub-toggle" data-id="${esc(t.id)}" data-s="${esc(s.id)}">${ICON('check', 9)}</button>
+          <span class="grow">${esc(s.text)}</span>
+          <button class="btn icon sm warn" data-act="sub-del" data-id="${esc(t.id)}" data-s="${esc(s.id)}">${ICON('close', 11)}</button>
+        </div>`).join('')}</div>` : ''}
+    </div>
+    <div class="tk-acts">
+      <button class="btn icon sm" data-act="sub-add" data-id="${esc(t.id)}" title="Add a step">${ICON('add', 13)}</button>
+      <button class="btn icon sm" data-act="task-edit" data-id="${esc(t.id)}" title="Details">${ICON('more', 13)}</button>
+      <button class="btn icon sm warn" data-act="task-del" data-id="${esc(t.id)}" title="Delete">${ICON('close', 13)}</button>
+    </div>
+  </div>`;
+}
+
+function renderFoundry() {
+  const scope = tasksInScope();
+  const g = taskGroups(scope);
+  const open = scope.filter(t => !t.done).length;
+
+  const chips = [
+    { id: 'all', name: 'All', n: state.tasks.filter(t => !t.done).length },
+    { id: 'today', name: 'Today', n: state.tasks.filter(t => !t.done && t.due && startOfDay(t.due).getTime() <= startOfDay(Date.now()).getTime()).length }
+  ].concat(state.lists.slice().sort((a, b) => (a.order || 0) - (b.order || 0))
+    .map(l => ({ id: l.id, name: l.name, n: state.tasks.filter(t => t.list === l.id && !t.done).length, o: l.o })));
+
+  const chipHtml = chips.map(c => `<button class="pl-chip${route.list === c.id ? ' on' : ''}"
+      style="--pc:${c.o && c.o !== 'both' ? OPC_FOR(c.o) : 'var(--accent)'}" data-act="list" data-l="${esc(c.id)}">
+      <span class="dot"></span>${esc(c.name)}<span class="n">${c.n}</span></button>`).join('')
+    + `<button class="pl-chip" style="--pc:var(--txt-3)" data-act="list-new"><span class="dot"></span>+ List</button>`
+    + (route.list !== 'all' && route.list !== 'today'
+      ? `<button class="btn icon" data-act="list-edit" data-l="${esc(route.list)}" title="Edit list">${ICON('more', 13)}</button>` : '');
+
+  const group = (key, label, cls) => {
+    if (!g[key].length) return '';
+    return `<div class="day-h ${cls || ''}">${esc(label)}<span class="c">${g[key].length}</span></div>`
+      + g[key].map(taskRow).join('');
+  };
+
+  const doneBlock = g.done.length ? `
+    <details style="margin-top:20px;">
+      <summary class="add-sum">${ICON('check', 11)} Completed (${g.done.length})</summary>
+      <div style="margin-top:8px;">${g.done.slice(0, 40).map(taskRow).join('')}</div>
+      <button class="btn sm warn" style="margin-top:10px;" data-act="clear-done">Clear completed</button>
+    </details>` : '';
+
+  return `
+    <div class="fd-add">
+      <input id="quickAdd" class="inp" autocomplete="off" spellcheck="false"
+        placeholder="Add anything…  try:  renew insurance friday !2000 @abir #shared">
+      <div id="quickPrev"></div>
+      <div class="fd-hint">
+        <span><b>friday</b> / <b>tomorrow</b> / <b>in 3 days</b> · due date</span>
+        <span><b>!2000</b> ${esc(C('score').toLowerCase())}</span>
+        <span><b>@${esc(nameOf('abir')).toLowerCase()}</b> owner</span>
+        <span><b>#list</b></span>
+        <span><b>*weekly</b> repeat</span>
+      </div>
+    </div>
+    <div class="fd-lists">${chipHtml}</div>
+    ${open === 0 && !g.done.length ? `<div class="empty">${esc(C('emptyTasks'))}</div>` : ''}
+    <div class="fd-body">
+      ${group('over', 'Overdue', 'over')}
+      ${group('today', 'Today', 'today')}
+      ${group('tmr', 'Tomorrow')}
+      ${group('week', 'This week')}
+      ${group('later', 'Later')}
+      ${group('none', 'No date')}
+    </div>
+    ${doneBlock}`;
+}
+
+/* ---------------- task actions ---------------- */
+const taskById = id => state.tasks.find(t => t.id === id);
+
+function advanceDue(iso, repeat) {
+  const d = iso ? dayDate(iso) : startOfDay(Date.now());
+  if (repeat === 'daily') d.setDate(d.getDate() + 1);
+  else if (repeat === 'weekly') d.setDate(d.getDate() + 7);
+  else if (repeat === 'monthly') d.setMonth(d.getMonth() + 1);
+  else if (repeat === 'weekdays') { do { d.setDate(d.getDate() + 1); } while (d.getDay() === 0 || d.getDay() === 6); }
+  return isoDay(d);
+}
+function toggleTask(id) {
+  const t = taskById(id); if (!t) return;
+  if (t.done) {
+    t.done = false; t.doneAt = null;
+    if (t.pts) undoLast('task:' + t.id, t.claimedBy || t.o);
+    t.claimedBy = null;
+    save(); renderAll();
+    return;
+  }
+  const who = (t.o && t.o !== 'both') ? t.o : (ME || 'abir');
+  if (t.repeat) {
+    /* repeating tasks roll forward instead of piling up in Completed */
+    const next = advanceDue(t.due, t.repeat);
+    if (t.pts) claim('task:' + t.id, who, t.pts, t.text);
+    else toast(`${ICON('check', 12)} ${esc(t.text)} → next ${esc(dueLabel(next).txt)}`, { kind: 'good' });
+    t.due = next;
+    save(); renderAll();
+    return;
+  }
+  t.done = true; t.doneAt = Date.now(); t.claimedBy = who;
+  if (t.pts) claim('task:' + t.id, who, t.pts, t.text);
+  else toast(`${ICON('check', 12)} ${esc(t.text)}`, { kind: 'good', undo: () => { t.done = false; t.doneAt = null; save(); renderAll(); } });
+  save(); renderAll();
+}
+function inlineEdit(id) {
+  const row = $(`.tk[data-task="${CSS.escape(id)}"] .tk-text`);
+  const t = taskById(id);
+  if (!row || !t) return;
+  const inp = document.createElement('input');
+  inp.className = 'tk-edit'; inp.value = t.text;
+  row.replaceWith(inp);
+  inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length);
+  const commit = ok => {
+    if (ok && inp.value.trim() && inp.value.trim() !== t.text) { t.text = inp.value.trim(); save(); }
+    renderAll();
+  };
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); commit(true); }
+    if (e.key === 'Escape') { e.preventDefault(); commit(false); }
+  });
+  inp.addEventListener('blur', () => commit(true));
+}
+async function editTask(id) {
+  const t = taskById(id); if (!t) return;
+  const v = await formBox('Task details', [
+    { k: 'text', label: 'Task', value: t.text },
+    { k: 'due', label: 'Due', type: 'date', value: t.due || '' },
+    { k: 'pts', label: C('score') + ' when completed', type: 'number', value: t.pts || 0 },
+    { k: 'o', label: 'Owner', type: 'select', value: t.o || 'both', options: [
+      { v: 'both', n: 'Either of you' }, { v: 'abir', n: nameOf('abir') }, { v: 'jade', n: nameOf('jade') }] },
+    { k: 'list', label: 'List', type: 'select', value: t.list, options: state.lists.map(l => ({ v: l.id, n: l.name })) },
+    { k: 'repeat', label: 'Repeat', type: 'select', value: t.repeat || '', options: [
+      { v: '', n: 'No repeat' }, { v: 'daily', n: 'Every day' }, { v: 'weekdays', n: 'Weekdays' },
+      { v: 'weekly', n: 'Every week' }, { v: 'monthly', n: 'Every month' }] }
+  ], 'Save');
+  if (!v) return;
+  Object.assign(t, {
+    text: v.text || t.text, due: v.due || null, pts: parseInt(v.pts, 10) || 0,
+    o: v.o, list: v.list, repeat: v.repeat || null
+  });
+  save(); renderAll();
+}
+async function addSub(id) {
+  const t = taskById(id); if (!t) return;
+  const v = await formBox('Add a step to “' + t.text + '”', [{ k: 'text', label: 'Step', ph: 'What needs doing' }], 'Add');
+  if (!v || !v.text) return;
+  t.sub = t.sub || [];
+  t.sub.push({ id: uid('s'), text: v.text, done: false });
+  save(); renderAll();
+}
+async function newList() {
+  const v = await formBox('New list', [
+    { k: 'name', label: 'List name', ph: 'e.g. Groceries' },
+    { k: 'o', label: 'Belongs to', type: 'select', value: 'both', options: [
+      { v: 'both', n: 'Both of you' }, { v: 'abir', n: nameOf('abir') }, { v: 'jade', n: nameOf('jade') }] }
+  ], 'Create');
+  if (!v || !v.name) return;
+  const l = { id: uid('list'), name: v.name, o: v.o, order: state.lists.length };
+  state.lists.push(l); route.list = l.id;
+  save(); renderAll();
+}
+async function editList(id) {
+  const l = state.lists.find(x => x.id === id); if (!l) return;
+  const v = await formBox('Edit list', [
+    { k: 'name', label: 'List name', value: l.name },
+    { k: 'o', label: 'Belongs to', type: 'select', value: l.o, options: [
+      { v: 'both', n: 'Both of you' }, { v: 'abir', n: nameOf('abir') }, { v: 'jade', n: nameOf('jade') }] },
+    { k: 'del', label: 'Delete this list and its tasks', type: 'check', value: false }
+  ], 'Save');
+  if (!v) return;
+  if (v.del) {
+    const n = state.tasks.filter(t => t.list === id).length;
+    const ok = await confirmBox('Delete “' + l.name + '”?', n + ' task' + (n === 1 ? '' : 's') + ' will go with it.', 'Delete', true);
+    if (!ok) return;
+    state.lists = state.lists.filter(x => x.id !== id);
+    state.tasks = state.tasks.filter(t => t.list !== id);
+    route.list = 'all';
+  } else { l.name = v.name || l.name; l.o = v.o; }
+  save(); renderAll();
+}
+
+/* ==========================================================================
+   FOCUS — a real 50/10 timer wired into the economy
+   ========================================================================== */
+const FOCUS_NODE = 'daily:pomodoro';
+function focusOf(p) {
+  const f = state.focus[p] || {};
+  if (f.day && f.day !== todayKey()) { f.cycles = 0; f.day = todayKey(); }
+  return f;
+}
+function focusLeft(f) {
+  if (!f.endsAt) return 0;
+  return f.running ? Math.max(0, f.endsAt - Date.now()) : (f.left || 0);
+}
+function focusTotal(f) {
+  const s = state.settings;
+  return ((f.phase === 'break' ? s.brk : f.phase === 'long' ? s.longBrk : s.work) || 50) * 60000;
+}
+function startFocus(p, phase) {
+  const s = state.settings;
+  const mins = phase === 'break' ? s.brk : phase === 'long' ? s.longBrk : s.work;
+  state.focus[p] = { phase: phase || 'work', running: true, endsAt: Date.now() + mins * 60000,
+    left: 0, cycles: (focusOf(p).cycles || 0), day: todayKey(), by: p };
+  save(); renderAll();
+}
+function pauseFocus(p) {
+  const f = focusOf(p); if (!f.running) return;
+  f.left = focusLeft(f); f.running = false; f.endsAt = null;
+  state.focus[p] = f; save(); renderAll();
+}
+function resumeFocus(p) {
+  const f = focusOf(p); if (f.running || !f.left) return;
+  f.running = true; f.endsAt = Date.now() + f.left; f.left = 0;
+  state.focus[p] = f; save(); renderAll();
+}
+function stopFocus(p) { state.focus[p] = { cycles: focusOf(p).cycles || 0, day: todayKey() }; save(); renderAll(); }
+function completePhase(p) {
+  const f = focusOf(p);
+  const s = state.settings;
+  if (f.phase === 'work') {
+    f.cycles = (f.cycles || 0) + 1; f.day = todayKey();
+    state.focus[p] = f;
+    const node = nodeById(FOCUS_NODE);
+    if (s.autoClaimFocus && node) claim(node.id, p, node.pts, node.n);
+    else { toast(`<b>${esc(nameOf(p))}</b> · focus block done`, { kind: 'good' }); beep('phase'); }
+    notify(nameOf(p) + ': focus block complete', `${s.brk} minute break.`);
+    const longNow = s.longEvery > 0 && f.cycles % s.longEvery === 0;
+    startFocus(p, longNow ? 'long' : 'break');
+  } else {
+    beep('phase');
+    notify(nameOf(p) + ': break over', 'Back to it.');
+    stopFocus(p);
+    toast(`<b>${esc(nameOf(p))}</b> · break over`, { kind: 'info' });
+  }
+}
+function notify(title, body) {
+  try {
+    if (window.Notification && Notification.permission === 'granted') new Notification(title, { body, silent: false });
+  } catch (e) {}
+}
+function focusTick() {
+  PARTIES.forEach(p => {
+    const f = focusOf(p);
+    if (f.running && f.endsAt && Date.now() >= f.endsAt) completePhase(p);
+  });
+  paintFocus();
+}
+const mmss = ms => {
+  const t = Math.max(0, Math.round(ms / 1000));
+  return String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0');
+};
+/* light repaint every second — never a re-render, never a database write */
+function paintFocus() {
+  PARTIES.forEach(p => {
+    const f = focusOf(p);
+    const left = focusLeft(f);
+    const tot = focusTotal(f) || 1;
+    $$(`[data-focus-time="${p}"]`).forEach(el => { el.textContent = f.endsAt || f.left ? mmss(left) : mmss(focusTotal({ phase: 'work' })); });
+    $$(`[data-focus-ring="${p}"]`).forEach(el => {
+      const circ = 2 * Math.PI * 45;
+      el.setAttribute('stroke-dasharray', circ);
+      el.setAttribute('stroke-dashoffset', (circ * (1 - clamp(left / tot, 0, 1))).toFixed(1));
+    });
+  });
+}
+function focusPhaseColor(f) {
+  return f.phase === 'work' ? 'var(--focus-work)' : f.phase === 'long' ? 'var(--focus-long)' : 'var(--focus-break)';
+}
+
+function renderFocus() {
+  const me = ME || 'abir';
+  const f = focusOf(me);
+  const s = state.settings;
+  const col = focusPhaseColor(f);
+  const active = !!(f.endsAt || f.left);
+  const phase = f.phase === 'break' ? 'Break' : f.phase === 'long' ? 'Long break' : C('focus');
+  const node = nodeById(FOCUS_NODE);
+  const others = PARTIES.filter(p => p !== me).map(p => {
+    const g = focusOf(p);
+    if (!g.running) return `<div class="chip">${esc(nameOf(p))} · idle · ${g.cycles || 0} today</div>`;
+    return `<div class="chip" style="border-color:${OPC_FOR(p)};color:${OPC_FOR(p)}">${esc(nameOf(p))} · ${g.phase === 'work' ? 'in a block' : 'on break'} · <span data-focus-time="${p}">--:--</span></div>`;
+  }).join('');
+
+  return `
+    <div class="panel cut"><div class="panel-h">
+      <span class="t">${esc(C('focus'))}</span>
+      <span class="row">${others}<button class="btn icon" data-act="focus-settings" title="Timer settings">${ICON('settings', 14)}</button></span>
+    </div>
+    <div class="panel-b">
+      <div class="focus-wrap" style="--fc:${col}">
+        <div class="focus-ring">
+          <svg viewBox="0 0 100 100">
+            <circle class="bg" cx="50" cy="50" r="45"/>
+            <circle class="fg" cx="50" cy="50" r="45" data-focus-ring="${me}"/>
+          </svg>
+          <div class="focus-mid">
+            <div class="focus-time mono" data-focus-time="${me}">${mmss(active ? focusLeft(f) : s.work * 60000)}</div>
+            <div class="focus-phase">${esc(active ? phase : 'Ready')}</div>
+            <div class="focus-cyc">${f.cycles || 0} block${(f.cycles || 0) === 1 ? '' : 's'} today · ${s.work}/${s.brk}</div>
+          </div>
+        </div>
+        <div class="row" style="justify-content:center;margin-top:6px;">
+          ${!active ? `<button class="btn pri" data-act="focus-start" data-p="${me}">Begin focus block</button>` : ''}
+          ${active && f.running ? `<button class="btn" data-act="focus-pause" data-p="${me}">Pause</button>` : ''}
+          ${active && !f.running ? `<button class="btn pri" data-act="focus-resume" data-p="${me}">Resume</button>` : ''}
+          ${active ? `<button class="btn" data-act="focus-skip" data-p="${me}">Skip phase</button>` : ''}
+          ${active ? `<button class="btn warn" data-act="focus-stop" data-p="${me}">Abort</button>` : ''}
+        </div>
+        <div class="eyebrow" style="text-align:center;margin-top:10px;max-width:420px;line-height:1.7;">
+          ${node && s.autoClaimFocus
+            ? `Finishing a block ${esc(C('scoreVerb').toLowerCase())}s <b style="color:var(--accent)">${esc(node.n)}</b> · ${fmt(node.pts)} for ${esc(nameOf(me))}`
+            : `Auto-${esc(C('scoreVerb').toLowerCase())} is off — finishing a block just rings.`}
+          <br>This device is <b style="color:${OPC_FOR(me)}">${esc(nameOf(me))}</b> ·
+          <button class="btn sm" data-act="switch-me" style="margin-top:6px;">Change ${esc(C('person').toLowerCase())}</button>
+        </div>
+      </div>
+    </div></div>`;
+}
+
+/* ==========================================================================
+   MARKET
+   ========================================================================== */
+function marketCard(item) {
+  const bal = state.points[item.o] || 0;
+  const times = countToday(item.o, item.id);
+  const free = item.pts == null;
+  const afford = free || bal >= item.pts;
+  const pct = free ? 100 : clamp((bal / item.pts) * 100, 0, 100);
+  return `<div class="mk" style="--oc:${OPC_FOR(item.o)}">
+    <div>
+      <div class="mk-name">${esc(item.n)}</div>
+      <div class="mk-cost ${afford ? '' : 'no'}">${free ? 'priceless' : num(item.pts) + ' ' + C('score').toLowerCase()}${item.note ? ' · ' + esc(item.note) : ''}</div>
+    </div>
+    ${free ? '' : `<div class="mk-bar"><i style="width:${pct}%"></i></div>`}
+    <div class="row">
+      ${item.flex ? `<input class="inp" type="number" style="max-width:110px;" id="flex_${esc(item.id)}" placeholder="${item.pts ? num(item.pts) : 'cost'}">` : ''}
+      <button class="btn sm ${item.o === 'abir' ? 'a' : 'b'}" data-act="redeem" data-id="${esc(item.id)}" ${afford ? '' : 'disabled'}>
+        ${free ? 'Claim' : afford ? 'Redeem' : num(item.pts - bal) + ' short'}</button>
+      ${times ? `<button class="btn icon sm" data-act="undo" data-id="${esc(item.id)}" data-p="${item.o}" title="Undo">${ICON('undo', 13)}</button>` : ''}
+      <span class="grow"></span>
+      <button class="btn icon sm" data-act="shop-edit" data-id="${esc(item.id)}">${ICON('more', 13)}</button>
+    </div>
+  </div>`;
+}
+function renderMarket() {
+  return PARTIES.map(p => {
+    const items = state.shop.filter(i => i.o === p);
+    return `<div class="sect-title" style="color:${OPC_FOR(p)}">${esc(nameOf(p))} · ${num(state.points[p] || 0)} ${esc(C('score').toLowerCase())}</div>
+      <div class="mk-grid">${items.map(marketCard).join('') || `<div class="empty">${esc(C('emptyMarket'))}</div>`}</div>
+      <div style="margin-top:10px;"><button class="btn sm" data-act="shop-new" data-p="${p}">+ Add something ${esc(nameOf(p))} wants</button></div>`;
+  }).join('');
+}
+async function redeem(id) {
+  const item = state.shop.find(i => i.id === id); if (!item) return;
+  let cost = item.pts;
+  if (item.flex) {
+    const el = $('#flex_' + CSS.escape(id));
+    cost = parseInt(el && el.value, 10) || 0;
+    if (cost <= 0) { toast('Set a point cost first.', { kind: 'warn' }); return; }
+  }
+  if (cost != null && (state.points[item.o] || 0) < cost) {
+    toast(`${esc(nameOf(item.o))} is ${num(cost - (state.points[item.o] || 0))} short.`, { kind: 'warn' }); return;
+  }
+  const ok = await confirmBox('Redeem “' + item.n + '”?',
+    cost == null ? 'This one is free — it just gets logged.' : num(cost) + ' ' + C('score').toLowerCase() + ' comes off ' + nameOf(item.o) + "'s total.", 'Redeem');
+  if (!ok) return;
+  claim(item.id, item.o, cost == null ? 0 : -cost, 'Redeemed: ' + item.n);
+}
+async function newShopItem(p) {
+  const v = await formBox('Add to ' + nameOf(p) + "'s market", [
+    { k: 'n', label: 'Item', ph: 'What they actually want' },
+    { k: 'pts', label: 'Cost in ' + C('score').toLowerCase(), type: 'number', value: 30000, hint: 'Leave 0 for a priceless / free reward' },
+    { k: 'note', label: 'Note', ph: 'e.g. $20' },
+    { k: 'flex', label: 'Flexible price (set the cost when redeeming)', type: 'check', value: false }
+  ], 'Add');
+  if (!v || !v.n) return;
+  const pts = parseInt(v.pts, 10) || 0;
+  state.shop.push({ id: 'shop:' + uid('i'), o: p, n: v.n, pts: pts || null, note: v.note || '', flex: !!v.flex });
+  save(); renderAll();
+}
+async function editShopItem(id) {
+  const it = state.shop.find(i => i.id === id); if (!it) return;
+  const v = await formBox('Edit reward', [
+    { k: 'n', label: 'Item', value: it.n },
+    { k: 'pts', label: 'Cost in ' + C('score').toLowerCase(), type: 'number', value: it.pts || 0, hint: '0 = priceless' },
+    { k: 'note', label: 'Note', value: it.note || '' },
+    { k: 'o', label: 'Whose', type: 'select', value: it.o, options: PARTIES.map(p => ({ v: p, n: nameOf(p) })) },
+    { k: 'flex', label: 'Flexible price', type: 'check', value: !!it.flex },
+    { k: 'del', label: 'Delete this reward', type: 'check', value: false }
+  ], 'Save');
+  if (!v) return;
+  if (v.del) state.shop = state.shop.filter(i => i.id !== id);
+  else {
+    const pts = parseInt(v.pts, 10) || 0;
+    Object.assign(it, { n: v.n || it.n, pts: pts || null, note: v.note, o: v.o, flex: !!v.flex });
+  }
+  save(); renderAll();
+}
+
+/* ==========================================================================
+   CONCLAVE — wagers
+   ========================================================================== */
+function renderConclave() {
+  const open = state.bets.filter(b => b.status === 'open');
+  const done = state.bets.filter(b => b.status !== 'open');
+  const card = b => {
+    const resolved = b.status === 'resolved';
+    return `<div class="node" style="--nc:${resolved ? OPC_FOR(b.winner) : 'var(--gold)'}">
+      <div class="node-top">
+        <div class="node-mark">${ICON('wagers', 16)}</div>
+        <div class="grow">
+          <div class="node-name">${esc(b.title)}</div>
+          <div class="node-meta">
+            <span>${num(b.stake)} ${esc(C('score').toLowerCase())} at stake</span>
+            ${b.recurring ? `<span>${ICON('repeat', 10)} weekly</span>` : ''}
+            ${b.status === 'void' ? '<span>voided</span>' : ''}
+            ${resolved ? `<span style="color:${OPC_FOR(b.winner)}">${esc(nameOf(b.winner))} took it from ${esc(nameOf(other(b.winner)))}</span>` : ''}
+          </div>
+        </div>
+      </div>
+      <div class="node-acts">
+        ${b.status === 'open' ? PARTIES.map(p =>
+          `<button class="btn sm ${p === 'abir' ? 'a' : 'b'}" data-act="bet-win" data-id="${esc(b.id)}" data-p="${p}">${esc(nameOf(p))} wins</button>`).join('') : ''}
+        ${b.status === 'open' ? `<button class="btn sm" data-act="bet-void" data-id="${esc(b.id)}">Void</button>` : ''}
+        ${resolved ? `<button class="btn sm warn" data-act="bet-revert" data-id="${esc(b.id)}">Revert</button>` : ''}
+        <span class="spacer"></span>
+        <button class="btn icon sm warn" data-act="bet-del" data-id="${esc(b.id)}">${ICON('close', 13)}</button>
+      </div>
+    </div>`;
+  };
+  return `
+    <div class="row" style="margin-bottom:16px;">
+      <button class="btn pri" data-act="bet-new">+ New wager</button>
+      <span class="eyebrow">Winner takes the stake off the loser's total</span>
+    </div>
+    <div class="sect-title">Open</div>
+    <div class="node-grid">${open.map(card).join('') || `<div class="empty">${esc(C('emptyWagers'))}</div>`}</div>
+    <div class="sect-title">Settled</div>
+    <div class="node-grid">${done.map(card).join('') || '<div class="empty">Nothing settled yet.</div>'}</div>`;
+}
+async function newBet() {
+  const v = await formBox('New wager', [
+    { k: 'title', label: "What's the bet?", ph: 'Loser does the dishes for a week' },
+    { k: 'stake', label: 'Stake in ' + C('score').toLowerCase(), type: 'number', value: 5000 },
+    { k: 'recurring', label: 'Recurring — respawns after it settles', type: 'check', value: false }
+  ], 'Open wager');
+  if (!v || !v.title) return;
+  const stake = parseInt(v.stake, 10) || 0;
+  if (stake <= 0) { toast('Give it a stake.', { kind: 'warn' }); return; }
+  state.bets.unshift({ id: uid('bet'), title: v.title, stake, status: 'open', recurring: !!v.recurring, ts: Date.now() });
+  save(); renderAll();
+}
+function resolveBet(id, winner) {
+  const b = state.bets.find(x => x.id === id); if (!b || b.status !== 'open') return;
+  b.status = 'resolved'; b.winner = winner;
+  claim('bet:' + id, winner, b.stake, 'Wager won: ' + b.title, { quiet: true });
+  claim('bet:' + id, other(winner), -b.stake, 'Wager lost: ' + b.title, { quiet: true });
+  if (b.recurring) state.bets.unshift({ id: uid('bet'), title: b.title, stake: b.stake, status: 'open', recurring: true, ts: Date.now() });
+  save(); renderAll();
+  toast(`<b style="color:${OPC_FOR(winner)}">${esc(nameOf(winner))}</b> takes “${esc(b.title)}”`, { kind: 'good', amount: fmt(b.stake), color: OPC_FOR(winner) });
+  beep('phase'); confetti(OPC_FOR(winner));
+}
+async function revertBet(id) {
+  const b = state.bets.find(x => x.id === id); if (!b || b.status !== 'resolved') return;
+  const ok = await confirmBox('Revert this result?', 'The ' + C('score').toLowerCase() + ' transfer is undone and the wager is deleted entirely.', 'Revert', true);
+  if (!ok) return;
+  state.points[b.winner] -= b.stake;
+  state.points[other(b.winner)] += b.stake;
+  state.history = state.history.filter(h => h.key !== 'bet:' + id);
+  PARTIES.forEach(p => { delete state.counts[p]['bet:' + id]; });
+  state.bets = state.bets.filter(x => x.id !== id);
+  save(); renderAll();
+}
+function confetti(color) {
+  const box = document.createElement('div');
+  box.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:400;overflow:hidden;';
+  document.body.appendChild(box);
+  const pal = [color].concat(theme().confetti);
+  for (let i = 0; i < 70; i++) {
+    const d = document.createElement('div');
+    const w = 5 + Math.random() * 6;
+    d.style.cssText = `position:absolute;top:-20px;left:${Math.random() * 100}vw;width:${w}px;height:${w * 0.5}px;`
+      + `background:${pal[i % pal.length]};opacity:.95;transform:rotate(${Math.random() * 360}deg);`
+      + `animation:fall ${2 + Math.random() * 1.6}s cubic-bezier(.25,.46,.45,.94) ${Math.random() * .4}s forwards;`;
+    box.appendChild(d);
+  }
+  setTimeout(() => box.remove(), 4200);
+}
+
+/* ==========================================================================
+   CODEX — log + season analytics
+   ========================================================================== */
+function raceChart() {
+  const DAYS_BACK = 14;
+  const t0 = startOfDay(Date.now()).getTime() - (DAYS_BACK - 1) * 86400000;
+  const days = [];
+  for (let i = 0; i < DAYS_BACK; i++) days.push(t0 + i * 86400000);
+  /* walk backwards from current totals to reconstruct the daily curve */
+  const series = {};
+  PARTIES.forEach(p => {
+    const vals = new Array(DAYS_BACK).fill(0);
+    let running = state.points[p] || 0;
+    for (let i = DAYS_BACK - 1; i >= 0; i--) {
+      vals[i] = running;
+      const dayDelta = state.history
+        .filter(h => h.party === p && h.ts >= days[i] && h.ts < days[i] + 86400000)
+        .reduce((a, h) => a + h.delta, 0);
+      running -= dayDelta;
+    }
+    series[p] = vals;
+  });
+  const all = series.abir.concat(series.jade);
+  const min = Math.min.apply(null, all), max = Math.max.apply(null, all);
+  const span = Math.max(1, max - min);
+  const W = 620, H = 200, pad = 14;
+  const x = i => pad + (i * (W - pad * 2)) / (DAYS_BACK - 1);
+  const y = v => H - pad - ((v - min) / span) * (H - pad * 2);
+  const line = p => series[p].map((v, i) => (i ? 'L' : 'M') + x(i).toFixed(1) + ',' + y(v).toFixed(1)).join(' ');
+  const dots = p => series[p].map((v, i) => `<circle cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="2" fill="${OPC_FOR(p)}"/>`).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;max-height:220px;height:auto;display:block;margin:0 auto;">
+    ${PARTIES.map(p => `<path d="${line(p)}" fill="none" stroke="${OPC_FOR(p)}" stroke-width="2.2"
+       stroke-linejoin="round" style="filter:drop-shadow(0 0 4px ${OPC_FOR(p)}88)"/>${dots(p)}`).join('')}
+  </svg>
+  <div class="row" style="justify-content:center;gap:16px;margin-top:6px;">
+    ${PARTIES.map(p => `<span class="eyebrow" style="color:${OPC_FOR(p)}">${esc(nameOf(p))}</span>`).join('')}
+    <span class="eyebrow">last ${DAYS_BACK} days</span>
+  </div>`;
+}
+function planetBreakdown() {
+  const from = weekStart().getTime();
+  const rows = state.planets.map(pl => {
+    const ids = new Set(state.nodes.filter(n => n.p === pl.id).map(n => n.id));
+    const tot = {};
+    PARTIES.forEach(p => {
+      tot[p] = state.history.filter(h => h.party === p && h.ts >= from && ids.has(h.key)).reduce((a, h) => a + h.delta, 0);
+    });
+    return { pl, tot, sum: Math.abs(tot.abir) + Math.abs(tot.jade) };
+  }).filter(r => r.sum > 0).sort((a, b) => b.sum - a.sum);
+  if (!rows.length) return '<div class="empty">Nothing logged this week yet.</div>';
+  const max = Math.max.apply(null, rows.map(r => r.sum));
+  return rows.map(r => `<div style="margin-bottom:11px;">
+    <div class="row" style="justify-content:space-between;font-size:12.5px;">
+      <span style="color:${esc(r.pl.color)}">${esc(r.pl.name)}</span>
+      <span class="mono muted">${PARTIES.map(p => fmt(r.tot[p])).join(' / ')}</span>
+    </div>
+    <div class="mk-bar" style="margin-top:4px;display:flex;background:rgba(0,0,0,.5);">
+      ${PARTIES.map(p => `<i style="width:${(Math.abs(r.tot[p]) / max * 100).toFixed(1)}%;background:${OPC_FOR(p)};box-shadow:none;"></i>`).join('')}
+    </div>
+  </div>`).join('');
+}
+function renderCodex() {
+  const sub = ['log', 'season'].map(k =>
+    `<button class="btn sm${route.codex === k ? ' on' : ''}" data-act="codex-tab" data-k="${k}">${k === 'log' ? C('score') + ' log' : C('season')}</button>`).join('');
+
+  if (route.codex === 'season') {
+    const wk = weekStart().getTime();
+    const lastWk = wk - 7 * 86400000;
+    const thisW = totalsForRange(wk, Date.now() + 1);
+    const lastW = totalsForRange(lastWk, wk);
+    const winner = lastW.abir === lastW.jade ? null : (lastW.abir > lastW.jade ? 'abir' : 'jade');
+    const best = {};
+    PARTIES.forEach(p => {
+      const byDay = {};
+      state.history.filter(h => h.party === p).forEach(h => { const k = dayKey(h.ts); byDay[k] = (byDay[k] || 0) + h.delta; });
+      const vals = Object.values(byDay);
+      best[p] = vals.length ? Math.max.apply(null, vals) : 0;
+    });
+    return `<div class="row" style="margin-bottom:16px;">${sub}</div>
+      <div class="stat-grid">
+        ${PARTIES.map(p => `<div class="stat"><div class="v" style="color:${OPC_FOR(p)}">${fmt(thisW[p])}</div><div class="l">${esc(nameOf(p))} this week</div></div>`).join('')}
+        ${PARTIES.map(p => `<div class="stat"><div class="v">${streak(p)}</div><div class="l">${esc(nameOf(p))} day streak</div></div>`).join('')}
+        ${PARTIES.map(p => `<div class="stat"><div class="v mono">${fmt(best[p])}</div><div class="l">${esc(nameOf(p))} best day</div></div>`).join('')}
+      </div>
+      <div class="sect-title">The race</div>
+      <div class="panel cut"><div class="panel-b">${raceChart()}</div></div>
+      <div class="sect-title">Last week</div>
+      <div class="panel cut"><div class="panel-b">
+        ${winner ? `<div style="font-size:14px;"><b style="color:${OPC_FOR(winner)}">${ICON('lead', 12)} ${esc(nameOf(winner))}</b> took last week by ${num(Math.abs(lastW.abir - lastW.jade))}</div>`
+          : '<div class="muted">Dead even last week.</div>'}
+        <div class="row mono muted" style="gap:18px;margin-top:6px;font-size:12px;">
+          ${PARTIES.map(p => `<span>${esc(nameOf(p))}: ${fmt(lastW[p])}</span>`).join('')}
+        </div>
+      </div></div>
+      <div class="sect-title">Where the ${esc(C('score').toLowerCase())} came from · this week</div>
+      <div class="panel cut"><div class="panel-b">${planetBreakdown()}</div></div>
+      <div class="sect-title">${esc(C('season'))} control</div>
+      <div class="row">
+        <button class="btn" data-act="export">Export log (CSV)</button>
+        <button class="btn" data-act="season-edit">Rename ${esc(C('season').toLowerCase())}</button>
+        <button class="btn warn" data-act="season-end">End ${esc(C('season').toLowerCase())} &amp; start the next</button>
+      </div>
+      ${state.archive.length ? `<div class="sect-title">Past ${esc(C('season').toLowerCase())}s</div>` + state.archive.map(a => `
+        <div class="log-row"><div><div>${esc(C('season'))} ${a.n} · ${esc(a.name || '')}</div>
+        <div class="log-meta">${new Date(a.ended).toLocaleDateString()} · ${PARTIES.map(p => esc(nameOf(p)) + ' ' + num(a.points[p] || 0)).join(' · ')}</div></div>
+        <div class="log-d" style="color:${a.winner ? OPC_FOR(a.winner) : 'var(--txt-3)'}">${a.winner ? ICON('lead', 11) + ' ' + esc(nameOf(a.winner)) : 'tie'}</div></div>`).join('') : ''}`;
+  }
+
+  const filt = ['all'].concat(PARTIES).map(w =>
+    `<button class="btn sm${route.logWho === w ? ' on' : ''}" data-act="log-who" data-w="${w}">${w === 'all' ? 'Everyone' : esc(nameOf(w))}</button>`).join('');
+  const rows = state.history.filter(h => route.logWho === 'all' || h.party === route.logWho);
+  const shown = rows.slice(0, route.logLimit);
+  return `<div class="row" style="margin-bottom:14px;">${sub}<span class="grow"></span>${filt}</div>
+    ${shown.length ? shown.map(h => {
+      const d = new Date(h.ts);
+      return `<div class="log-row">
+        <div><div>${esc(h.reason)}</div>
+        <div class="log-meta" style="color:${OPC_FOR(h.party)}">${esc(nameOf(h.party))} · ${d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} ${d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}</div></div>
+        <div class="log-d ${h.delta > 0 ? 'pos' : h.delta < 0 ? 'neg' : ''}">${fmt(h.delta)}</div>
+      </div>`;
+    }).join('') : `<div class="empty">${esc(C('emptyLog'))}</div>`}
+    ${rows.length > shown.length ? `<div style="margin-top:12px;"><button class="btn" data-act="log-more">Show more</button></div>` : ''}`;
+}
+function exportCsv() {
+  const rows = [['timestamp', 'operator', 'delta', 'reason', 'key']].concat(
+    state.history.map(h => [new Date(h.ts).toISOString(), nameOf(h.party), h.delta, '"' + String(h.reason).replace(/"/g, '""') + '"', h.key || '']));
+  const blob = new Blob([rows.map(r => r.join(',')).join('\n')], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'origin-system-log-' + isoDay(Date.now()) + '.csv';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+async function endSeason() {
+  const ok = await confirmBox('End ' + C('season').toLowerCase() + ' ' + state.season.n + '?',
+    'Both totals reset to zero and the log is archived. Everything else stays exactly as it is.', 'End ' + C('season').toLowerCase(), true);
+  if (!ok) return;
+  const winner = state.points.abir === state.points.jade ? null : (state.points.abir > state.points.jade ? 'abir' : 'jade');
+  state.archive.unshift({ n: state.season.n, name: state.season.name, started: state.season.started,
+    ended: Date.now(), points: { ...state.points }, winner });
+  state.season = { n: (state.season.n || 1) + 1, name: state.season.name, started: Date.now() };
+  state.points = { abir: 0, jade: 0 };
+  state.counts = { abir: {}, jade: {} };
+  state.history = [];
+  state.bets = [];
+  save(); renderAll();
+  toast(`${C('season')} ${state.season.n} begins. ${winner ? nameOf(winner) + ' held the crown.' : 'Last season ended level.'}`, { kind: 'good' });
+}
+
+/* ==========================================================================
+   ASIDE — live feed, transmissions, focus glance
+   ========================================================================== */
+function asideFocus() {
+  const running = PARTIES.filter(p => focusOf(p).running);
+  if (!running.length) return '';
+  return `<div class="panel cut"><div class="panel-h"><span class="t">Focus</span></div>
+    <div class="panel-b" style="display:flex;flex-direction:column;gap:10px;">
+      ${running.map(p => {
+        const f = focusOf(p);
+        return `<div class="focus-mini" style="--fc:${focusPhaseColor(f)}">
+          <div style="flex:1;min-width:0;">
+            <div class="p">${esc(nameOf(p))} · ${f.phase === 'work' ? 'focus block' : 'break'}</div>
+            <div class="t mono" data-focus-time="${p}">--:--</div>
+          </div>
+          <button class="btn sm" data-act="nav" data-v="focus">Open</button>
+        </div>`;
+      }).join('')}
+    </div></div>`;
+}
+function asideFeed() {
+  const day = todayKey();
+  const today = state.history.filter(h => dayKey(h.ts) === day);
+  const t = todayTotals();
+  const rows = today.slice(0, 14).map(h => `<div class="feed-row">
+      <div style="min-width:0;">
+        <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(h.reason)}</div>
+        <div class="who" style="color:${OPC_FOR(h.party)}">${esc(nameOf(h.party))} · ${esc(relTime(h.ts))}</div>
+      </div>
+      <div class="log-d ${h.delta > 0 ? 'pos' : h.delta < 0 ? 'neg' : ''}" style="font-size:12px;">${fmt(h.delta)}</div>
+    </div>`).join('');
+  return `<div class="panel cut"><div class="panel-h">
+      <span class="t">Today</span>
+      <span class="row" style="gap:10px;">${PARTIES.map(p =>
+        `<span class="mono" style="font-size:11px;color:${OPC_FOR(p)}">${fmt(t[p])}</span>`).join('')}</span>
+    </div>
+    <div class="panel-b" style="padding:8px 14px 12px;">
+      ${rows || `<div class="empty" style="padding:8px 0;">${esc(C('emptyFeed'))}</div>`}
+    </div></div>`;
+}
+function asideComms() {
+  const list = state.comms.slice().sort((a, b) => (b.pin ? 1 : 0) - (a.pin ? 1 : 0) || b.ts - a.ts).slice(0, 20);
+  return `<div class="panel cut"><div class="panel-h"><span class="t">Notes</span>
+      <span class="eyebrow">${esc(nameOf(ME || 'abir'))}</span></div>
+    <div class="panel-b" style="padding:10px 14px 12px;">
+      <div class="row" style="flex-wrap:nowrap;margin-bottom:8px;">
+        <input id="commInput" class="inp" placeholder="Leave a note…" autocomplete="off">
+        <button class="btn pri" data-act="comm-add">Send</button>
+      </div>
+      ${list.map(c => `<div class="cm${c.pin ? ' pin' : ''}">
+        <div class="h"><span style="color:${OPC_FOR(c.party)}">${esc(c.party === 'both' ? 'Season 1' : nameOf(c.party))}</span>
+          <span>${esc(relTime(c.ts))}
+            <button class="btn icon sm" data-act="comm-pin" data-id="${esc(c.id)}" title="Pin">${ICON(c.pin ? 'pinned' : 'pin', 12)}</button>
+            <button class="btn icon sm warn" data-act="comm-del" data-id="${esc(c.id)}" title="Delete">${ICON('close', 12)}</button>
+          </span></div>
+        <div class="b">${esc(c.text)}</div>
+      </div>`).join('') || '<div class="empty" style="padding:6px 0;">Nothing here yet.</div>'}
+    </div></div>`;
+}
+function renderAside() {
+  $('#aside').innerHTML = asideFocus() + asideFeed() + asideComms();
+}
+function addComm() {
+  const el = $('#commInput'); if (!el) return;
+  const text = el.value.trim(); if (!text) return;
+  state.comms.unshift({ id: uid('cm'), party: ME || 'abir', text, ts: Date.now(), pin: false });
+  if (state.comms.length > 120) state.comms.length = 120;
+  el.value = '';
+  save(); renderAll();
+}
+
+/* ==========================================================================
+   RENDER ROOT
+   ========================================================================== */
+function captureFocus() {
+  const el = document.activeElement;
+  if (!el || !el.id || !(el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) return null;
+  return { id: el.id, val: el.value, pos: el.selectionStart };
+}
+function restoreFocus(f) {
+  if (!f) return;
+  const el = document.getElementById(f.id);
+  if (!el) return;
+  el.value = f.val;
+  el.focus();
+  try { el.setSelectionRange(f.pos, f.pos); } catch (e) {}
+}
+function renderView() {
+  const v = route.view;
+  const th0 = theme();
+  const inRoom = v === 'chart' && (
+    !!(th0.diorama && th0.diorama[route.planet]) ||
+    !!(th0.panorama && th0.panorama[route.planet] && window.ORIGIN_PANO &&
+       window.ORIGIN_PANO.ready && !window.ORIGIN_PANO.failed));
+  document.getElementById('main').classList.toggle('in-room', inRoom);
+  document.body.classList.toggle('in-room', inRoom);
+  $('#view').innerHTML =
+    v === 'chart' ? renderChart() :
+    v === 'foundry' ? renderFoundry() :
+    v === 'focus' ? renderFocus() :
+    v === 'market' ? renderMarket() :
+    v === 'conclave' ? renderConclave() :
+    renderCodex();
+}
+let renderQueued = false;
+function renderAll() {
+  if (!booted) return;
+  const f = captureFocus();
+  renderHud();
+  renderNav();
+  renderView();
+  renderAside();
+  restoreFocus(f);
+  requestAnimationFrame(() => {
+    drawLinks(); paintFocus();
+    /* the room screen may be a place you stand in rather than a picture you
+       look at; the house wires that up once its markup is in the document */
+    const th = theme();
+    if (route.view === 'chart' && typeof th.afterRoom === 'function') {
+      try { th.afterRoom(roomContext()); } catch (e) { console.error('afterRoom failed', e); }
+    } else if (window.ORIGIN_PANO && window.ORIGIN_PANO.ok) {
+      window.ORIGIN_PANO.unmount();
+    }
+  });
+}
+function go(view) {
+  route.view = view;
+  renderAll();
+  if (view === 'foundry') setTimeout(() => { const q = $('#quickAdd'); if (q && window.innerWidth > 760) q.focus(); }, 20);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ==========================================================================
+   COMMAND PALETTE
+   ========================================================================== */
+let palItems = [], palSel = 0;
+function buildPalette() {
+  const items = [];
+  ['chart', 'foundry', 'focus', 'market', 'conclave', 'codex'].forEach(v =>
+    items.push({ t: C(VIEW_COPY[v]), s: C(VIEW_COPY[v] + 'Fn') || 'screen', c: 'var(--accent)', run: () => go(v) }));
+  THEME_IDS.forEach(id => items.push({
+    t: REG.list[id].name, s: REG.list[id].tagline, c: REG.list[id].tokens.accent,
+    run: () => chooseTheme(id, { instant: true })
+  }));
+  state.planets.forEach(p => items.push({
+    t: placeName(p), s: (p.sub || ''), c: p.color,
+    run: () => { route.planet = p.id; go('chart'); }
+  }));
+  state.nodes.forEach(n => {
+    const owners = n.o === 'both' ? PARTIES : [n.o];
+    owners.forEach(p => items.push({
+      t: n.n, s: `claim for ${nameOf(p)} · ${fmt(n.pts)}`, c: OPC_FOR(p),
+      run: () => { if (nodeLocked(n, p)) toast(esc(C('toastLocked', { item: (nodeById(n.req) || {}).n || '' })), { kind: 'warn' }); else claim(n.id, p, n.pts, n.n); }
+    }));
+  });
+  state.tasks.filter(t => !t.done).forEach(t => items.push({
+    t: t.text, s: 'task · complete it', c: 'var(--gold)', run: () => toggleTask(t.id)
+  }));
+  state.shop.forEach(i => items.push({
+    t: i.n, s: `redeem for ${nameOf(i.o)} · ${i.pts ? num(i.pts) : 'free'}`, c: OPC_FOR(i.o), run: () => { go('market'); redeem(i.id); }
+  }));
+  return items;
+}
+function openPalette() {
+  palItems = buildPalette(); palSel = 0;
+  $('#palWrap').classList.add('on');
+  const i = $('#palInput'); i.value = ''; i.focus();
+  paintPalette('');
+}
+function closePalette() { $('#palWrap').classList.remove('on'); }
+function paintPalette(q) {
+  const ql = q.trim().toLowerCase();
+  const hits = (ql ? palItems.filter(it => (it.t + ' ' + it.s).toLowerCase().includes(ql)) : palItems).slice(0, 40);
+  palSel = clamp(palSel, 0, Math.max(0, hits.length - 1));
+  $('#palList').innerHTML = hits.map((it, i) => `<div class="pal-item${i === palSel ? ' sel' : ''}" data-i="${i}">
+    <span class="dot" style="background:${it.c}"></span>
+    <span class="grow" style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(it.t)}</span>
+    <span class="k">${esc(it.s)}</span></div>`).join('') || '<div class="empty" style="padding:14px;">No match.</div>';
+  $('#palList').__hits = hits;
+}
+function runPalette(i) {
+  const hits = $('#palList').__hits || [];
+  const it = hits[i];
+  closePalette();
+  if (it) setTimeout(it.run, 10);
+}
+
+/* ==========================================================================
+   THE SORTING
+   --------------------------------------------------------------------------
+   One screen, four cards. Each card is painted from its own house's tokens
+   and set in its own display face, so the choice is visible rather than
+   described — you are looking at the thing you are picking. Origin System is
+   offered underneath rather than as a fifth card, because the brief for this
+   screen is four houses and four cards is what fits a phone without
+   scrolling.
+   ========================================================================== */
+const HOUSES = ['gryffindor', 'slytherin', 'ravenclaw', 'hufflepuff'];
+const houseIds = () => HOUSES.filter(id => REG.list[id]);
+const otherIds = () => THEME_IDS.filter(id => HOUSES.indexOf(id) < 0);
+
+/* The cards show four typefaces at once, so they need four font families that
+   the active theme's own link does not carry. Built once from the packs. */
+let pickerFontLoaded = false;
+function loadPickerFonts() {
+  if (pickerFontLoaded) return;
+  const fams = [];
+  THEME_IDS.forEach(id => {
+    const f = REG.list[id].fonts;
+    [f.display, f.body].forEach(n => { if (n && fams.indexOf(n) < 0) fams.push(n); });
+  });
+  const href = 'https://fonts.googleapis.com/css2?' +
+    fams.map(n => 'family=' + n.replace(/ /g, '+') + ':wght@400;600;700').join('&') +
+    '&display=swap';
+  const el = $('#pickerFont');
+  if (el) { el.href = href; pickerFontLoaded = true; }
+}
+
+let ceremonyOpen = false;
+/* first === the sorting proper; otherwise it is the same screen used as a
+   switcher, which is why the copy is the only thing that differs */
+function openCeremony(first) {
+  loadPickerFonts();
+  const them = other(ME || 'abir');
+  const theirs = REG.list[themeFor(them)];
+  const mine = themeFor(ME);
+
+  const card = id => {
+    const t = REG.list[id], k = t.tokens;
+    /* Every value on this card is that house's own token. The card is a
+       working miniature of the house — its ground, its metal, its typefaces,
+       its corner language, its word for a deed and its verb for scoring it. */
+    const vars = [
+      '--ch-bg:' + k.void, '--ch-surface:' + k.surface, '--ch-line:' + k.line,
+      '--ch-txt:' + k.txt, '--ch-txt2:' + k['txt-2'],
+      '--ch-accent:' + k.accent, '--ch-on:' + k['on-accent'],
+      '--ch-mark:' + k.milestone, '--ch-track:' + k.track,
+      '--ch-radius:' + k['radius-lg'], '--ch-btnr:' + k['chip-radius'],
+      '--ch-clip:' + k['panel-clip'],
+      '--ch-fdisp:' + k['f-display'], '--ch-fbody:' + k['f-body'],
+      '--ch-fmono:' + k['f-mono'], '--ch-flabel:' + k['f-label'],
+      '--ch-tt:' + k['tt-display'], '--ch-ls:' + k['ls-display'],
+      '--ch-ttlabel:' + k['tt-label'], '--ch-lslabel:' + k['ls-label']
+    ].join(';');
+    const mark = t.icons.markMilestone.replace('<svg', '<svg width="12" height="12"');
+    return `<button class="cer-card${id === mine ? ' chosen' : ''}" data-act="house-pick"
+        data-t="${esc(id)}" style="${esc(vars)}"
+        aria-label="${esc(t.name)}: ${esc(t.tagline)}">
+      <span class="cer-tex" style="background:${esc(t.texture)}"></span>
+      <span class="cer-body">
+        <span class="cer-crest">${t.icons.crest}</span>
+        <span class="cer-name">${esc(t.name)}</span>
+        <span class="cer-tag">${esc(t.tagline)}</span>
+        <span class="cer-prev">
+          <span class="cer-panel">
+            <span class="ttl">${esc(t.copy.group)}</span>
+            <span class="cer-row">
+              <span class="cer-mk">${mark}</span>
+              <span class="nm">${esc(t.copy.typeMilestone)}</span>
+              <span class="vl">+5,000</span>
+            </span>
+            <span class="cer-bar"><i></i></span>
+          </span>
+          <span class="cer-act">
+            <span class="b">${esc(t.copy.scoreVerb)}</span>
+            <span class="g">${esc(t.copy.score)}</span>
+          </span>
+        </span>
+      </span>
+    </button>`;
+  };
+
+  const rest = otherIds().map(id => {
+    const t = REG.list[id];
+    return `<button data-act="house-pick" data-t="${esc(id)}">${esc(t.name)}</button>`;
+  }).join('<span class="cer-sep">·</span>');
+
+  $('#ceremony').innerHTML = `
+    <div class="cer-head">
+      <div class="k">${first ? 'The Sorting' : 'Change house'}</div>
+      <h2>${first ? 'Where do you belong?' : 'Pick a different house'}</h2>
+      <p>${first
+        ? 'This one is yours alone. It follows you to every device you sign in on, and it does not change what '
+          + esc(nameOf(them)) + ' sees.'
+        : 'Yours alone — ' + esc(nameOf(them)) + ' keeps '
+          + (theirs ? esc(theirs.name) : 'whatever they chose') + '.'}</p>
+    </div>
+    <div class="cer-grid">${houseIds().map(card).join('')}</div>
+    <div class="cer-foot">
+      ${rest}
+      ${first ? '' : '<span class="cer-sep"> · </span><button data-act="cer-close">Cancel</button>'}
+    </div>`;
+  $('#ceremony').classList.add('on');
+  document.body.classList.add('sorting');
+  ceremonyOpen = true;
+  setTimeout(() => { const b = $('#ceremony .cer-card'); if (b) b.focus(); }, 40);
+}
+function closeCeremony() {
+  $('#ceremony').classList.remove('on');
+  document.body.classList.remove('sorting');
+  ceremonyOpen = false;
+}
+/* Choosing is the only ceremonial beat: the chosen card holds, the rest fall
+   back, and then the app is already in that house behind the screen. */
+function chooseTheme(id, opts) {
+  if (!REG.list[id]) return;
+  const o = opts || {};
+  if (ME) {
+    state.themes = state.themes || {};
+    state.themes[ME] = id;
+    save();
+  }
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  if (!ceremonyOpen || reduce || o.instant) {
+    closeCeremony();
+    applyTheme(id, o.instant ? { instant: true } : undefined);
+    return;
+  }
+  $$('#ceremony .cer-card').forEach(c => {
+    c.classList.toggle('chosen', c.dataset.t === id);
+    c.classList.toggle('dim', c.dataset.t !== id);
+  });
+  setTimeout(() => { applyTheme(id, { instant: true }); }, 260);
+  setTimeout(closeCeremony, 460);
+}
+
+/* ==========================================================================
+   SETTINGS
+   ========================================================================== */
+async function openSettings() {
+  const s = state.settings;
+  const v = await formBox('Settings', [
+    { k: 'nameA', label: C('person') + ' 1', value: state.names.abir },
+    { k: 'nameB', label: C('person') + ' 2', value: state.names.jade },
+    { k: 'me', label: 'This device is', type: 'select', value: ME || 'abir', options: PARTIES.map(p => ({ v: p, n: nameOf(p) })),
+      hint: 'Decides who the focus timer and task completions score for' },
+    { k: 'theme', label: 'Your house', type: 'select', value: THEME,
+      options: THEME_IDS.map(id => ({ v: id, n: REG.list[id].name + ' — ' + REG.list[id].tagline })),
+      hint: 'Yours only — it follows you to any device. The crest in the header opens the full picker.' },
+    { k: 'work', label: 'Focus block (minutes)', type: 'number', value: s.work },
+    { k: 'brk', label: 'Break (minutes)', type: 'number', value: s.brk },
+    { k: 'longEvery', label: 'Long break every N blocks (0 = off)', type: 'number', value: s.longEvery },
+    { k: 'longBrk', label: 'Long break (minutes)', type: 'number', value: s.longBrk },
+    { k: 'autoClaimFocus', label: 'Finishing a focus block ' + C('scoreVerb').toLowerCase() + 's its ' + C('score').toLowerCase(), type: 'check', value: s.autoClaimFocus },
+    { k: 'sound', label: 'Sound on ' + C('score').toLowerCase() + ' changes and timers', type: 'check', value: s.sound },
+    { k: 'notify', label: 'Desktop notifications when a timer ends', type: 'check',
+      value: (window.Notification && Notification.permission === 'granted') }
+  ], 'Save', store.mode === 'demo' ? 'Sandbox mode — nothing here touches your real data.' : '');
+  if (!v) return;
+  state.names.abir = v.nameA || state.names.abir;
+  state.names.jade = v.nameB || state.names.jade;
+  setMe(v.me);
+  Object.assign(state.settings, {
+    work: clamp(parseInt(v.work, 10) || 50, 1, 240),
+    brk: clamp(parseInt(v.brk, 10) || 10, 1, 120),
+    longEvery: clamp(parseInt(v.longEvery, 10) || 0, 0, 12),
+    longBrk: clamp(parseInt(v.longBrk, 10) || 30, 1, 180),
+    autoClaimFocus: !!v.autoClaimFocus, sound: !!v.sound
+  });
+  if (v.notify && window.Notification && Notification.permission !== 'granted') { try { Notification.requestPermission(); } catch (e) {} }
+  if (v.theme && v.theme !== THEME) chooseTheme(v.theme, { instant: true });
+  save();
+  renderAll();
+}
+async function askWhoAmI() {
+  const v = await formBox('Who is on this device?', [
+    { k: 'p', label: C('person'), type: 'select', value: 'abir',
+      options: PARTIES.map(k => ({ v: k, n: nameOf(k) })) }
+  ], 'Confirm', 'Decides who the focus timer and shared task completions score for, and whose house this device shows.');
+  setMe((v && v.p && PARTIES.includes(v.p)) ? v.p : 'abir');
+  syncThemeToMe();
+  if (!themeFor(ME)) openCeremony(true);
+  renderAll();
+}
+async function renameParty(p) {
+  const v = await formBox('Rename ' + C('person').toLowerCase(), [{ k: 'n', label: 'Name', value: nameOf(p) }], 'Save');
+  if (!v || !v.n) return;
+  state.names[p] = v.n;
+  save(); renderAll();
+}
+
+/* ==========================================================================
+   EVENTS — one delegated handler, no inline JS, no eval
+   ========================================================================== */
+const ACTIONS = {
+  nav: el => go(el.dataset.v),
+  palette: () => openPalette(),
+  settings: () => openSettings(),
+  theme: () => openCeremony(false),
+  'house-pick': el => chooseTheme(el.dataset.t),
+  'cer-close': () => closeCeremony(),
+  rename: el => renameParty(el.dataset.p),
+
+  planet: el => { route.planet = el.dataset.p; renderAll(); },
+  'board-toggle': () => { boardOpen = !boardOpen; renderAll(); },
+  'dio-in': () => window.ORIGIN_DIO && window.ORIGIN_DIO.zoomBy(1.35),
+  'dio-out': () => window.ORIGIN_DIO && window.ORIGIN_DIO.zoomBy(1 / 1.35),
+  'dio-home': () => window.ORIGIN_DIO && window.ORIGIN_DIO.home(),
+  'look-left': () => { const P = window.ORIGIN_PANO; if (P) P.lookAt(P._target.yaw - 55); },
+  'look-right': () => { const P = window.ORIGIN_PANO; if (P) P.lookAt(P._target.yaw + 55); },
+  'board-open': () => {
+    const th = theme();
+    const d = th.diorama && th.diorama[route.planet];
+    if (d && d.board && window.ORIGIN_DIO) window.ORIGIN_DIO.goTo(d.board.u, d.board.v, d.board.z || 2.2);
+    const p = th.panorama && th.panorama[route.planet];
+    if (p && p.board && window.ORIGIN_PANO) window.ORIGIN_PANO.lookAt(p.board.yaw, p.board.pitch);
+    boardOpen = true; renderAll();
+  },
+  'planet-new': () => newPlanet(),
+  'planet-edit': () => editPlanet(route.planet),
+  who: el => { route.who = el.dataset.w; renderAll(); },
+  'node-new': () => newNode(),
+  'node-edit': el => editNode(el.dataset.id),
+  claim: el => {
+    const nd = nodeById(el.dataset.id); if (!nd) return;
+    if (nodeLocked(nd, el.dataset.p)) return;
+    claim(nd.id, el.dataset.p, nd.pts, nd.n);
+  },
+  undo: el => undoLast(el.dataset.id, el.dataset.p),
+
+  list: el => { route.list = el.dataset.l; renderAll(); },
+  'list-new': () => newList(),
+  'list-edit': el => editList(el.dataset.l),
+  'task-toggle': el => toggleTask(el.dataset.id),
+  'task-inline': el => inlineEdit(el.dataset.id),
+  'task-edit': el => editTask(el.dataset.id),
+  'task-del': async el => {
+    const t = taskById(el.dataset.id); if (!t) return;
+    state.tasks = state.tasks.filter(x => x.id !== t.id);
+    save(); renderAll();
+    toast(`Deleted “${esc(t.text)}”`, { kind: 'warn', undo: () => { state.tasks.unshift(t); save(); renderAll(); } });
+  },
+  'sub-add': el => addSub(el.dataset.id),
+  'sub-toggle': el => {
+    const t = taskById(el.dataset.id); if (!t) return;
+    const s = (t.sub || []).find(x => x.id === el.dataset.s); if (!s) return;
+    s.done = !s.done; save(); renderAll();
+  },
+  'sub-del': el => {
+    const t = taskById(el.dataset.id); if (!t) return;
+    t.sub = (t.sub || []).filter(x => x.id !== el.dataset.s);
+    save(); renderAll();
+  },
+  'clear-done': async () => {
+    const n = state.tasks.filter(t => t.done).length;
+    const ok = await confirmBox('Clear ' + n + ' completed task' + (n === 1 ? '' : 's') + '?', C('score') + ' already earned stays in the log.', 'Clear', true);
+    if (!ok) return;
+    state.tasks = state.tasks.filter(t => !t.done);
+    save(); renderAll();
+  },
+
+  'focus-start': el => startFocus(el.dataset.p, 'work'),
+  'focus-pause': el => pauseFocus(el.dataset.p),
+  'focus-resume': el => resumeFocus(el.dataset.p),
+  'focus-stop': el => stopFocus(el.dataset.p),
+  'focus-skip': el => completePhase(el.dataset.p),
+  'focus-settings': () => openSettings(),
+  'switch-me': () => askWhoAmI(),
+
+  redeem: el => redeem(el.dataset.id),
+  'shop-new': el => newShopItem(el.dataset.p),
+  'shop-edit': el => editShopItem(el.dataset.id),
+
+  'bet-new': () => newBet(),
+  'bet-win': el => resolveBet(el.dataset.id, el.dataset.p),
+  'bet-void': el => { const b = state.bets.find(x => x.id === el.dataset.id); if (b) { b.status = 'void'; save(); renderAll(); } },
+  'bet-revert': el => revertBet(el.dataset.id),
+  'bet-del': async el => {
+    const b = state.bets.find(x => x.id === el.dataset.id); if (!b) return;
+    const ok = await confirmBox('Delete this wager?', b.status === 'resolved'
+      ? C('score') + ' already transferred will NOT be given back — revert it first if you need that.' : '', 'Delete', true);
+    if (!ok) return;
+    state.bets = state.bets.filter(x => x.id !== b.id);
+    save(); renderAll();
+  },
+
+  'codex-tab': el => { route.codex = el.dataset.k; renderAll(); },
+  'log-who': el => { route.logWho = el.dataset.w; route.logLimit = 60; renderAll(); },
+  'log-more': () => { route.logLimit += 80; renderAll(); },
+  export: () => exportCsv(),
+  'season-edit': async () => {
+    const v = await formBox(C('season'), [
+      { k: 'name', label: C('season') + ' name', value: state.season.name },
+      { k: 'n', label: C('season') + ' number', type: 'number', value: state.season.n }
+    ], 'Save');
+    if (!v) return;
+    state.season.name = v.name || state.season.name;
+    state.season.n = parseInt(v.n, 10) || state.season.n;
+    save(); renderAll();
+  },
+  'season-end': () => endSeason(),
+
+  'comm-add': () => addComm(),
+  'comm-pin': el => {
+    const c = state.comms.find(x => x.id === el.dataset.id); if (!c) return;
+    c.pin = !c.pin; save(); renderAll();
+  },
+  'comm-del': el => { state.comms = state.comms.filter(x => x.id !== el.dataset.id); save(); renderAll(); },
+
+  signout: async () => {
+    const ok = await confirmBox('Sign out of this device?', '', 'Sign out', true);
+    if (ok && window.__signOut) window.__signOut();
+  },
+
+  'modal-ok': () => closeModal(true),
+  'modal-cancel': () => closeModal(null),
+  'modal-submit': () => closeModal(readForm())
+};
+
+document.addEventListener('click', e => {
+  const navBtn = e.target.closest('#nav .nav-btn');
+  if (navBtn) { go(navBtn.dataset.nav); return; }
+  const palRow = e.target.closest('.pal-item');
+  if (palRow) { runPalette(+palRow.dataset.i); return; }
+  if (e.target.id === 'modalWrap') { closeModal(null); return; }
+  if (e.target.id === 'palWrap') { closePalette(); return; }
+  const el = e.target.closest('[data-act]');
+  if (!el) return;
+  if (el.closest('.pano-fx') && window.ORIGIN_PANO && window.ORIGIN_PANO.wasDrag()) return;
+  if (el.closest('.dio-pins') && window.ORIGIN_DIO && window.ORIGIN_DIO.wasDrag()) return;
+  const fn = ACTIONS[el.dataset.act];
+  if (!fn) return;
+  e.preventDefault();
+  fn(el);
+});
+
+document.addEventListener('input', e => {
+  if (e.target.id === 'quickAdd') $('#quickPrev').innerHTML = quickPreview(e.target.value);
+  if (e.target.id === 'palInput') { palSel = 0; paintPalette(e.target.value); }
+});
+
+document.addEventListener('keydown', e => {
+  /* palette navigation */
+  if ($('#palWrap').classList.contains('on')) {
+    const hits = ($('#palList').__hits || []).length;
+    if (e.key === 'Escape') { e.preventDefault(); closePalette(); }
+    if (e.key === 'ArrowDown') { e.preventDefault(); palSel = clamp(palSel + 1, 0, hits - 1); paintPalette($('#palInput').value); }
+    if (e.key === 'ArrowUp') { e.preventDefault(); palSel = clamp(palSel - 1, 0, hits - 1); paintPalette($('#palInput').value); }
+    if (e.key === 'Enter') { e.preventDefault(); runPalette(palSel); }
+    return;
+  }
+  if (ceremonyOpen) {
+    /* the first sorting has no exit: you have to pick one */
+    if (e.key === 'Escape' && $('#ceremony [data-act="cer-close"]')) { e.preventDefault(); closeCeremony(); }
+    return;
+  }
+  if ($('#modalWrap').classList.contains('on')) {
+    if (e.key === 'Escape') { e.preventDefault(); closeModal(null); }
+    if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+      const submit = $('#modal [data-act="modal-submit"]') || $('#modal [data-act="modal-ok"]');
+      if (submit) { e.preventDefault(); submit.click(); }
+    }
+    return;
+  }
+  if ((e.key === 'k' || e.key === 'K') && (e.metaKey || e.ctrlKey)) { e.preventDefault(); openPalette(); return; }
+
+  const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName);
+  if (typing) {
+    if (e.target.id === 'quickAdd' && e.key === 'Enter') {
+      e.preventDefault();
+      if (addQuick(e.target.value)) {
+        const q = $('#quickAdd'); if (q) { q.value = ''; q.focus(); $('#quickPrev').innerHTML = ''; }
+      }
+    }
+    if (e.target.id === 'commInput' && e.key === 'Enter') { e.preventDefault(); addComm(); const c = $('#commInput'); if (c) c.focus(); }
+    if (e.key === 'Escape') e.target.blur();
+    return;
+  }
+  const map = { 1: 'chart', 2: 'foundry', 3: 'focus', 4: 'market', 5: 'conclave', 6: 'codex' };
+  if (map[e.key]) { go(map[e.key]); return; }
+  if (e.key === 'k' || e.key === '/') { e.preventDefault(); openPalette(); return; }
+  if (e.key === 'n') {
+    e.preventDefault();
+    if (route.view !== 'foundry') go('foundry');
+    setTimeout(() => { const q = $('#quickAdd'); if (q) q.focus(); }, 40);
+  }
+});
+
+window.addEventListener('resize', () => { clearTimeout(window.__rz); window.__rz = setTimeout(drawLinks, 120); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) { focusTick(); renderAll(); } });
+
+/* ==========================================================================
+   INIT
+   ========================================================================== */
+/* First paint uses whatever the pre-paint stamp cached, or the first
+   registered theme; the moment the document arrives, syncThemeToMe() moves
+   us to the house this operator actually wears. */
+applyTheme((() => {
+  try { const c = JSON.parse(localStorage.getItem('origin_theme_paint') || 'null');
+        if (c && REG.list[c.id]) return c.id; } catch (e) {}
+  return THEME_IDS[0];
+})(), { first: true });
+subscribe();
+/* fetch the panorama renderer in the background; the room screen re-renders
+   itself once it is there, and carries on regardless if it never arrives */
+if (window.ORIGIN_PANO) window.ORIGIN_PANO.load().then(ok => {
+  if (!ok) return;
+  /* the first snapshot may not have landed yet; step in as soon as it has */
+  const t = setInterval(() => { if (booted) { clearInterval(t); renderAll(); } }, 120);
+  setTimeout(() => clearInterval(t), 15000);
+});
+setInterval(focusTick, 1000);
+/* keep relative timestamps and day rollovers honest, but never while typing */
+setInterval(() => {
+  const t = document.activeElement;
+  if (t && /^(INPUT|TEXTAREA)$/.test(t.tagName)) return;
+  if ($('#modalWrap').classList.contains('on') || $('#palWrap').classList.contains('on')) return;
+  renderAll();
+}, 60000);
+setTimeout(() => { if (!ME) askWhoAmI(); else if (!themeFor(ME)) openCeremony(true); }, 900);
+if (window.__signOut) show($('#signOutBtn'), true);
+if (window.__userEmail) $('#signOutBtn').title = 'Signed in as ' + window.__userEmail + ' — sign out';
+
+window.__origin = { get state() { return state; }, route, go, save, claim, toast,
+  themes: REG.list, applyTheme, chooseTheme, C, ICON,
+  get theme() { return THEME; } };
+} /* end startApp */
+</script>
+</body>
+</html>
