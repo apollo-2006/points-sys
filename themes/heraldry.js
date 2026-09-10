@@ -293,7 +293,7 @@
         '<span class="hr-c tl"></span><span class="hr-c tr"></span>' +
         '<span class="hr-c bl"></span><span class="hr-c br"></span>' +
         '<span class="hr-notch"></span>' +
-        H.candles(11) +
+        H.candles() +
         '<div class="hr-seat-arms">' +
           H.crest(assign({}, a, { label: ctx.name(pl), w: 58 })) +
         '</div>' +
@@ -317,20 +317,8 @@
      rhythm so they never bob in unison, which is the thing that would give the
      game away. Positions and timings come off an index rather than a random,
      so a re-render does not make the whole row jump. */
-  H.candles = function (n) {
-    var out = '', i, left, h, dur, delay, scale;
-    for (i = 0; i < n; i++) {
-      left  = (100 / (n + 1)) * (i + 1);
-      h     = 12 + ((i * 37) % 26);          /* how far it hangs down */
-      scale = 0.78 + ((i * 53) % 45) / 100;
-      dur   = 4.2 + ((i * 29) % 34) / 10;
-      delay = -((i * 71) % 40) / 10;
-      out += '<span class="hr-candle" style="left:' + left.toFixed(2) + '%;' +
-        'top:' + h + 'px;transform:scale(' + scale.toFixed(2) + ');' +
-        'animation-duration:' + dur.toFixed(1) + 's;animation-delay:' + delay.toFixed(1) + 's">' +
-        '<i class="fl"></i><i class="wx"></i></span>';
-    }
-    return '<span class="hr-candles" aria-hidden="true">' + out + '</span>';
+  H.candles = function () {
+    return '<span class="hr-candles" aria-hidden="true"></span>';
   };
 
   /* ---- THE DEEDS -------------------------------------------------------
@@ -459,35 +447,23 @@
     '.hr-door:focus-visible{outline:none;}',
 
     /* ---------- CANDLES -------------------------------------------------- */
-    '.hr-candles{position:absolute;left:0;right:0;top:0;height:74px;overflow:hidden;',
-    '  pointer-events:none;z-index:0;}',
-    '.hr-candle{position:absolute;width:5px;transform-origin:50% 100%;',
-    '  animation-name:hr-float;animation-timing-function:ease-in-out;',
-    '  animation-iteration-count:infinite;animation-direction:alternate;}',
-    /* the taper */
-    '.hr-candle .wx{position:absolute;top:6px;left:0;width:5px;height:26px;display:block;',
-    '  background:linear-gradient(180deg,rgba(255,244,222,.5),rgba(255,244,222,.05));',
-    '  border-radius:1px;}',
-    /* and its flame, which does not sit still either */
-    '.hr-candle .fl{position:absolute;top:0;left:1px;width:3px;height:7px;display:block;',
-    /* a flame is warm in every house: Slytherin's metal is a cold near-white,
-       and a silver flame reads as a spark rather than as a candle. Only the
-       glow around it takes the house colour. */
-    '  border-radius:60% 60% 42% 42%;background:#FFD98A;',
-    '  box-shadow:0 0 7px 2px var(--accent-wash),0 0 16px 5px rgba(255,196,96,.20);',
-    '  animation:hr-flicker 1.7s ease-in-out infinite alternate;}',
-    '@keyframes hr-float{from{transform:translateY(0);}to{transform:translateY(9px);}}',
-    '@keyframes hr-flicker{0%{opacity:.68;transform:scaleY(.9);}',
-    '  55%{opacity:1;transform:scaleY(1.12);}100%{opacity:.82;transform:scaleY(.96);}}',
-    /* the seat has to make room for them, and its own content sits in front */
-    '.hr-seat{padding-top:44px;}',
+    /* The Great Hall's own candles, hanging over the seat of the house. This
+       was eleven drawn tapers, which was a decent stand-in for a photograph
+       until there was a photograph. It keeps a slow brightness pulse so the
+       hall is not a still. */
+    '.hr-candles{position:absolute;left:0;right:0;top:0;height:66px;pointer-events:none;',
+    '  z-index:0;background:url(art/great-hall-candles.webp) center top/cover no-repeat;',
+    '  opacity:.5;mix-blend-mode:screen;',
+    '  -webkit-mask-image:linear-gradient(#000 52%,transparent 100%);',
+    '          mask-image:linear-gradient(#000 52%,transparent 100%);',
+    '  animation:hr-hall 7s ease-in-out infinite alternate;}',
+    '@keyframes hr-hall{from{opacity:.42;}to{opacity:.58;}}',
+    '.hr-seat{padding-top:40px;}',
     /* only the CONTENT is lifted over the candles. The corner brackets and the
        notch are already absolute and positioned against the frame, so a blanket
        `position:relative` on every child tears them off it. */
     '.hr-seat-arms,.hr-seat-id,.hr-doors{position:relative;z-index:1;}',
-    '@media(prefers-reduced-motion:reduce){',
-    '  .hr-candle,.hr-candle .fl{animation:none;}',
-    '}',
+    '@media(prefers-reduced-motion:reduce){.hr-candles{animation:none;}}',
 
     /* ---------- the tools rail ------------------------------------------ */
     '.hr-tools{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 12px;}',

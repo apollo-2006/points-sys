@@ -662,15 +662,13 @@
     /* the tab wears the house's own arms */
     favicon: 'art/gryffindor-crest.svg',
 
-    /* Scarlet cloth. Two crossed sets of fine diagonals make a twill weave,
-       lit from the hearth at the bottom of the frame. The house page leans on
-       a texture behind everything and the page reads flat without one. */
+    /* Lion fur, off the house page, laid under the hearthlight. The weave I
+       drew before was a decent stand-in for a photograph and this is the
+       photograph. */
     texture:
-      'repeating-linear-gradient(52deg, rgba(255,214,140,0.030) 0 1px, transparent 1px 7px),' +
-      'repeating-linear-gradient(-52deg, rgba(0,0,0,0.20) 0 1px, transparent 1px 7px),' +
-      'radial-gradient(ellipse 58% 34% at 50% 104%, rgba(238,186,48,0.20), transparent 66%),' +
-      'radial-gradient(ellipse 84% 50% at 14% 6%, rgba(116,0,1,0.50), transparent 64%),' +
-      'radial-gradient(ellipse 80% 48% at 92% 88%, rgba(106,43,43,0.44), transparent 66%),' +
+      'linear-gradient(rgba(28,10,11,.90),rgba(18,6,7,.955)),' +
+      'url(art/gryffindor-ground.webp) center top/cover no-repeat fixed,' +
+      'radial-gradient(ellipse 58% 34% at 50% 104%, rgba(238,186,48,.16), transparent 66%),' +
       'linear-gradient(#2A1011,#1F0B0C 52%,#160707)',
 
     css: [

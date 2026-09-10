@@ -583,16 +583,12 @@
        the rows interlock the way scales do, over a lake-light wash from above.
        The house page puts scales behind its hero and the page reads flat
        without them. */
-    /* Serpent scale. Each cell is an arc of a circle, and the second layer is
-       offset half a step so the rows interlock the way scales do, under a
-       lake-light wash from above. Sizes ride in the background shorthand,
-       since the engine writes one `background:` and nothing else. */
+    /* Serpent scale, off the house page, under lake light. The pattern I drew
+       before was a decent stand-in for a photograph and this is it. */
     texture:
-      'radial-gradient(circle at 50% 116%, rgba(220,231,224,0.055) 0 7px, transparent 7.5px) 0 0/16px 16px,' +
-      'radial-gradient(circle at 50% 116%, rgba(0,0,0,0.26) 0 8px, transparent 8.5px) 8px 8px/16px 16px,' +
-      'radial-gradient(ellipse 120% 40% at 50% -10%, rgba(42,98,61,0.34), transparent 66%),' +
-      'radial-gradient(ellipse 70% 40% at 12% 40%, rgba(7,49,42,0.55), transparent 66%),' +
-      'radial-gradient(ellipse 76% 50% at 92% 84%, rgba(3,20,16,0.55), transparent 70%),' +
+      'linear-gradient(rgba(4,20,15,.90),rgba(2,12,9,.955)),' +
+      'url(art/slytherin-ground.webp) center top/cover no-repeat fixed,' +
+      'radial-gradient(ellipse 120% 40% at 50% -10%, rgba(42,98,61,.22), transparent 66%),' +
       'linear-gradient(#06231E,#04140F 56%,#03100C)',
 
     css: [
