@@ -308,7 +308,7 @@ details[open]>.add-sum{color:var(--accent);border-style:solid;margin-bottom:10px
   filter:drop-shadow(0 3px 10px var(--shadow));
   animation:brand-settle .5s var(--ease) both;
 }
-.brand-glyph svg{display:block;}
+.brand-glyph svg,.brand-glyph img{display:block;}
 /* The shine rides over the arms, clipped to their silhouette. The band moves
    by background-position and not by transform: a transform would carry the
    mask along with it, and the sweep would sail past the shield as a lit slash
@@ -1672,11 +1672,13 @@ function renderHud() {
   const glyph = $('.brand-glyph');
   if (arms) {
     glyph.innerHTML = ORIGIN_HERALDRY.crest(Object.assign({ label: th.name, w: 34 }, arms));
-    const svg = glyph.querySelector('svg');
-    glyph.style.setProperty('--glyph-mask',
-      "url('data:image/svg+xml;utf8," + encodeURIComponent(
-        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 120">' +
-        '<path d="' + ORIGIN_HERALDRY.SHIELD + '" fill="#000"/></svg>') + "')");
+    /* the sweep is clipped to the shield: to its own file where the house has
+       one, and to the drawn silhouette otherwise */
+    glyph.style.setProperty('--glyph-mask', arms.crest
+      ? "url('" + arms.crest + "')"
+      : "url('data:image/svg+xml;utf8," + encodeURIComponent(
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 120">' +
+          '<path d="' + ORIGIN_HERALDRY.SHIELD + '" fill="#000"/></svg>') + "')");
   } else {
     glyph.innerHTML = ICON('crest', 24);
   }

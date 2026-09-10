@@ -97,9 +97,17 @@
     }
   };
 
-  /* opts: { charge, field, fieldHi, metal, label, w } */
+  /* opts: { charge, field, fieldHi, metal, label, w, crest }
+
+     A house that has its own arms on file wears them. The drawn shield below
+     is the fallback, and it is what Origin and any new house get: the geometry
+     and the charges are still here so a house is never crestless. */
   H.crest = function (o) {
     var w = o.w || 100, h = Math.round(w * 1.2);
+    if (o.crest) {
+      return '<img class="hr-crest" src="' + esc(o.crest) + '" width="' + w + '" height="' + h +
+        '" alt="' + esc(o.label || '') + '" draggable="false">';
+    }
     var id = 'c' + Math.random().toString(36).slice(2, 7);
     var charge = CHARGES[o.charge] || CHARGES.star;
     return '<svg class="hr-crest" viewBox="0 0 100 120" width="' + w + '" height="' + h + '"' +
@@ -120,8 +128,10 @@
      between two houses. Field, the bright of the field, the metal, and the
      ink the beast is drawn in. */
   H.arms = {
-    gryffindor: { charge: 'lion',    field: '#8E1F1B', fieldHi: '#C4423A', metal: '#E9B44C' },
-    slytherin:  { charge: 'serpent', field: '#09503C', fieldHi: '#12805F', metal: '#DCE7E0' },
+    gryffindor: { charge: 'lion',    field: '#8E1F1B', fieldHi: '#C4423A', metal: '#E9B44C',
+                  crest: 'art/gryffindor-crest.svg' },
+    slytherin:  { charge: 'serpent', field: '#09503C', fieldHi: '#12805F', metal: '#DCE7E0',
+                  crest: 'art/slytherin-crest.svg' },
     origin:     { charge: 'star',    field: '#1A2036', fieldHi: '#333F63', metal: '#9FB2D8' }
   };
   H.armsOf = function (ctx, p) {
