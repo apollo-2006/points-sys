@@ -304,18 +304,22 @@ details[open]>.add-sum{color:var(--accent);border-style:solid;margin-bottom:10px
 @property --sweep{syntax:"<percentage>";inherits:false;initial-value:-40%;}
 
 .brand-glyph{
-  position:relative;overflow:hidden;
-  width:38px;height:38px;flex-shrink:0;
-  background:linear-gradient(150deg,var(--accent),var(--gold));
-  display:flex;align-items:center;justify-content:center;
-  box-shadow:0 0 22px var(--accent-wash);
+  position:relative;flex-shrink:0;line-height:0;
+  filter:drop-shadow(0 3px 10px var(--shadow));
   animation:brand-settle .5s var(--ease) both;
 }
+.brand-glyph svg{display:block;}
+/* The shine rides over the arms, clipped to their silhouette. The band moves
+   by background-position and not by transform: a transform would carry the
+   mask along with it, and the sweep would sail past the shield as a lit slash
+   in open space beside it. */
 .brand-glyph::after{
-  content:"";position:absolute;inset:-40%;pointer-events:none;
-  background:linear-gradient(100deg,transparent 42%,rgba(255,255,255,.5) 50%,transparent 58%);
-  transform:translateX(-120%);
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(100deg,transparent 42%,rgba(255,255,255,.45) 50%,transparent 58%);
+  background-repeat:no-repeat;background-size:280% 100%;background-position:150% 0;
   animation:brand-shine 7s var(--ease) 1.2s infinite;
+  -webkit-mask:var(--glyph-mask) center/contain no-repeat;
+          mask:var(--glyph-mask) center/contain no-repeat;
 }
 .brand-glyph span{font-family:var(--f-display);font-weight:700;font-size:15px;color:var(--on-accent);
   line-height:1;position:relative;}
@@ -333,7 +337,7 @@ details[open]>.add-sum{color:var(--accent);border-style:solid;margin-bottom:10px
   }
 }
 @keyframes brand-gilt{0%,58%{--sweep:-40%;}100%{--sweep:150%;}}
-@keyframes brand-shine{0%,58%{transform:translateX(-120%);}100%{transform:translateX(120%);}}
+@keyframes brand-shine{0%,58%{background-position:150% 0;}100%{background-position:-90% 0;}}
 @keyframes brand-settle{
   from{opacity:0;transform:scale(.84) rotate(-7deg);}
   to{opacity:1;transform:none;}
@@ -1663,7 +1667,19 @@ function renderHud() {
   $('#searchBtn').innerHTML = ICON('search', 15);
   $('#settingsBtn').innerHTML = ICON('settings', 15);
   $('#signOutBtn').innerHTML = ICON('signout', 15);
-  $('.brand-glyph').innerHTML = ICON('crest', 24);
+  /* the mark is the house's own arms, drawn from themes/heraldry.js */
+  const arms = window.ORIGIN_HERALDRY && ORIGIN_HERALDRY.arms[THEME];
+  const glyph = $('.brand-glyph');
+  if (arms) {
+    glyph.innerHTML = ORIGIN_HERALDRY.crest(Object.assign({ label: th.name, w: 34 }, arms));
+    const svg = glyph.querySelector('svg');
+    glyph.style.setProperty('--glyph-mask',
+      "url('data:image/svg+xml;utf8," + encodeURIComponent(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 120">' +
+        '<path d="' + ORIGIN_HERALDRY.SHIELD + '" fill="#000"/></svg>') + "')");
+  } else {
+    glyph.innerHTML = ICON('crest', 24);
+  }
 
   const t = todayTotals();
   const lead = s.points.abir === s.points.jade ? null : (s.points.abir > s.points.jade ? 'abir' : 'jade');

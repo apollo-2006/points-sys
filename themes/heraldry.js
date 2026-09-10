@@ -35,61 +35,82 @@
     });
   }
 
-  /* ---- the charges -----------------------------------------------------
-     A beast per house, drawn as a single line on a 48-unit grid so it sits
-     inside a pennant at any size. Line art, not silhouette: the pennant is
-     already a solid field of colour and a solid beast on it goes to mud. */
-  H.charges = {
-    lion:
-      '<path d="M24 9c-5.4 0-9.2 3.3-9.2 8 0 1.6.5 3 1.3 4.2-2.6 1.1-4.4 3.5-4.4 6.4 0 2.2 1 4.1 2.6 5.4' +
-      '-.5 1-.8 2.1-.8 3.3 0 2.2 1.1 4 2.7 4.9M24 9c5.4 0 9.2 3.3 9.2 8 0 1.6-.5 3-1.3 4.2 2.6 1.1 4.4 3.5' +
-      ' 4.4 6.4 0 2.2-1 4.1-2.6 5.4.5 1 .8 2.1.8 3.3 0 2.2-1.1 4-2.7 4.9" />' +
-      '<path d="M18.6 21.6c1.6-1.2 3.4-1.9 5.4-1.9s3.8.7 5.4 1.9"/>' +
-      '<path d="M20.4 26.2h.05M27.6 26.2h.05" stroke-linecap="round" stroke-width="2.6"/>' +
-      '<path d="M24 28.4v2.6M20.8 33.2c1 1 2 1.5 3.2 1.5s2.2-.5 3.2-1.5"/>' +
-      '<path d="M14.8 17c-2.2-.6-3.8-1.8-4.6-3.6M33.2 17c2.2-.6 3.8-1.8 4.6-3.6"/>',
-    serpent:
-      '<path d="M31.5 11.4c-3.6-1.9-7.6-1.4-9.9 1.2-2.5 2.8-1.9 6.7 1.2 8.6 3.4 2.1 4.1 5.2 2.2 7.6' +
-      '-2.1 2.6-6.2 2.9-9.2 1M15.8 29.8c3.4 2.6 4.1 6.2 2 8.9"/>' +
-      '<path d="M31.5 11.4c1.9 1 3.1 2.5 3.4 4.2.3 1.9-.7 3.6-2.4 4.2"/>' +
-      '<path d="M34.4 13.1h.05" stroke-linecap="round" stroke-width="2.4"/>' +
-      '<path d="M17.8 40.3c1.8.9 3.9.6 5.3-.8"/>',
-    /* a fallback so a new house is never crestless */
-    star:
-      '<path d="M24 10.5 27.6 21h11l-8.9 6.5 3.4 10.6L24 31.6l-9.1 6.5 3.4-10.6L9.4 21h11z"/>'
+  /* ---- THE ARMS -------------------------------------------------------
+     A heater shield: flat top with turned corners, straight flanks, and a
+     sweep to the point. The geometry is the same for every house, and only
+     the tinctures and the charge change, which is how arms actually work.
+
+     The charges are silhouettes rather than line drawings. The reference
+     draws them as a single hairline at 170px; this mark also has to hold at
+     40px in a header, where a 2px line is noise. Detail is cut OUT of the
+     silhouette in the field colour, so it thins gracefully instead of
+     vanishing. */
+  var SHIELD = 'M13 4 H87 A7 7 0 0 1 94 11 V54 C94 82 76 102 50 116 C24 102 6 82 6 54 V11 A7 7 0 0 1 13 4 Z';
+  H.SHIELD = SHIELD;   /* the silhouette, for masking a shine onto the arms */
+
+  function mane(cx, cy, rLong, rShort, rIn, n) {
+    var d = '', i, a, r;
+    for (i = 0; i < n * 2; i++) {
+      a = (i / (n * 2)) * Math.PI * 2 - Math.PI / 2;
+      r = i % 2 ? rIn : (i % 4 ? rShort : rLong);
+      d += (i ? 'L' : 'M') + (cx + Math.cos(a) * r).toFixed(2) + ' ' +
+           (cy + Math.sin(a) * r).toFixed(2);
+    }
+    return d + 'Z';
+  }
+  var CHARGES = {
+    lion: function (m, f) {
+      return '<path d="' + mane(50, 60, 27, 24, 21, 13) + '" fill="' + m + '"' +
+          ' stroke="' + m + '" stroke-width="2.2" stroke-linejoin="round"/>' +
+        '<ellipse cx="50" cy="62" rx="14.5" ry="15.5" fill="' + f + '"/>' +
+        /* ears */
+        '<path d="M37.5 50.5c-1.4-3.6-.6-6.6 1.4-7.6 1.8 2 2.6 4.8 2.4 7.6z" fill="' + m + '"/>' +
+        '<path d="M62.5 50.5c1.4-3.6.6-6.6-1.4-7.6-1.8 2-2.6 4.8-2.4 7.6z" fill="' + m + '"/>' +
+        /* eyes: almonds, angled inward, not circles */
+        '<path d="M40.4 62.4c1.4-2.6 4.2-3.4 6.4-1.8-1.2 2.8-4.2 3.6-6.4 1.8z" fill="' + m + '"/>' +
+        '<path d="M59.6 62.4c-1.4-2.6-4.2-3.4-6.4-1.8 1.2 2.8 4.2 3.6 6.4 1.8z" fill="' + m + '"/>' +
+        /* brow, muzzle, jaw */
+        '<path d="M41.8 57.2c1.8-1.4 4-1.6 6 -.6M58.2 57.2c-1.8-1.4-4-1.6-6-.6"' +
+          ' fill="none" stroke="' + m + '" stroke-width="1.7" stroke-linecap="round"/>' +
+        '<path d="M45.6 68.2h8.8l-2.2 3.2h-4.4z" fill="' + m + '"/>' +
+        '<path d="M50 71.4v2.6m0 0c0 2.2-1.8 3.6-4 3.6m4-3.6c0 2.2 1.8 3.6 4 3.6"' +
+          ' fill="none" stroke="' + m + '" stroke-width="1.9" stroke-linecap="round"/>';
+    },
+    serpent: function (m, f) {
+      return '<g fill="none" stroke="' + m + '" stroke-linecap="round" stroke-linejoin="round">' +
+          '<path d="M41 43c11 1 17 6 17 12s-7 9-14 11-11 5-11 10 6 9 15 9" stroke-width="7.2"/>' +
+        '</g>' +
+        /* the head, a wedge with an eye and a forked tongue */
+        '<path d="M45 34l-14 4c-2 .6-2.6 3-1 4.6l7 6.6c1.8 1.6 4.6.6 5-1.8z" fill="' + m + '"/>' +
+        '<circle cx="39.5" cy="40.5" r="1.9" fill="' + f + '"/>' +
+        '<path d="M31 38l-8-2.4m8 2.4l-7.4 2.6" fill="none" stroke="' + m + '"' +
+          ' stroke-width="2.2" stroke-linecap="round"/>' +
+        /* the tail, tapered off the last coil */
+        '<path d="M48 85c5 0 8 1.6 9.6 4.2" fill="none" stroke="' + m + '"' +
+          ' stroke-width="4" stroke-linecap="round"/>';
+    },
+
+    /* a mullet, for a house with no beast */
+    star: function (m) {
+      return '<path d="M50 36l5.2 15.6H72l-13.4 9.8 5.2 15.8L50 67.4 36.2 77.2l5.2-15.8L28 51.6h16.8z"' +
+        ' fill="' + m + '" stroke="' + m + '" stroke-width="2" stroke-linejoin="round"/>';
+    }
   };
 
-  /* ---- PENNANT ---------------------------------------------------------
-     opts: { charge, field, fieldHi, ink, metal, legend, sub, w, h }
-     `field` is the cloth, `metal` the house's gold or silver, `ink` the line
-     the beast is drawn in. The swallowtail is cut, not drawn, so the banner
-     reads as one piece of cloth rather than an outline with a notch in it. */
-  H.pennant = function (o) {
-    var w = o.w || 96, h = o.h || 128;
-    var uid = 'pn' + Math.random().toString(36).slice(2, 8);
-    var tail = h - w * 0.22;            /* where the V begins */
-    var d = 'M0 0h' + w + 'v' + tail + 'l-' + (w / 2) + ' ' + (w * 0.22) +
-            'L0 ' + tail + 'z';
-    return '<svg class="hr-pennant" viewBox="0 0 ' + w + ' ' + h + '" width="' + w + '" height="' + h + '"' +
-      ' role="img" aria-label="' + esc(o.legend || '') + '">' +
-      '<defs>' +
-        '<linearGradient id="' + uid + '" x1="0" y1="0" x2="0" y2="1">' +
-          '<stop offset="0" stop-color="' + esc(o.fieldHi || o.field) + '"/>' +
-          '<stop offset="1" stop-color="' + esc(o.field) + '"/>' +
-        '</linearGradient>' +
-        '<clipPath id="' + uid + 'c"><path d="' + d + '"/></clipPath>' +
-      '</defs>' +
-      '<path d="' + d + '" fill="url(#' + uid + ')"/>' +
-      /* a fold of light down the cloth */
-      '<path d="' + d + '" fill="none" stroke="' + esc(o.metal) + '" stroke-width="1.6" opacity=".55"/>' +
-      '<g clip-path="url(#' + uid + 'c)" opacity=".16">' +
-        '<path d="M' + (w * 0.34) + ' 0v' + h + '" stroke="#fff" stroke-width="' + (w * 0.1) + '"/>' +
-      '</g>' +
-      '<g transform="translate(' + (w / 2) + ',' + (tail * 0.47) + ') scale(' + (w / 62) + ') translate(-24,-24)"' +
-        ' fill="none" stroke="' + esc(o.ink) + '" stroke-width="1.7"' +
-        ' stroke-linejoin="round" stroke-linecap="round" opacity=".92">' +
-        (H.charges[o.charge] || H.charges.star) +
-      '</g>' +
+  /* opts: { charge, field, fieldHi, metal, label, w } */
+  H.crest = function (o) {
+    var w = o.w || 100, h = Math.round(w * 1.2);
+    var id = 'c' + Math.random().toString(36).slice(2, 7);
+    var charge = CHARGES[o.charge] || CHARGES.star;
+    return '<svg class="hr-crest" viewBox="0 0 100 120" width="' + w + '" height="' + h + '"' +
+      ' role="img" aria-label="' + esc(o.label || '') + '">' +
+      '<defs><linearGradient id="' + id + '" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0" stop-color="' + esc(o.fieldHi) + '"/>' +
+        '<stop offset="1" stop-color="' + esc(o.field) + '"/></linearGradient></defs>' +
+      '<path d="' + SHIELD + '" fill="url(#' + id + ')"/>' +
+      '<path d="' + SHIELD + '" fill="none" stroke="' + esc(o.metal) + '" stroke-width="6"' +
+        ' transform="translate(8 9.6) scale(.84)"/>' +
+      charge(esc(o.metal), esc(o.field)) +
     '</svg>';
   };
 
@@ -99,9 +120,9 @@
      between two houses. Field, the bright of the field, the metal, and the
      ink the beast is drawn in. */
   H.arms = {
-    gryffindor: { charge: 'lion',    field: '#6E1019', fieldHi: '#B0202E', metal: '#E8C25A', ink: '#F8E7B0' },
-    slytherin:  { charge: 'serpent', field: '#0E2C21', fieldHi: '#1E6A47', metal: '#C9D4CE', ink: '#E4EEE8' },
-    origin:     { charge: 'star',    field: '#121726', fieldHi: '#2A3350', metal: '#8FA3C8', ink: '#DCE6F8' }
+    gryffindor: { charge: 'lion',    field: '#8E1F1B', fieldHi: '#C4423A', metal: '#E9B44C' },
+    slytherin:  { charge: 'serpent', field: '#09503C', fieldHi: '#12805F', metal: '#DCE7E0' },
+    origin:     { charge: 'star',    field: '#1A2036', fieldHi: '#333F63', metal: '#9FB2D8' }
   };
   H.armsOf = function (ctx, p) {
     var id = ctx.houseOf && ctx.houseOf(p);
@@ -122,8 +143,8 @@
         '<span class="hr-c bl"></span><span class="hr-c br"></span>' +
         '<span class="hr-notch"></span>' +
         '<div class="hr-std-arms">' +
-          H.pennant({ charge: a.charge, field: a.field, fieldHi: a.fieldHi,
-                      metal: a.metal, ink: a.ink, legend: o.name, w: 58, h: 78 }) +
+          H.crest({ charge: a.charge, field: a.field, fieldHi: a.fieldHi,
+                    metal: a.metal, label: o.name, w: 54 }) +
         '</div>' +
         '<div class="hr-std-body">' +
           '<div class="hr-std-top">' +
@@ -178,8 +199,8 @@
         '<span class="hr-c bl"></span><span class="hr-c br"></span>' +
         '<span class="hr-notch"></span>' +
         '<div class="hr-seat-arms">' +
-          H.pennant({ charge: a.charge, field: a.field, fieldHi: a.fieldHi,
-                      metal: a.metal, ink: a.ink, legend: ctx.name(pl), w: 64, h: 86 }) +
+          H.crest({ charge: a.charge, field: a.field, fieldHi: a.fieldHi,
+                    metal: a.metal, label: ctx.name(pl), w: 58 }) +
         '</div>' +
         '<div class="hr-seat-id">' +
           '<span class="hr-cart">' + esc(cfg.board.title) + '</span>' +
@@ -277,8 +298,8 @@
     '  background:linear-gradient(90deg,transparent,var(--line) 10%,var(--line) 90%,transparent);}',
     '.hr-banded .hr-cart{position:relative;}',
 
-    /* ---------- PENNANT ------------------------------------------------- */
-    '.hr-pennant{display:block;filter:drop-shadow(0 6px 14px var(--shadow));}',
+    /* ---------- THE ARMS ------------------------------------------------ */
+    '.hr-crest{display:block;filter:drop-shadow(0 5px 12px var(--shadow));}',
 
     /* ---------- THE STANDARD: an operator ------------------------------- */
     '.hr-std{display:flex;gap:15px;align-items:flex-start;padding:14px 17px 15px;}',

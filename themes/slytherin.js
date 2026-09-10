@@ -461,23 +461,26 @@
     name: 'Slytherin',
     tagline: 'Cunning · Ambition · Pride',
 
+    /* Green and silver, taken off the house page: its sections sit on #07312A
+       over #05201C, and the arms are silver on green. The canonical pair is
+       #1A472A / #AAAAAA, and the metal here is a cold near-white, never gold. */
     tokens: {
-      void: '#0B120F', deep: '#121A16',
-      surface: 'rgba(24,36,30,0.86)', 'surface-2': 'rgba(216,203,168,0.06)',
-      'surface-hover': 'rgba(216,203,168,0.10)', raised: '#16211C', toast: '#16211C',
-      overlay: 'rgba(4,9,7,.86)', track: 'rgba(0,0,0,.5)', input: 'rgba(6,12,10,0.66)',
-      scroll: '#2A4237', shadow: 'rgba(2,8,6,.8)',
-      line: 'rgba(195,210,204,0.26)', 'line-soft': 'rgba(195,210,204,0.13)',
-      'line-hard': 'rgba(230,240,235,0.52)',
-      txt: '#EAF0EC', 'txt-2': '#B8C6BE', 'txt-3': '#8FA096', 'on-accent': '#0A1410',
-      accent: '#1B6B45', 'accent-hi': '#4FE0A0', 'accent-dim': '#0F3D28',
-      'accent-wash': 'rgba(27,107,69,0.26)',
-      gold: '#C9AF8E', warn: '#C9AF8E', danger: '#E0616F', ok: '#4FE0A0', info: '#7ED0A8',
-      milestone: '#D9C3A2', penalty: '#E0616F',
-      'focus-work': '#1B6B45', 'focus-break': '#7ED0A8', 'focus-long': '#C9AF8E',
+      void: '#04140F', deep: '#05201C',
+      surface: 'rgba(7,49,42,0.80)', 'surface-2': 'rgba(220,231,224,0.06)',
+      'surface-hover': 'rgba(220,231,224,0.11)', raised: '#082A24', toast: '#082A24',
+      overlay: 'rgba(2,10,8,.88)', track: 'rgba(0,0,0,.5)', input: 'rgba(3,14,11,0.66)',
+      scroll: '#1A472A', shadow: 'rgba(1,8,6,.82)',
+      line: 'rgba(200,212,206,0.26)', 'line-soft': 'rgba(200,212,206,0.13)',
+      'line-hard': 'rgba(232,239,234,0.55)',
+      txt: '#E8EFEA', 'txt-2': '#B4C4BC', 'txt-3': '#8A9C94', 'on-accent': '#EAF2ED',
+      accent: '#1A472A', 'accent-hi': '#2A623D', 'accent-dim': '#0F2E1B',
+      'accent-wash': 'rgba(26,71,42,0.32)',
+      gold: '#C6D0CA', warn: '#C9B98E', danger: '#D9606C', ok: '#5FBF8E', info: '#9FB8AC',
+      milestone: '#DCE7E0', penalty: '#D9606C',
+      'focus-work': '#1A472A', 'focus-break': '#5FBF8E', 'focus-long': '#C6D0CA',
 
-      'f-display': "'Great Vibes',cursive", 'f-body': "'Cormorant Garamond',Georgia,serif",
-      'f-mono': "'Cormorant Garamond',Georgia,serif",
+      'f-display': "'Bodoni Moda',Didot,Georgia,serif", 'f-body': "'Spectral',Georgia,serif",
+      'f-mono': "'Spectral',Georgia,serif",
       'f-display-scale': '1.16', 'f-ui-scale': '1.0',
       'tt-display': 'none', 'ls-display': '.005em',
       'f-label': "'Cormorant SC',Georgia,serif", 'tt-label': 'none', 'ls-label': '.1em',
@@ -575,11 +578,21 @@
     themeColor: '#0B120F',
     favicon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%230B120F'/%3E%3Cpath d='M18 20c0-6 5-10 11-10 8 0 13 6 13 13 0 9-13 11-13 19 0 4 4 6 8 6' stroke='%23C9AF8E' stroke-width='5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E",
 
+    /* Serpent scale. Each cell is two arcs of a circle offset half a step, so
+       the rows interlock the way scales do, over a lake-light wash from above.
+       The house page puts scales behind its hero and the page reads flat
+       without them. */
+    /* Serpent scale. Each cell is an arc of a circle, and the second layer is
+       offset half a step so the rows interlock the way scales do, under a
+       lake-light wash from above. Sizes ride in the background shorthand,
+       since the engine writes one `background:` and nothing else. */
     texture:
-      'radial-gradient(ellipse 120% 40% at 50% -10%, rgba(46,168,116,0.26), transparent 66%),' +
-      'radial-gradient(ellipse 70% 40% at 12% 40%, rgba(16,60,46,0.4), transparent 66%),' +
-      'radial-gradient(ellipse 76% 50% at 92% 84%, rgba(8,36,28,0.5), transparent 70%),' +
-      'linear-gradient(#10201A,#0B120F 56%,#060C0A)',
+      'radial-gradient(circle at 50% 116%, rgba(220,231,224,0.055) 0 7px, transparent 7.5px) 0 0/16px 16px,' +
+      'radial-gradient(circle at 50% 116%, rgba(0,0,0,0.26) 0 8px, transparent 8.5px) 8px 8px/16px 16px,' +
+      'radial-gradient(ellipse 120% 40% at 50% -10%, rgba(42,98,61,0.34), transparent 66%),' +
+      'radial-gradient(ellipse 70% 40% at 12% 40%, rgba(7,49,42,0.55), transparent 66%),' +
+      'radial-gradient(ellipse 76% 50% at 92% 84%, rgba(3,20,16,0.55), transparent 70%),' +
+      'linear-gradient(#06231E,#04140F 56%,#03100C)',
 
     css: [
       /* ---------- no glass anywhere in this house ---------- */

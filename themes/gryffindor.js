@@ -545,22 +545,25 @@
     name: 'Gryffindor',
     tagline: 'Brave · Daring · Courageous',
 
+    /* Scarlet and gold, taken off the house page rather than guessed: its
+       sections sit on #6A2B2B over #591E1C, and the arms are gold on scarlet.
+       The canonical pair is #740001 / #D3A625. */
     tokens: {
-      void: '#22100E', deep: '#2C1512',
-      surface: 'rgba(58,26,22,0.86)', 'surface-2': 'rgba(239,227,200,0.06)',
-      'surface-hover': 'rgba(239,227,200,0.10)', raised: '#331613', toast: '#331613',
-      overlay: 'rgba(16,6,5,.84)', track: 'rgba(0,0,0,.45)', input: 'rgba(16,7,6,0.6)',
-      scroll: '#6A3226', shadow: 'rgba(30,8,6,.7)',
-      line: 'rgba(199,154,62,0.30)', 'line-soft': 'rgba(199,154,62,0.15)',
-      'line-hard': 'rgba(242,223,166,0.55)',
-      txt: '#F7EBD6', 'txt-2': '#D9BE99', 'txt-3': '#B29470', 'on-accent': '#2A0E0C',
-      accent: '#D22B2B', 'accent-hi': '#F2C230', 'accent-dim': '#8E1420',
-      'accent-wash': 'rgba(210,43,43,0.20)',
-      gold: '#F2C230', warn: '#E0A24A', danger: '#EE7A62', ok: '#9EBF63', info: '#E0A24A',
-      milestone: '#F2C230', penalty: '#EE7A62',
-      'focus-work': '#D22B2B', 'focus-break': '#9EBF63', 'focus-long': '#F2C230',
+      void: '#1B0A0A', deep: '#2A1011',
+      surface: 'rgba(89,30,28,0.80)', 'surface-2': 'rgba(233,180,76,0.07)',
+      'surface-hover': 'rgba(233,180,76,0.12)', raised: '#3A1614', toast: '#3A1614',
+      overlay: 'rgba(14,4,4,.86)', track: 'rgba(0,0,0,.45)', input: 'rgba(14,5,5,0.6)',
+      scroll: '#6A2B2B', shadow: 'rgba(20,4,4,.72)',
+      line: 'rgba(211,166,37,0.30)', 'line-soft': 'rgba(211,166,37,0.15)',
+      'line-hard': 'rgba(238,186,48,0.58)',
+      txt: '#F6E9D7', 'txt-2': '#D8BC93', 'txt-3': '#AE9070', 'on-accent': '#FFF3DE',
+      accent: '#AE0001', 'accent-hi': '#D3A625', 'accent-dim': '#740001',
+      'accent-wash': 'rgba(174,0,1,0.24)',
+      gold: '#D3A625', warn: '#EEBA30', danger: '#E4614F', ok: '#9EBF63', info: '#D3A625',
+      milestone: '#EEBA30', penalty: '#E4614F',
+      'focus-work': '#AE0001', 'focus-break': '#9EBF63', 'focus-long': '#D3A625',
 
-      'f-display': "'Caveat',cursive", 'f-body': "'Lora',Georgia,serif",
+      'f-display': "'Cormorant Garamond',Georgia,serif", 'f-body': "'Lora',Georgia,serif",
       'f-mono': "'Lora',Georgia,serif",
       'f-display-scale': '1.34', 'f-ui-scale': '1.0',
       'tt-display': 'none', 'ls-display': '.01em',
@@ -658,11 +661,16 @@
     themeColor: '#22100E',
     favicon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%2322100E'/%3E%3Cpath d='M32 12c9.3 0 16.5 6.1 16.5 14.4 0 4.5-2.1 7.7-4.5 10.1 2.7 2.7 4.5 5.9 4.5 9.9C48.5 54.6 41.3 61 32 61s-16.5-6.4-16.5-14.6c0-4 1.8-7.2 4.5-9.9-2.4-2.4-4.5-5.6-4.5-10.1C15.5 18.1 22.7 12 32 12Z' fill='none' stroke='%23F2C230' stroke-width='4'/%3E%3C/svg%3E",
 
+    /* Scarlet cloth. Two crossed sets of fine diagonals make a twill weave,
+       lit from the hearth at the bottom of the frame. The house page leans on
+       a texture behind everything and the page reads flat without one. */
     texture:
-      'radial-gradient(ellipse 58% 34% at 50% 104%, rgba(255,140,52,0.26), transparent 66%),' +
-      'radial-gradient(ellipse 84% 50% at 14% 6%, rgba(110,22,20,0.44), transparent 64%),' +
-      'radial-gradient(ellipse 80% 48% at 92% 88%, rgba(130,50,22,0.26), transparent 66%),' +
-      'linear-gradient(#2A1310,#22100E 52%,#1A0B09)',
+      'repeating-linear-gradient(52deg, rgba(255,214,140,0.030) 0 1px, transparent 1px 7px),' +
+      'repeating-linear-gradient(-52deg, rgba(0,0,0,0.20) 0 1px, transparent 1px 7px),' +
+      'radial-gradient(ellipse 58% 34% at 50% 104%, rgba(238,186,48,0.20), transparent 66%),' +
+      'radial-gradient(ellipse 84% 50% at 14% 6%, rgba(116,0,1,0.50), transparent 64%),' +
+      'radial-gradient(ellipse 80% 48% at 92% 88%, rgba(106,43,43,0.44), transparent 66%),' +
+      'linear-gradient(#2A1011,#1F0B0C 52%,#160707)',
 
     css: [
       /* ---------- no glass anywhere in this house ---------- */
