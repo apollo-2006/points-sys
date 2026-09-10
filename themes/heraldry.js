@@ -160,45 +160,63 @@
   };
 
   /* ---- THE HOURGLASS ---------------------------------------------------
-     The Great Hall counts house points in four giant hourglasses, and the
-     gems run from the upper globe to the lower one as points are awarded.
-     This app IS that object, so the rank meter is one: the lower globe fills
-     with the house gem as the year fills, and what is left sits in the upper.
+     The Great Hall counts house points in four of these, and the gems run from
+     the upper globe to the lower one as points are awarded. This app IS that
+     object, so the rank meter is one.
+
+     Built off the prop rather than off the idea of an hourglass: it is tall and
+     narrow, roughly one to two and a half, with a hard pinch at the waist and
+     full round globes above and below it. Brass collars top and bottom, two
+     slender posts down the sides, a knop on top and a plinth under it. The
+     gems are lit, because in the hall they are.
 
      `p` is 0..1. `gem` is the stone: rubies for Gryffindor, emeralds for
      Slytherin. */
   H.hourglass = function (o) {
     var p = Math.max(0, Math.min(1, o.p || 0)), m = o.metal, g = o.gem;
     var id = 'h' + Math.random().toString(36).slice(2, 7);
-    /* One symmetric outline: top rim at y8, waist at y28, foot at y48, so the
-       two globes are each 20 units tall and the fills below can be measured
-       straight off those numbers. */
-    var GLASS = 'M12 8h28c0 11-9 15-9 20s9 9 9 20H12c0-11 9-15 9-20s-9-9-9-20z';
-    /* Gems rest on the floor of whichever globe holds them: what is still to
-       come sits at the BOTTOM of the upper globe, and what has fallen heaps up
-       from the floor of the lower one. */
-    var upTop = 28 - (1 - p) * 20;
-    var loTop = 48 - p * 20;
-    return '<svg class="hr-glass" viewBox="0 0 52 56" width="' + (o.w || 34) + '"' +
-      ' height="' + Math.round((o.w || 34) * 56 / 52) + '" role="img"' +
-      ' aria-label="' + esc(o.label || '') + '">' +
-      '<defs><clipPath id="' + id + '"><path d="' + GLASS + '"/></clipPath></defs>' +
-      '<path d="' + GLASS + '" fill="rgba(255,255,255,.06)"/>' +
+    var w = o.w || 32, h = Math.round(w * 104 / 44);
+
+    /* rim y15, waist y52, foot y89, so the two globes are 37 apart each */
+    var GLASS = 'M9 15C4 27 6 41 20 52 6 63 4 77 9 89L35 89C40 77 38 63 24 52 38 41 40 27 35 15Z';
+    var upTop = 52 - (1 - p) * 37;    /* what has not fallen, on the upper floor */
+    var loTop = 89 - p * 37;          /* what has, heaped in the lower globe */
+
+    return '<svg class="hr-glass" viewBox="0 0 44 104" width="' + w + '" height="' + h + '"' +
+      ' role="img" aria-label="' + esc(o.label || '') + '">' +
+      '<defs>' +
+        '<clipPath id="' + id + '"><path d="' + GLASS + '"/></clipPath>' +
+        '<linearGradient id="' + id + 'm" x1="0" y1="0" x2="1" y2="0">' +
+          '<stop offset="0" stop-color="' + m + '" stop-opacity=".55"/>' +
+          '<stop offset=".38" stop-color="' + m + '"/>' +
+          '<stop offset="1" stop-color="' + m + '" stop-opacity=".5"/>' +
+        '</linearGradient>' +
+      '</defs>' +
+      /* the glass */
+      '<path d="' + GLASS + '" fill="rgba(255,255,255,.05)"/>' +
       '<g clip-path="url(#' + id + ')">' +
-        '<rect x="8" y="' + upTop.toFixed(1) + '" width="36" height="' +
-          (28 - upTop).toFixed(1) + '" fill="' + g + '" opacity=".42"/>' +
-        '<rect x="8" y="' + loTop.toFixed(1) + '" width="36" height="' +
-          (48 - loTop).toFixed(1) + '" fill="' + g + '"/>' +
-        (p > 0.02 && p < 0.98
-          ? '<rect x="25.2" y="26" width="1.6" height="14" fill="' + g + '" opacity=".85"/>' : '') +
+        '<rect x="2" y="' + upTop.toFixed(1) + '" width="40" height="' +
+          (52 - upTop).toFixed(1) + '" fill="' + g + '" opacity=".4"/>' +
+        '<rect x="2" y="' + loTop.toFixed(1) + '" width="40" height="' +
+          (89 - loTop).toFixed(1) + '" fill="' + g + '"/>' +
+        (p > 0.015 && p < 0.985
+          ? '<rect x="21.1" y="46" width="1.8" height="14" fill="' + g + '" opacity=".9"/>' : '') +
+        /* the light the gems throw inside the glass */
+        '<ellipse cx="22" cy="' + (89 - (89 - loTop) / 2).toFixed(1) + '" rx="17" ry="9" fill="' + g +
+          '" opacity=".35"/>' +
       '</g>' +
-      '<path d="' + GLASS + '" fill="none" stroke="' + m + '" stroke-width="2.4"' +
-        ' stroke-linejoin="round" opacity=".9"/>' +
-      /* the stand: two plates and the posts between them */
-      '<rect x="4" y="2.5" width="44" height="5" rx="1.6" fill="' + m + '"/>' +
-      '<rect x="4" y="48.5" width="44" height="5" rx="1.6" fill="' + m + '"/>' +
-      '<rect x="6.4" y="6.5" width="2.6" height="43" fill="' + m + '" opacity=".65"/>' +
-      '<rect x="43" y="6.5" width="2.6" height="43" fill="' + m + '" opacity=".65"/>' +
+      '<path d="' + GLASS + '" fill="none" stroke="' + m + '" stroke-width="1.8"' +
+        ' stroke-linejoin="round" opacity=".8"/>' +
+      /* the posts, then the collars over them */
+      '<rect x="5.4" y="14" width="2.4" height="76" rx="1" fill="' + m + '" opacity=".62"/>' +
+      '<rect x="36.2" y="14" width="2.4" height="76" rx="1" fill="' + m + '" opacity=".62"/>' +
+      '<rect x="3" y="9.5" width="38" height="6.5" rx="2" fill="url(#' + id + 'm)"/>' +
+      '<rect x="3" y="88" width="38" height="6.5" rx="2" fill="url(#' + id + 'm)"/>' +
+      /* knop above, plinth below */
+      '<path d="M18 9.5c0-3 1.8-5 4-5s4 2 4 5z" fill="' + m + '"/>' +
+      '<rect x="20.6" y="1.5" width="2.8" height="4" rx="1.4" fill="' + m + '"/>' +
+      '<rect x="1" y="94.5" width="42" height="5" rx="2" fill="' + m + '" opacity=".9"/>' +
+      '<rect x="6" y="99.5" width="32" height="3" rx="1.5" fill="' + m + '" opacity=".6"/>' +
     '</svg>';
   };
 
@@ -237,7 +255,7 @@
           H.hourglass({ p: o.rank.progress, metal: a.metal, gem: a.gem || a.metal,
                         label: pct + ' per cent of the way to ' +
                                ctx.C('rank').toLowerCase() + ' ' + (o.rank.level + 1),
-                        w: 48 }) +
+                        w: 33 }) +
         '</div>' +
       '</div>';
     }).join('');

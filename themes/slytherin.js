@@ -810,6 +810,8 @@
       '@media(prefers-reduced-motion:reduce){',
       '  .sl-f1,.sl-f2,.sl-f3,.sl-glow,.sl-candle{animation:none;}}'
     ].join('\n') + '\n' + window.ORIGIN_HERALDRY.css + '\n' + [
+      /* this house is silver, so the wordmark is struck in silver */
+      ':root{--gilt-1:#F2F6F3;--gilt-2:#C6D0CA;--gilt-3:#7C8A83;}',
       '.sl-panel{background:#3A403A;background-image:',
       '  repeating-linear-gradient(0deg,rgba(0,0,0,.24) 0 1px,transparent 1px 34px),',
       '  repeating-linear-gradient(90deg,rgba(0,0,0,.24) 0 1px,transparent 1px 58px),',
