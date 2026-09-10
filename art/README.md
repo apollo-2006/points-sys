@@ -11,8 +11,12 @@ Two kinds of thing live here, and they are not under the same terms.
 | `gryffindor-ground.webp` | lion fur, the page ground | harrypotter.com, house collection hero |
 | `slytherin-ground.webp` | serpent scale, the page ground | harrypotter.com, house collection hero |
 | `great-hall-candles.webp` | the floating candles over the seat | harrypotter.com, Great Hall fact file |
+| `place-classrooms.webp` | the greenhouse vaulting, over Classrooms | harrypotter.com, greenhouses fact file |
+| `place-focus.webp` | a tower at night, over the Time-Turner | harrypotter.com, Astronomy Tower fact file |
+| `place-hogsmeade.webp` | the village in snow, over Hogsmeade | harrypotter.com, Hogsmeade fact file |
+| `place-quidditch.webp` | the pitch, over the wagers | harrypotter.com, Quidditch pitch fact file |
 
-**This is why the repository is private.** Keep it that way. These five are not
+**This is why the repository is private.** Keep it that way. None of these are
 ours and this is a two person scoreboard, not something to publish or hand on.
 
 ## Public domain
@@ -34,5 +38,8 @@ The code is built to manage without them, so this is small:
   `texture`. The gradients under it stand on their own.
 * **candles** - remove the `background` line from `.hr-candles`. The seat keeps
   its padding and simply has nothing hanging over it.
+* **place bands** - empty the `PLACES` map in `index.html`. `placeBand()`
+  returns nothing for a view it has no picture of, so every screen simply
+  starts at its own content again.
 
 Then delete the files. Ten minutes, and no screen breaks.

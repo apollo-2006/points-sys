@@ -567,6 +567,20 @@ details[open]>.add-sum{color:var(--accent);border-style:solid;margin-bottom:10px
 .mk-bar{height:3px;background:var(--track);border-radius:3px;overflow:hidden;}
 .mk-bar i{display:block;height:100%;background:var(--oc);box-shadow:0 0 8px var(--oc);}
 
+/* the band of castle over a screen */
+.place{position:relative;height:104px;margin:-4px 0 16px;overflow:hidden;
+  border-bottom:1px solid var(--line-soft);}
+.place::before{content:"";position:absolute;inset:0;
+  background:var(--place) center 38%/cover no-repeat;
+  opacity:.72;filter:saturate(.88);}
+/* it has to end in the page, not on a line */
+.place::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(0,0,0,.34) 0%,transparent 34%,
+    var(--void) 96%);}
+.place-name{position:absolute;left:0;right:0;bottom:9px;z-index:1;
+  display:flex;justify-content:center;}
+@media(max-width:620px){.place{height:78px;}}
+
 /* ============================================================
    THE MAP
    The log is the one screen that is a record of who went where,
@@ -3033,13 +3047,38 @@ function renderView() {
     false);
   document.getElementById('main').classList.toggle('in-room', inRoom);
   document.body.classList.toggle('in-room', inRoom);
-  $('#view').innerHTML =
+  $('#view').innerHTML = placeBand(v) + (
     v === 'chart' ? renderChart() :
     v === 'foundry' ? renderFoundry() :
     v === 'focus' ? renderFocus() :
     v === 'market' ? renderMarket() :
     v === 'conclave' ? renderConclave() :
-    renderCodex();
+    renderCodex());
+}
+
+/* ============================================================
+   WHERE YOU ARE
+   Each screen is a place in the castle, and until now only its
+   name said so. A band of that place sits over it: the library
+   for the classrooms, a tower at night for the Time-Turner, the
+   village in snow for Hogsmeade, the pitch for the wagers. The
+   picture fades into the page ground at its foot so it reads as
+   the top of the room rather than as a picture pasted on.
+   The common room has its own arms and needs no band; the log
+   is a sheet of parchment and would fight one.
+   ============================================================ */
+const PLACES = {
+  foundry:  'art/place-classrooms.webp',
+  focus:    'art/place-focus.webp',
+  market:   'art/place-hogsmeade.webp',
+  conclave: 'art/place-quidditch.webp'
+};
+function placeBand(v) {
+  const src = PLACES[v];
+  if (!src) return '';
+  return `<div class="place" style="--place:url(${src})">
+    <span class="place-name"><span class="hr-cart">${esc(C(VIEW_COPY[v] || v))}</span></span>
+  </div>`;
 }
 let renderQueued = false;
 function renderAll() {
