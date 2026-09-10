@@ -539,59 +539,6 @@
     europa: { surface: 'chart', title: 'Weighted on the chart table' }
   };
 
-  /* ----------------------------------------------------------------------
-     RENDERED ART
-     A room can be a real render instead of drawn vectors. Put a square image
-     in art/ and name it here; the SVG below stays as the fallback for rooms
-     that have not been rendered yet, so the two can coexist while the set is
-     filled in one room at a time.
-     ---------------------------------------------------------------------- */
-  /* ----------------------------------------------------------------------
-     PANORAMAS — the rooms you stand inside.
-     One equirectangular render per room. `start` is where you are facing when
-     you arrive, `board` is the bearing of the wall the deeds hang on, and the
-     doorways spread themselves around unless a room names bearings for them.
-     ---------------------------------------------------------------------- */
-  /* ----------------------------------------------------------------------
-     THE ROOM, AS A RENDER
-     One image per room, and the coordinates of the things worth walking to.
-     u/v are fractions of the image — u 0 is its left edge, v 0 its top — so a
-     pin sits on the same brick no matter how far in you are zoomed.
-     `home` is where the camera starts and how close.
-     ---------------------------------------------------------------------- */
-  var DIORAMA = {
-    saturn: {
-      src: 'art/gryffindor-common-room-wide.webp',
-      home:  { u: 0.50, v: 0.52, z: 1.12 },
-      board: { u: 0.820, v: 0.700, z: 3.4 },
-      pins: {
-        earth:  { u: 0.560, v: 0.520 },   /* the archway out to the stairs */
-        mars:   { u: 0.062, v: 0.440 },   /* the arched door, far left     */
-        ceres:  { u: 0.955, v: 0.415 },   /* the great tapestry            */
-        venus:  { u: 0.790, v: 0.395 },   /* the right-hand arch           */
-        deimos: { u: 0.288, v: 0.420 },   /* the crest above the hearth    */
-        europa: { u: 0.505, v: 0.235 }    /* up past the chandelier        */
-      },
-      notes: [
-        { u: 0.300, v: 0.730, text: 'the hearth' },
-        { u: 0.430, v: 0.870, text: 'the good armchair' }
-      ]
-    }
-  };
-
-  var PANORAMA = {
-    saturn: {
-      src: 'art/gryffindor-common-room-pano.webp',
-      start: { yaw: 0, pitch: -4 },
-      board: { yaw: 0, pitch: -3 }
-    }
-  };
-
-  var BOARD_ART = '<svg viewBox="0 0 40 44"><rect x="3" y="5" width="34" height="30" rx="2" fill="#A8783E" stroke="#6A3E1C" stroke-width="3"/>' + '<rect x="9" y="10" width="11" height="9" fill="#EFE3C8" transform="rotate(-4 14 14)"/>' + '<rect x="22" y="14" width="10" height="9" fill="#EFE3C8" transform="rotate(5 27 18)"/>' + '<rect x="12" y="22" width="12" height="8" fill="#F6EEDC" transform="rotate(2 18 26)"/></svg>';
-
-  var ART = {
-    saturn: 'art/gryffindor-common-room.webp'
-  };
 
   ORIGIN_THEMES.define({
     id: 'gryffindor',
@@ -615,17 +562,24 @@
 
       'f-display': "'Caveat',cursive", 'f-body': "'Lora',Georgia,serif",
       'f-mono': "'Lora',Georgia,serif",
-      'f-display-scale': '1.5', 'f-ui-scale': '1.0',
+      'f-display-scale': '1.34', 'f-ui-scale': '1.0',
       'tt-display': 'none', 'ls-display': '.01em',
-      'f-label': "'Caveat',cursive", 'tt-label': 'none', 'ls-label': '.02em',
+      'f-label': "'Cormorant SC',Georgia,serif", 'tt-label': 'none', 'ls-label': '.08em',
 
       radius: '4px', 'radius-lg': '7px', 'chip-radius': '20px', 'border-w': '1px',
       'panel-clip': 'none', 'card-clip': 'none'
     },
 
+    /* Caveat — a felt-tip handwriting face — used to carry this entire house,
+       headings and 10px labels alike. It is a nice hand and it is not a school
+       founded in the tenth century. Cormorant is the warm end of the Garamond
+       family: calligraphic, high-contrast, and it has a true small-caps cut,
+       which is what an eyebrow label should be instead of tracked-out capitals. */
     fonts: {
-      display: 'Caveat', body: 'Lora', mono: 'Lora',
-      googleHref: 'https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700' +
+      display: 'Cormorant Garamond', body: 'Lora', mono: 'Lora',
+      googleHref: 'https://fonts.googleapis.com/css2?' +
+                  'family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,600' +
+                  '&family=Cormorant+SC:wght@600;700' +
                   '&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap'
     },
 
@@ -694,7 +648,7 @@
                ' the Sixth', ' the Seventh', ' the Eighth']
     },
 
-    motion: { ease: 'cubic-bezier(.34,.68,.3,1)', dur: '.26s', enter: '.34s', hover: 'translateY(-2px)' },
+    motion: { ease: 'cubic-bezier(.32,.72,.28,1)', dur: '.13s', enter: '.16s', hover: 'translateY(-1px)' },
     sound: {
       up:    { type: 'triangle', gain: 0.13, seq: [[392, 0], [523, .09], [659, .18]] },
       down:  { type: 'triangle', gain: 0.13, seq: [[349, 0], [262, .11]] },
@@ -928,7 +882,7 @@
       '}',
       '@media(prefers-reduced-motion:reduce){',
       '  .gr-f1,.gr-f2,.gr-f3,.gr-glow,.gr-candle{animation:none;}}'
-    ].join('\n') + '\n' + window.ORIGIN_PANO.baseCss + '\n' + window.ORIGIN_DIO.baseCss + '\n' + [
+    ].join('\n') + '\n' + window.ORIGIN_HERALDRY.css + '\n' + [
       '.gr-panel{background:#A8783E;background-image:',
       '  radial-gradient(circle at 22% 32%,rgba(84,46,16,.45) 0 2px,transparent 3px),',
       '  radial-gradient(circle at 64% 68%,rgba(84,46,16,.4) 0 2px,transparent 3px),',
@@ -942,152 +896,25 @@
     /* ======================================================================
        THE STANDINGS — a cast gold plate on the wall
        ====================================================================== */
-    scoreboard: function (ctx) {
-      var corner = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3">' +
-        '<path d="M1 15V6a5 5 0 0 1 5-5h9"/><path d="M4 15V8a4 4 0 0 1 4-4h7"/></svg>';
-      return ctx.parties.map(function (p) {
-        var o = ctx.of(p);
-        var silver = (ctx.houseOf && ctx.houseOf(p)) === 'slytherin';
-        return '<div class="gr-plate' + (o.lead ? ' lead' : '') + (silver ? ' silver' : '') + '">' +
-          '<span class="corner c1">' + corner + '</span><span class="corner c2">' + corner + '</span>' +
-          '<span class="corner c3">' + corner + '</span><span class="corner c4">' + corner + '</span>' +
-          '<div class="top">' +
-            '<div class="who" data-act="rename" data-p="' + p + '" title="Rename">' +
-              (o.lead ? ctx.ICON('lead', 15) : '') + ctx.houseMark(p) +
-              '<span>' + ctx.esc(o.name) + '</span></div>' +
-            '<div class="rank">' + ctx.esc(o.rank.name) + '<br>' +
-              '<span style="opacity:.7;font-size:.8em">' + ctx.esc(ctx.C('rank')) + ' ' + o.rank.level + '</span></div>' +
-          '</div>' +
-          '<div class="val">' + ctx.num(o.points) + '</div>' +
-          '<div class="sub">' +
-            '<span>' + ctx.fmt(o.today) + ' today</span>' +
-            (o.streak > 1 ? '<span>' + o.streak + '-day streak</span>' : '') +
-            '<span>' + ctx.num(o.rank.toNext) + ' to ' + ctx.esc(ctx.C('rank').toLowerCase()) + ' ' + (o.rank.level + 1) + '</span>' +
-          '</div>' +
-          '<div class="bar"><i style="width:' + (o.rank.progress * 100).toFixed(1) + '%"></i></div>' +
-        '</div>';
-      }).join('');
-    },
+    /* Two standards, each in its bearer's own arms — see themes/heraldry.js. */
+    scoreboard: function (ctx) { return ORIGIN_HERALDRY.standard(ctx); },
+
 
     /* ======================================================================
        THE ROOM SCREEN
+       Three of these used to fight each other: a 4000px photograph under a
+       pan-and-zoom camera, a flat still, and a drawn isometric scene. The
+       photograph won by being first in the branch, and it was a borrowed game
+       render that looked like nothing this house owns. It is a standard now —
+       see themes/heraldry.js. One click to any room, nothing to fetch.
        ====================================================================== */
-    diorama: DIORAMA,
-    panorama: PANORAMA,
-
-    /* the sphere goes up after the markup lands */
-    afterRoom: function (ctx) {
-      if (DIORAMA[ctx.active.id] && window.ORIGIN_DIO) {
-        window.ORIGIN_DIO.wire(ctx, { pre: 'gr', rooms: DIORAMA });
-        return;
-      }
-      if (!PANORAMA[ctx.active.id] || !window.ORIGIN_PANO || !window.ORIGIN_PANO.ready || window.ORIGIN_PANO.failed) return;
-      window.ORIGIN_PANO.roomWire(ctx, { pre: 'gr', rooms: PANORAMA });
-    },
-
     roomView: function (ctx) {
-      var esc = ctx.esc;
       var pl = ctx.active;
       if (!pl) return '<div class="gr-empty">No rooms yet.</div>';
-      var art = ART[pl.id] ? '' : (ROOMS[pl.id] || ROOMS.saturn)(ctx);
-      var board = BOARDS[pl.id] || BOARDS.saturn;
-
-      /* the other rooms, standing in this one */
-      var spots = DOOR_SPOTS[pl.id] || DOOR_SPOTS.saturn;
-      var doors = ctx.places.filter(function (q) { return q.id !== pl.id; }).map(function (q) {
-        var s = spots[q.id] || [50, 50];
-        return '<button class="gr-door" data-act="planet" data-p="' + esc(q.id) + '"' +
-          ' style="left:' + s[0] + '%;top:' + s[1] + '%"' +
-          ' title="Go to ' + esc(ctx.name(q)) + '">' +
-          (DOOR_ART[q.id] || DOOR_ART.saturn) +
-          '<span class="lbl">' + esc(ctx.name(q)) + '</span>' +
-          '<span class="n">' + ctx.count(q.id) + '</span></button>';
-      }).join('');
-
-      /* the deeds, pinned up */
-      var notes = ctx.nodes.map(function (d, i) {
-        var tilt = (ctx.jit(d.id, 1) * 4 - 2).toFixed(2);
-        var locked = d.claims.every(function (c) { return c.locked; });
-        var acts = d.claims.map(function (c) {
-          var lbl = d.owner === 'both' ? c.name : (c.n ? ctx.C('scoreVerbPast') : ctx.C('scoreVerb'));
-          return '<button class="gr-claim" style="--oc:' + c.color + '" data-act="claim"' +
-            ' data-id="' + esc(d.id) + '" data-p="' + c.party + '"' +
-            (c.locked ? ' disabled title="' + esc(ctx.C('toastLocked', { item: d.req.name })) + '"' : '') + '>' +
-            esc(lbl) + (c.n ? ' ×' + c.n : '') + '</button>' +
-            (c.n ? '<button class="gr-mini" data-act="undo" data-id="' + esc(d.id) + '" data-p="' + c.party +
-                   '" title="Take it back">' + ctx.ICON('undo', 13) + '</button>' : '');
-        }).join('');
-        return '<div class="gr-note' + (d.isPen ? ' pen' : '') + (d.kind === 'milestone' ? ' big' : '') +
-          (locked ? ' locked' : '') + '" style="--tilt:' + tilt + 'deg">' +
-          '<span class="tack"></span>' +
-          '<div class="head"><div class="deed">' + esc(d.name) + '</div>' +
-            '<span class="pts">' + ctx.fmt(d.pts) + '</span></div>' +
-          '<div class="meta">' + esc(d.typeName) + ' · ' + esc(d.cad) +
-            (d.ownerName ? ' · ' + esc(d.ownerName) : '') + '</div>' +
-          (d.req ? '<span class="gr-req">' + esc(ctx.C('toastLocked', { item: d.req.name })) + '</span>' : '') +
-          '<div class="gr-note-acts">' + acts +
-            '<button class="gr-mini" style="margin-left:auto" data-act="node-edit" data-id="' + esc(d.id) +
-            '" title="Edit">' + ctx.ICON('more', 13) + '</button></div>' +
-        '</div>';
-      }).join('');
-
-      var shellCfg = {
-        pre: 'gr', doorArt: DOOR_ART, boardArt: BOARD_ART,
-        boardTitle: board.title, boardSurface: 'gr-panel',
-        open: ctx.boardOpen(),
-        fallbackPins: [{ u: .12, v: .3 }, { u: .3, v: .25 }, { u: .7, v: .25 },
-                       { u: .88, v: .3 }, { u: .2, v: .8 }, { u: .8, v: .8 }],
-        tools: ['all'].concat(ctx.parties).map(function (w) {
-          return '<button class="btn sm' + (ctx.who === w ? ' on' : '') + '" data-act="who" data-w="' + w + '">' +
-            (w === 'all' ? 'Everyone' : esc(ctx.nameOf(w))) + '</button>';
-        }).join('') +
-          '<button class="btn sm" data-act="node-new">+ ' + esc(ctx.C('item')) + '</button>' +
-          '<button class="btn sm" data-act="planet-edit">Edit room</button>',
-        deeds: notes || '<div class="gr-empty">' + esc(ctx.C('emptyGroup')) + '</div>'
-      };
-
-      /* the room has been rendered: hold a camera over it */
-      if (DIORAMA[pl.id] && window.ORIGIN_DIO) {
-        shellCfg.rooms = DIORAMA;
-        return window.ORIGIN_DIO.shell(ctx, shellCfg);
-      }
-
-      /* if this room has been rendered as a panorama, you stand in it */
-      if (PANORAMA[pl.id] && window.ORIGIN_PANO && window.ORIGIN_PANO.ready && !window.ORIGIN_PANO.failed) {
-        shellCfg.rooms = PANORAMA;
-        return window.ORIGIN_PANO.roomShell(ctx, shellCfg);
-      }
-
-      var earned = ctx.earned(pl.id);
-      var filter = ['all'].concat(ctx.parties).map(function (w) {
-        return '<button class="btn sm' + (ctx.who === w ? ' on' : '') + '" data-act="who" data-w="' + w + '">' +
-          (w === 'all' ? 'Everyone' : esc(ctx.nameOf(w))) + '</button>';
-      }).join('');
-
-      return '<div class="gr-room">' +
-        '<div class="gr-stage' + (ART[pl.id] ? ' rendered' : '') + '">' +
-          (ART[pl.id]
-            ? '<img class="gr-render" src="' + esc(ART[pl.id]) + '" alt="' + esc(ctx.name(pl)) + '" ' +
-              'loading="lazy" decoding="async">'
-            : '<svg viewBox="-26 -14 956 756" preserveAspectRatio="xMidYMid meet" role="img" aria-label="' +
-              esc(ctx.name(pl)) + '">' + grDefs() + art + '</svg>') +
-          '<div class="gr-doors">' + doors + '</div>' +
-        '</div>' +
-        '<div class="gr-board ' + board.surface + '">' +
-          '<div class="gr-board-head">' +
-            '<div><div class="where">' + esc(board.title) + '</div>' +
-              '<h2>' + esc(ctx.name(pl)) + '</h2></div>' +
-            '<div class="tally">' + ctx.nodes.length + ' ' +
-              esc((ctx.nodes.length === 1 ? ctx.C('item') : ctx.C('items')).toLowerCase()) +
-              ' · ' + ctx.fmt(earned) + ' today</div>' +
-          '</div>' +
-          '<div class="gr-board-tools">' + filter +
-            '<button class="btn sm" data-act="node-new">+ ' + esc(ctx.C('item')) + '</button>' +
-            '<button class="btn sm" data-act="planet-edit">Edit room</button>' +
-            '<button class="btn sm" data-act="planet-new">+ Room</button></div>' +
-          '<div class="gr-notes">' + (notes || '<div class="gr-empty">' + esc(ctx.C('emptyGroup')) + '</div>') + '</div>' +
-        '</div>' +
-      '</div>';
+      return ORIGIN_HERALDRY.roomStandard(ctx, {
+        arms: ORIGIN_HERALDRY.arms.gryffindor,
+        board: BOARDS[pl.id] || BOARDS.saturn
+      });
     }
   });
 

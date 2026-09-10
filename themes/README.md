@@ -55,7 +55,7 @@ Worth knowing about a few of them:
 
 | Token | Why it exists |
 | --- | --- |
-| `accent-hi` | the bright end of an accent fill. Not "mix toward white" — Hufflepuff's amber goes to honey, not to paper. |
+| `accent-hi` | the bright end of an accent fill. Not "mix toward white" — an amber goes to honey, not to paper. |
 | `tt-label` / `ls-label` / `f-label` | the eyebrow treatment. The original app's `mono, .22em, uppercase` was the loudest tell that a house was a reskin; it is a token now, and Origin is the only theme that keeps it. |
 | `panel-clip` / `card-clip` | the cut-corner language. `none` is a valid, common answer. |
 | `shadow` | what this house's shadows are made of. A warm room does not cast a black shadow. |
@@ -81,33 +81,51 @@ Both optional.
 
 `connector({d, locked, cls, a, b})` returns SVG for the line between an item and
 the item it is locked behind. Slytherin runs a serpent along it with its head at the
-locked end; Hufflepuff runs a vine. Omit it and you get a dashed rule.
+locked end. Omit it and you get a dashed rule.
 
 **Never set `stroke-dasharray` on `.focus-ring .fg`** — the app owns that property to
 carry the timer's progress offset. Setting it in theme CSS silently freezes the dial
 at 100%.
 
 `emblem(ctx)` returns SVG for the header slot, and may show live state. `ctx` carries
-`{lead, gap, progress, dayProgress, a, b, esc}`. Ravenclaw's orrery turns with the gap
+`{lead, gap, progress, dayProgress, a, b, esc}` — so an emblem may turn with the gap
 between the two totals.
 
-### The backdrop
+### The room, and the heraldic kit
 
-`backdrop(ctx)` returns an SVG string. `ctx` gives you:
+`themes/heraldry.js` holds the shared material vocabulary — the thing a house is
+*made of*, as opposed to the colour it is painted. Four pieces:
 
-```js
-ctx.places      // the groups, sorted: {id, name, color, sub, orbit, r}
-ctx.active      // id of the selected group
-ctx.name(pl)    // its display name
-ctx.count(id)   // how many items are in it
-ctx.earned(id)  // points earned there today
-ctx.esc(s)      // escape — use it on every string you interpolate
-ctx.hit(pl, inner, transform)   // wraps `inner` as the clickable group target
-```
+| | |
+| --- | --- |
+| **pennant** | a hanging banner, flat top and swallowtail cut, bearing a charge. This is what an operator is, and what a room is. |
+| **frame** | a double hairline with bracketed corners and a chevron notched into the top rail. This is what a panel is. |
+| **cartouche** | a chamfered plate for a label, sitting *on* a rule rather than floating above one. This is what an eyebrow is. |
+| **rule** | a hairline with a lozenge at its centre. This is a divider. |
 
-`ctx.hit` is the only wiring requirement: whatever is inside it becomes clickable, gains `.on` when
-selected, and needs no event code. Everything else is the theme's business. It must survive 1, 2, 7
-and 12 groups without overlapping or producing `NaN`.
+`H.arms` carries each house's field, metal, ink and charge, so an operator wearing
+another house's colours is drawn in **their** arms on your screen — which is the
+whole point of a scoreboard between two houses. A theme calls
+`ORIGIN_HERALDRY.standard(ctx)` for the scoreboard and `roomStandard(ctx, cfg)` for
+the room, and gets both without writing markup.
+
+**What this replaced.** The room used to be a 4000px photograph under a pan-and-zoom
+camera (`diorama.js`), with a 360° sphere renderer behind it (`pano.js` + 670 KB of
+three.js) and a drawn isometric scene behind *that*. Three room systems, and the one
+that won the branch was a borrowed game render. Awarding a point meant: open the room,
+find a pin, open the deed panel, scroll, click. It is one click now, and the whole app
+is 392 KB.
+
+Two things worth knowing if you touch it:
+
+* **Theme CSS is concatenated *after* `ORIGIN_HERALDRY.css`**, so a house can override
+  any of it. The old room lost that fight: a flat-view rule set
+  `text-transform:uppercase` and `letter-spacing:.1em`, the camera's own rule set
+  `font-family:var(--f-display)`, neither overrode the other completely, and the pins
+  came out as Great Vibes — a connecting script — in spaced capitals over stone.
+  Nobody wrote that; the cascade did.
+* **A label is never `--f-display`.** A house's display face is chosen to carry a
+  heading. At 10px it has to carry legibility instead, and a script cannot.
 
 ## Adding a theme
 
@@ -118,14 +136,12 @@ That is the entire integration surface. Verified empirically: a sixth theme was 
 the picker with no picker edit, applied cleanly, and drew its backdrop — for exactly **1 line added
 to index.html** and 0 lines changed anywhere else.
 
-## The five, and what each one actually is
+## The three, and what each one actually is
 
 | | Ground | Type | Backdrop | Signature | Focus dial |
 | --- | --- | --- | --- | --- | --- |
-| **Gryffindor** | oxblood | Cormorant Garamond + its SC cut | gilt frames on visible chains, seven different sitters, candle sconces, a drawn hearth | three flame layers on three periods; firelight spills onto the frames by distance | wide candlelit ring, gilt hairlines |
-| **Slytherin** | near-black slate | Bodoni Moda + Cormorant | a receding stone corridor, serpent-carved arches in perspective | drifting water caustics on the page *and* every panel; silver filigree along panel tops; blackletter on the crest only | engraved hairlines, no bloom |
-| **Ravenclaw** | midnight blue | EB Garamond + IBM Plex Mono | ink asterisms on parchment, marginalia, brass corner fittings | a brass orrery in the header that turns with the score gap; **zero** glow or shadow anywhere; tabular figures throughout | astrolabe graduation dial |
-| **Hufflepuff** | warm loam | Fraunces + Nunito | the sett in cross-section: round doors, engraved copper nameplates, root runs | honeycomb geometry — the rank meter fills cell by cell; hex-chamfered cards; roundest geometry of the five | comb ring of cells |
+| **Gryffindor** | oxblood | Cormorant Garamond + Cormorant SC + Lora | a lion pennant in scarlet and gilt | warm gilt hairlines; the wordmark carries a travelling gold sweep | wide candlelit ring |
+| **Slytherin** | near-black slate | Bodoni Moda + Cormorant SC + Spectral | a serpent pennant in green and silver | cold high-contrast type; engraved hairlines, no bloom | engraved dial |
 | **Origin System** | void | Chakra Petch + Share Tech Mono | the star chart | **the control**, lifted verbatim | the original neon arc |
 
 Each house also owns its own connector, node marks, rank ladder, node-type names,
@@ -178,8 +194,6 @@ or with each other:
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Gryffindor | `#E28A4C` copper | `#78BBA6` verdigris | 7.23 | 8.57 | 6.63 | 7.86 | 69.2 |
 | Slytherin | `#E893A4` cold rose | `#D8C173` pale gold | 8.60 | 11.09 | 7.91 | 10.21 | 52.9 |
-| Ravenclaw | `#E0736B` sanguine ink | `#7FA8DE` indigo ink | 6.29 | 7.88 | 5.89 | 7.38 | 69.8 |
-| Hufflepuff | `#EC8098` beetroot | `#7CC08A` garden green | 7.05 | 8.49 | 5.75 | 6.93 | 78.4 |
 | Origin | `#FF6B5B` | `#4FE0A0` | 7.21 | 12.01 | 6.71 | 11.18 | 111.3 |
 
 All four houses clear 4.5:1 for body copy and 3:1 for large text and meaningful edges
