@@ -15,6 +15,7 @@ Two kinds of thing live here, and they are not under the same terms.
 | `place-focus.webp` | a tower at night, over the Time-Turner | harrypotter.com, Astronomy Tower fact file |
 | `place-hogsmeade.webp` | the village in snow, over Hogsmeade | harrypotter.com, Hogsmeade fact file |
 | `place-quidditch.webp` | the pitch, over the wagers | harrypotter.com, Quidditch pitch fact file |
+| `gate-castle.webp` | arriving across the lake, behind the sign-in | harrypotter.com, Hogwarts fact file |
 
 **This is why the repository is private.** Keep it that way. None of these are
 ours and this is a two person scoreboard, not something to publish or hand on.
@@ -41,5 +42,7 @@ The code is built to manage without them, so this is small:
 * **place bands** - empty the `PLACES` map in `index.html`. `placeBand()`
   returns nothing for a view it has no picture of, so every screen simply
   starts at its own content again.
+* **the gate** - remove the `background` line from `#setupGate::before`. The
+  panel keeps its own surface and sits on the page ground.
 
 Then delete the files. Ten minutes, and no screen breaks.

@@ -644,6 +644,12 @@ details[open]>.add-sum{color:var(--accent);border-style:solid;margin-bottom:10px
 .focus-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 0 4px;}
 .focus-ring{position:relative;width:min(300px,74vw);aspect-ratio:1;}
 .focus-ring svg{width:100%;height:100%;transform:rotate(-90deg);}
+/* the instrument the dial sits in */
+.focus-ring .tt-hoop{fill:none;stroke:var(--gold);stroke-width:.9;opacity:.5;}
+.focus-ring .tt-hoop.thin{stroke-width:.6;opacity:.34;}
+.focus-ring .tt-hoop.inner{stroke-width:.8;opacity:.28;}
+.focus-ring .tt-tick{stroke:var(--gold);stroke-width:.7;opacity:.32;}
+.focus-ring .tt-tick.long{stroke-width:1.1;opacity:.5;}
 .focus-ring .bg{fill:none;stroke:var(--track);stroke-width:5;}
 .focus-ring .fg{fill:none;stroke:var(--fc);stroke-width:5;stroke-linecap:round;
   filter:drop-shadow(0 0 8px var(--fc));transition:stroke-dashoffset .9s linear;}
@@ -727,10 +733,27 @@ details[open]>.add-sum{color:var(--accent);border-style:solid;margin-bottom:10px
 .pal-item.sel{background:var(--accent-wash);}
 .pal-item .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 
-/* login / setup */
-#gate{max-width:390px;margin:8vh auto;}
-.gate-glyph{width:52px;height:52px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(150deg,var(--accent),var(--gold));box-shadow:0 0 34px var(--accent-wash);}
+/* ============================================================
+   THE GATE
+   The first screen anybody sees, and it was a tinted tile over
+   a flat ground. You arrive at Hogwarts across the lake at
+   night, so that is what is behind it, and the panel sits on
+   the water like the boats do.
+   ============================================================ */
+#setupGate,#loginGate{position:relative;min-height:100vh;}
+#setupGate::before,#loginGate::before{content:"";position:fixed;inset:0;z-index:-1;
+  background:url(art/gate-castle.webp) center 34%/cover no-repeat;
+  opacity:.5;}
+#setupGate::after,#loginGate::after{content:"";position:fixed;inset:0;z-index:-1;
+  background:radial-gradient(ellipse 74% 58% at 50% 44%,transparent 12%,var(--void) 96%);}
+#gate{max-width:390px;margin:12vh auto;
+  background:color-mix(in srgb,var(--raised) 82%,transparent);
+  backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
+  box-shadow:0 26px 70px -18px #000;}
+/* the crest, not a tinted square */
+.gate-glyph{width:56px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;
+  filter:drop-shadow(0 4px 14px rgba(0,0,0,.8));}
+.gate-glyph svg,.gate-glyph img{display:block;width:100%;height:auto;}
 #loginErr{color:var(--danger);font-size:12.5px;min-height:16px;}
 .hide{display:none !important;}
 @keyframes pop{0%{transform:scale(1);}45%{transform:scale(1.14);}100%{transform:scale(1);}}
@@ -773,6 +796,17 @@ details[open]>.add-sum{color:var(--accent);border-style:solid;margin-bottom:10px
     }
     var m = document.querySelector('meta[name="theme-color"]');
     if (m && c.themeColor) m.setAttribute('content', c.themeColor);
+    /* The sign-in gate is drawn before the app module boots and applyTheme
+       ever runs, so it is dressed from the same cached stamp. This script sits
+       above the gate markup, so it waits for the document rather than looking
+       for elements that are not there yet. */
+    if (window.ORIGIN_HERALDRY) {
+      var arms = window.ORIGIN_HERALDRY.mark(c.id, 56);
+      if (arms) document.addEventListener('DOMContentLoaded', function () {
+        var gs = document.querySelectorAll('.gate-glyph');
+        for (var i = 0; i < gs.length; i++) gs[i].innerHTML = arms;
+      });
+    }
   } catch (e) {}
 })();
 </script>
@@ -1081,6 +1115,11 @@ function applyTheme(id, opts) {
 
     document.getElementById('favicon').href = t.favicon;
     document.getElementById('faviconTouch').href = t.favicon;
+    /* the sign-in gates live outside the app shell and render before it boots,
+       so they are dressed here rather than in renderHud */
+    document.querySelectorAll('.gate-glyph').forEach(g => {
+      g.innerHTML = (window.ORIGIN_HERALDRY && ORIGIN_HERALDRY.mark(id, 56)) || ICON('crest', 30);
+    });
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute('content', t.themeColor);
     document.title = t.copy.brand + ' · ' + t.copy.score;
@@ -1742,6 +1781,7 @@ function renderHud() {
     tb.innerHTML = (window.ORIGIN_HERALDRY && ORIGIN_HERALDRY.mark(THEME, 19)) || ICON('crest', 17);
     tb.title = th.name + ': change house';
   }
+
   $('#searchBtn').innerHTML = ICON('search', 15);
   $('#settingsBtn').innerHTML = ICON('settings', 15);
   $('#signOutBtn').innerHTML = ICON('signout', 15);
@@ -2575,6 +2615,29 @@ function focusPhaseColor(f) {
   return f.phase === 'work' ? 'var(--focus-work)' : f.phase === 'long' ? 'var(--focus-long)' : 'var(--focus-break)';
 }
 
+/* The screen is called the Time-Turner, so the dial is one: an outer hoop
+   graduated in hours, a second hoop set at an angle inside it, and the glass
+   at the middle. The progress arc still rides the outer circle exactly as it
+   did, and nothing here touches `.fg` or its dasharray, which the timer owns
+   to carry its own offset. */
+function turnerRings() {
+  let ticks = '';
+  for (let i = 0; i < 24; i++) {
+    const a = (i / 24) * Math.PI * 2;
+    const long = i % 6 === 0;
+    const r1 = long ? 37.5 : 39.5, r2 = 41.5;
+    ticks += `<line x1="${(50 + Math.cos(a) * r1).toFixed(2)}" y1="${(50 + Math.sin(a) * r1).toFixed(2)}"
+      x2="${(50 + Math.cos(a) * r2).toFixed(2)}" y2="${(50 + Math.sin(a) * r2).toFixed(2)}"
+      class="tt-tick${long ? ' long' : ''}"/>`;
+  }
+  return `<g class="tt">
+    <circle class="tt-hoop" cx="50" cy="50" r="48.4"/>
+    <circle class="tt-hoop thin" cx="50" cy="50" r="41.8"/>
+    ${ticks}
+    <ellipse class="tt-hoop inner" cx="50" cy="50" rx="33" ry="12" transform="rotate(-24 50 50)"/>
+    <ellipse class="tt-hoop inner" cx="50" cy="50" rx="12" ry="33" transform="rotate(-24 50 50)"/>
+  </g>`;
+}
 function renderFocus() {
   const me = ME || 'abir';
   const f = focusOf(me);
@@ -2598,6 +2661,7 @@ function renderFocus() {
       <div class="focus-wrap" style="--fc:${col}">
         <div class="focus-ring">
           <svg viewBox="0 0 100 100">
+            ${turnerRings()}
             <circle class="bg" cx="50" cy="50" r="45"/>
             <circle class="fg" cx="50" cy="50" r="45" data-focus-ring="${me}"/>
           </svg>
