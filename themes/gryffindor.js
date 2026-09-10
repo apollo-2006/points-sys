@@ -659,7 +659,8 @@
     },
     confetti: ['#D22B2B', '#F2C230', '#E28A4C'],
     themeColor: '#22100E',
-    favicon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%2322100E'/%3E%3Cpath d='M32 12c9.3 0 16.5 6.1 16.5 14.4 0 4.5-2.1 7.7-4.5 10.1 2.7 2.7 4.5 5.9 4.5 9.9C48.5 54.6 41.3 61 32 61s-16.5-6.4-16.5-14.6c0-4 1.8-7.2 4.5-9.9-2.4-2.4-4.5-5.6-4.5-10.1C15.5 18.1 22.7 12 32 12Z' fill='none' stroke='%23F2C230' stroke-width='4'/%3E%3C/svg%3E",
+    /* the tab wears the house's own arms */
+    favicon: 'art/gryffindor-crest.svg',
 
     /* Scarlet cloth. Two crossed sets of fine diagonals make a twill weave,
        lit from the hearth at the bottom of the frame. The house page leans on

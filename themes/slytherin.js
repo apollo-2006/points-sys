@@ -576,7 +576,8 @@
     },
     confetti: ['#1B6B45', '#C9AF8E', '#E6F0EB'],
     themeColor: '#0B120F',
-    favicon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%230B120F'/%3E%3Cpath d='M18 20c0-6 5-10 11-10 8 0 13 6 13 13 0 9-13 11-13 19 0 4 4 6 8 6' stroke='%23C9AF8E' stroke-width='5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E",
+    /* the tab wears the house's own arms */
+    favicon: 'art/slytherin-crest.svg',
 
     /* Serpent scale. Each cell is two arcs of a circle offset half a step, so
        the rows interlock the way scales do, over a lake-light wash from above.

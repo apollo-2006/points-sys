@@ -363,11 +363,11 @@ details[open]>.add-sum{color:var(--accent);border-style:solid;margin-bottom:10px
 .op-name .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 /* the small permanent mark of whichever house this operator is in */
 .house-mark{display:flex;flex:none;opacity:.9;}
-.house-mark svg{display:block;}
+.house-mark svg,.house-mark img{display:block;}
 @media(max-width:620px){
   /* the crest must never cost the name: shrink the mark and let the rank
      block give way before the name does */
-  .house-mark svg{width:12px !important;height:12px !important;}
+  .house-mark svg,.house-mark img{width:12px !important;height:12px !important;}
   .op-name{gap:4px;}
   .op-rank{font-size:9px;min-width:0;flex-shrink:1;overflow:hidden;}
   .op-top{gap:5px;}
@@ -1663,7 +1663,10 @@ function renderHud() {
   if (creed) creed.textContent = th.tagline;
 
   const tb = $('#themeBtn');
-  if (tb) { tb.innerHTML = ICON('crest', 17); tb.title = th.name + ': change house'; }
+  if (tb) {
+    tb.innerHTML = (window.ORIGIN_HERALDRY && ORIGIN_HERALDRY.mark(THEME, 19)) || ICON('crest', 17);
+    tb.title = th.name + ': change house';
+  }
   $('#searchBtn').innerHTML = ICON('search', 15);
   $('#settingsBtn').innerHTML = ICON('settings', 15);
   $('#signOutBtn').innerHTML = ICON('signout', 15);
@@ -1751,7 +1754,8 @@ function houseMark(party) {
   const id = themeFor(party);
   const t = id && REG.list[id];
   if (!t) return '';
-  const svg = t.icons.crest.replace('<svg', '<svg width="15" height="15"');
+  const svg = (window.ORIGIN_HERALDRY && ORIGIN_HERALDRY.mark(id, 15)) ||
+              t.icons.crest.replace('<svg', '<svg width="15" height="15"');
   return `<span class="house-mark" style="color:${OPC_FOR(party)}" title="${esc(t.name)}">${svg}</span>`;
 }
 
@@ -3111,7 +3115,7 @@ function openCeremony(first) {
         aria-label="${esc(t.name)}: ${esc(t.tagline)}">
       <span class="cer-tex" style="background:${esc(t.texture)}"></span>
       <span class="cer-body">
-        <span class="cer-crest">${t.icons.crest}</span>
+        <span class="cer-crest">${(window.ORIGIN_HERALDRY && ORIGIN_HERALDRY.mark(id, 46)) || t.icons.crest}</span>
         <span class="cer-name">${esc(t.name)}</span>
         <span class="cer-tag">${esc(t.tagline)}</span>
         <span class="cer-prev">

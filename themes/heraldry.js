@@ -29,6 +29,15 @@
   var H = {};
   window.ORIGIN_HERALDRY = H;
 
+  /* ES5 on purpose, like the rest of these files */
+  function assign(t) {
+    for (var i = 1; i < arguments.length; i++) {
+      var o = arguments[i];
+      for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) t[k] = o[k];
+    }
+    return t;
+  }
+
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
@@ -128,15 +137,69 @@
      between two houses. Field, the bright of the field, the metal, and the
      ink the beast is drawn in. */
   H.arms = {
-    gryffindor: { charge: 'lion',    field: '#8E1F1B', fieldHi: '#C4423A', metal: '#E9B44C',
+    gryffindor: { charge: 'lion',    field: '#8E1F1B', fieldHi: '#C4423A', metal: '#E9B44C', gem: '#C7343B',
                   crest: 'art/gryffindor-crest.svg' },
-    slytherin:  { charge: 'serpent', field: '#09503C', fieldHi: '#12805F', metal: '#DCE7E0',
+    slytherin:  { charge: 'serpent', field: '#09503C', fieldHi: '#12805F', metal: '#DCE7E0', gem: '#2E9E6B',
                   crest: 'art/slytherin-crest.svg' },
-    origin:     { charge: 'star',    field: '#1A2036', fieldHi: '#333F63', metal: '#9FB2D8' }
+    origin:     { charge: 'star',    field: '#1A2036', fieldHi: '#333F63', metal: '#9FB2D8',
+                  gem: '#5B78C8' }
   };
   H.armsOf = function (ctx, p) {
     var id = ctx.houseOf && ctx.houseOf(p);
     return H.arms[id] || H.arms[ctx.themeId] || H.arms.origin;
+  };
+
+  /* The arms at any size, for anywhere in the app that wants to say which
+     house something belongs to: the header button, a name in the log, a card
+     in the sorting screen. Falls back to the drawn shield exactly as crest()
+     does, so a house without art on file is still marked. */
+  H.mark = function (themeId, px) {
+    var a = H.arms[themeId];
+    if (!a) return '';
+    return H.crest(assign({}, a, { label: themeId, w: px || 16 }));
+  };
+
+  /* ---- THE HOURGLASS ---------------------------------------------------
+     The Great Hall counts house points in four giant hourglasses, and the
+     gems run from the upper globe to the lower one as points are awarded.
+     This app IS that object, so the rank meter is one: the lower globe fills
+     with the house gem as the year fills, and what is left sits in the upper.
+
+     `p` is 0..1. `gem` is the stone: rubies for Gryffindor, emeralds for
+     Slytherin. */
+  H.hourglass = function (o) {
+    var p = Math.max(0, Math.min(1, o.p || 0)), m = o.metal, g = o.gem;
+    var id = 'h' + Math.random().toString(36).slice(2, 7);
+    /* One symmetric outline: top rim at y8, waist at y28, foot at y48, so the
+       two globes are each 20 units tall and the fills below can be measured
+       straight off those numbers. */
+    var GLASS = 'M12 8h28c0 11-9 15-9 20s9 9 9 20H12c0-11 9-15 9-20s-9-9-9-20z';
+    /* Gems rest on the floor of whichever globe holds them: what is still to
+       come sits at the BOTTOM of the upper globe, and what has fallen heaps up
+       from the floor of the lower one. */
+    var upTop = 28 - (1 - p) * 20;
+    var loTop = 48 - p * 20;
+    return '<svg class="hr-glass" viewBox="0 0 52 56" width="' + (o.w || 34) + '"' +
+      ' height="' + Math.round((o.w || 34) * 56 / 52) + '" role="img"' +
+      ' aria-label="' + esc(o.label || '') + '">' +
+      '<defs><clipPath id="' + id + '"><path d="' + GLASS + '"/></clipPath></defs>' +
+      '<path d="' + GLASS + '" fill="rgba(255,255,255,.06)"/>' +
+      '<g clip-path="url(#' + id + ')">' +
+        '<rect x="8" y="' + upTop.toFixed(1) + '" width="36" height="' +
+          (28 - upTop).toFixed(1) + '" fill="' + g + '" opacity=".42"/>' +
+        '<rect x="8" y="' + loTop.toFixed(1) + '" width="36" height="' +
+          (48 - loTop).toFixed(1) + '" fill="' + g + '"/>' +
+        (p > 0.02 && p < 0.98
+          ? '<rect x="25.2" y="26" width="1.6" height="14" fill="' + g + '" opacity=".85"/>' : '') +
+      '</g>' +
+      '<path d="' + GLASS + '" fill="none" stroke="' + m + '" stroke-width="2.4"' +
+        ' stroke-linejoin="round" opacity=".9"/>' +
+      /* the stand: two plates and the posts between them */
+      '<rect x="4" y="2.5" width="44" height="5" rx="1.6" fill="' + m + '"/>' +
+      '<rect x="4" y="48.5" width="44" height="5" rx="1.6" fill="' + m + '"/>' +
+      '<rect x="6.4" y="6.5" width="2.6" height="43" fill="' + m + '" opacity=".65"/>' +
+      '<rect x="43" y="6.5" width="2.6" height="43" fill="' + m + '" opacity=".65"/>' +
+    '</svg>';
   };
 
   /* ---- THE STANDARD ----------------------------------------------------
@@ -153,8 +216,7 @@
         '<span class="hr-c bl"></span><span class="hr-c br"></span>' +
         '<span class="hr-notch"></span>' +
         '<div class="hr-std-arms">' +
-          H.crest({ charge: a.charge, field: a.field, fieldHi: a.fieldHi,
-                    metal: a.metal, label: o.name, w: 54 }) +
+          H.crest(assign({}, a, { label: o.name, w: 54 })) +
         '</div>' +
         '<div class="hr-std-body">' +
           '<div class="hr-std-top">' +
@@ -170,7 +232,12 @@
             '<span>' + ctx.num(o.rank.toNext) + ' to ' +
               esc(ctx.C('rank').toLowerCase()) + ' ' + (o.rank.level + 1) + '</span>' +
           '</div>' +
-          '<div class="hr-meter"><i style="width:' + pct + '%"></i></div>' +
+        '</div>' +
+        '<div class="hr-std-glass" title="' + esc(o.rank.name) + ' &middot; ' + pct + '%">' +
+          H.hourglass({ p: o.rank.progress, metal: a.metal, gem: a.gem || a.metal,
+                        label: pct + ' per cent of the way to ' +
+                               ctx.C('rank').toLowerCase() + ' ' + (o.rank.level + 1),
+                        w: 48 }) +
         '</div>' +
       '</div>';
     }).join('');
@@ -209,8 +276,7 @@
         '<span class="hr-c bl"></span><span class="hr-c br"></span>' +
         '<span class="hr-notch"></span>' +
         '<div class="hr-seat-arms">' +
-          H.crest({ charge: a.charge, field: a.field, fieldHi: a.fieldHi,
-                    metal: a.metal, label: ctx.name(pl), w: 58 }) +
+          H.crest(assign({}, a, { label: ctx.name(pl), w: 58 })) +
         '</div>' +
         '<div class="hr-seat-id">' +
           '<span class="hr-cart">' + esc(cfg.board.title) + '</span>' +
@@ -329,9 +395,8 @@
     '  color:var(--txt);font-variant-numeric:tabular-nums;letter-spacing:-.01em;}',
     '.hr-std-sub{display:flex;gap:13px;flex-wrap:wrap;font-family:var(--f-body);',
     '  font-size:11.5px;color:var(--txt-3);}',
-    '.hr-meter{height:3px;margin-top:10px;background:var(--track);overflow:hidden;}',
-    '.hr-meter i{display:block;height:100%;background:var(--metal,var(--gold));',
-    '  transition:width .5s var(--ease);}',
+    '.hr-std-glass{flex:none;align-self:center;line-height:0;}',
+    '.hr-glass{display:block;filter:drop-shadow(0 3px 8px var(--shadow));}',
 
     /* ---------- THE ROOM ------------------------------------------------ */
     '.hr-room{display:block;}',
