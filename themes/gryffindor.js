@@ -1,5 +1,5 @@
 /* ==========================================================================
-   GRYFFINDOR — you are standing in the common room.
+   GRYFFINDOR - you are standing in the common room.
    --------------------------------------------------------------------------
    Seven rooms, each drawn as an interior you are inside. The other rooms are
    objects in the room with you: a stair, a bookcase, a portrait, a broom on a
@@ -31,7 +31,7 @@
      THE ISOMETRIC ROOM
      A cutaway diorama: two back walls meeting at a corner, a floor diamond
      below them, and furniture standing on it. Everything is authored in room
-     coordinates — x runs down-right, y runs down-left, z is up — and
+     coordinates - x runs down-right, y runs down-left, z is up - and
      projected once, so a chair placed at (6,2) is where you expect it.
      ====================================================================== */
   var TW = 44, TH = 22, TZ = 27, N = 10, CX = 452, CY = 250, WALLH = 9;
@@ -42,7 +42,7 @@
     return '<polygon points="' + pts.map(function (p) { return pt(p[0], p[1], p[2]); }).join(' ') +
            '" fill="' + fill + '"' + (extra || '') + '/>';
   }
-  /* shade a hex by a factor — one material, three faces, no hand-mixed colours */
+  /* shade a hex by a factor - one material, three faces, no hand-mixed colours */
   function sh(hex, f) {
     var m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex);
     if (!m) return hex;
@@ -66,7 +66,7 @@
       : [[0, u0, z0], [0, u1, z0], [0, u1, z1], [0, u0, z1]];
     return poly(q, fill, o);
   }
-  /* an arched opening in a wall — the shape gothic windows and fireplaces share */
+  /* an arched opening in a wall - the shape gothic windows and fireplaces share */
   function archOnWall(side, uc, uw, zBase, zTop, fill, stroke, sw) {
     var a = uc - uw / 2, b = uc + uw / 2, zSpring = zTop - uw * (TW / TZ) * 0.5;
     function p(u, z) { return side === 'r' ? pt(u, 0, z) : pt(0, u, z); }
@@ -143,7 +143,7 @@
       o += '<path d="M' + pt(t, 0, 0) + ' L' + pt(t, N, 0) + '" stroke="' + fl + '" stroke-width="1.2"/>';
       o += '<path d="M' + pt(0, t, 0) + ' L' + pt(N, t, 0) + '" stroke="' + fl + '" stroke-width="1.2"/>';
     }
-    /* the front lip of the cutaway — the model sits on a plinth */
+    /* the front lip of the cutaway - the model sits on a plinth */
     o += poly([[N, 0, 0], [N, N, 0], [0, N, 0]], 'none');
     o += '<path d="M' + pt(N, 0, 0) + ' L' + pt(N, N, 0) + ' L' + pt(0, N, 0) +
          '" fill="none" stroke="' + m.cap + '" stroke-width="5" stroke-linejoin="round" opacity=".85"/>';
@@ -437,7 +437,7 @@
       o += box(6.2, 4.5, 1.31, .5, .5, .16, '#2A2A32');
       o += seat(4.9, 2.6, 1.5, 1.2, '#5A1620');
       o += box(4.9, 2.6, .5, 1.5, .24, 2.4, '#4A1218');
-      /* a slate on an easel — where points come off */
+      /* a slate on an easel - where points come off */
       o += box(7.6, 6.0, 0, .2, .2, 2.6, '#3E2410');
       o += box(8.6, 6.0, 0, .2, .2, 2.6, '#3E2410');
       o += poly([[7.5, 6.1, 1.2], [8.8, 6.1, 1.2], [8.8, 6.1, 3.2], [7.5, 6.1, 3.2]], '#2A2E2C');
@@ -570,7 +570,7 @@
       'panel-clip': 'none', 'card-clip': 'none'
     },
 
-    /* Caveat — a felt-tip handwriting face — used to carry this entire house,
+    /* Caveat - a felt-tip handwriting face - used to carry this entire house,
        headings and 10px labels alike. It is a nice hand and it is not a school
        founded in the tenth century. Cormorant is the warm end of the Garamond
        family: calligraphic, high-contrast, and it has a true small-caps cut,
@@ -584,7 +584,7 @@
     },
 
     /* Scarlet is the room and gold is the metal, so neither operator may be
-       either. Copper and verdigris — the two things on the mantelpiece that
+       either. Copper and verdigris - the two things on the mantelpiece that
        tarnish. */
     ops: { a: '#E28A4C', b: '#78BBA6' },
 
@@ -607,8 +607,8 @@
       emptyLog: 'No points awarded yet this term.',
       emptyMarket: 'Nothing on offer in the village.',
       emptyWagers: 'No wagers standing. Someone start one.',
-      emptyFeed: 'Nothing awarded today — the day is young.',
-      toastAwarded: '{what} — awarded to {who}',
+      emptyFeed: 'Nothing awarded today. The day is young.',
+      toastAwarded: '{what} · awarded to {who}',
       toastReverted: 'Taken back · {what}',
       toastNothingToUndo: 'There is nothing left to take back.',
       toastLocked: 'needs {item} first'
@@ -894,9 +894,9 @@
     ].join('\n'),
 
     /* ======================================================================
-       THE STANDINGS — a cast gold plate on the wall
+       THE STANDINGS - a cast gold plate on the wall
        ====================================================================== */
-    /* Two standards, each in its bearer's own arms — see themes/heraldry.js. */
+    /* Two standards, each in its bearer's own arms - see themes/heraldry.js. */
     scoreboard: function (ctx) { return ORIGIN_HERALDRY.standard(ctx); },
 
 
@@ -905,7 +905,7 @@
        Three of these used to fight each other: a 4000px photograph under a
        pan-and-zoom camera, a flat still, and a drawn isometric scene. The
        photograph won by being first in the branch, and it was a borrowed game
-       render that looked like nothing this house owns. It is a standard now —
+       render that looked like nothing this house owns. It is a standard now -
        see themes/heraldry.js. One click to any room, nothing to fetch.
        ====================================================================== */
     roomView: function (ctx) {

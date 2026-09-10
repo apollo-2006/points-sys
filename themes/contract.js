@@ -10,7 +10,7 @@
    THE RULE THIS FILE ENFORCES
    ---------------------------
    Nothing outside a theme object may hardcode a look, a name, or a piece of
-   art. The core app owns structure — grid, spacing, event wiring, state.
+   art. The core app owns structure - grid, spacing, event wiring, state.
    A theme owns everything you can see. TOKENS below is the full surface
    between them: if the core needs a colour, it reads a token, and every
    theme must declare every one. A theme missing a token fails loudly rather
@@ -29,7 +29,7 @@
     'surface',       /* panel fill */
     'surface-2',     /* subtle raised fill (stat blocks, ghost buttons) */
     'surface-hover', /* row hover */
-    'raised',        /* modal, palette, quick-add preview — sits above the page */
+    'raised',        /* modal, palette, quick-add preview - sits above the page */
     'toast',         /* toast fill */
     'overlay',       /* modal/palette scrim */
     'track',         /* the empty half of any progress bar */
@@ -49,8 +49,8 @@
     'on-accent',     /* text sitting on an accent fill */
 
     /* accents */
-    'accent',        /* the house's primary — buttons, active nav */
-    'accent-hi',     /* its bright end — the far stop of a fill */
+    'accent',        /* the house's primary - buttons, active nav */
+    'accent-hi',     /* its bright end - the far stop of a fill */
     'accent-dim',    /* its muted form */
     'accent-wash',   /* its 8–12% wash, for hover fills */
     'gold',          /* the "valuable" accent: milestones, costs, pins */
@@ -71,7 +71,7 @@
     'f-display-scale', 'f-ui-scale',
     'tt-display',    /* text-transform for display type */
     'ls-display',    /* letter-spacing for display type */
-    'tt-label',      /* the eyebrow/label treatment — the .22em tell */
+    'tt-label',      /* the eyebrow/label treatment - the .22em tell */
     'ls-label',
     'f-label',
 
@@ -87,7 +87,7 @@
   var REQUIRED_COPY = [
     /* the six screens, in nav order */
     'chart', 'tasks', 'focus', 'market', 'wagers', 'log',
-    /* what each screen is for — tooltips, so vocabulary never hides function */
+    /* what each screen is for - tooltips, so vocabulary never hides function */
     'chartFn', 'tasksFn', 'focusFn', 'marketFn', 'wagersFn', 'logFn',
     /* the economy's nouns and verbs */
     'score', 'scoreVerb', 'scoreVerbPast', 'scored',
@@ -110,7 +110,7 @@
     'claim', 'undo', 'lock', 'streak', 'lead', 'more', 'close', 'add',
     'check', 'due', 'repeat', 'score', 'list', 'pin', 'pinned', 'settings',
     'search', 'signout', 'crest',
-    /* the three node marks — what a habit, a great deed and a penalty each
+    /* the three node marks - what a habit, a great deed and a penalty each
        look like at a glance. Every house draws its own set. */
     'markRitual', 'markMilestone', 'markPenalty'
   ];
@@ -122,7 +122,7 @@
      banner; everywhere else it still fills the console. Either way the theme
      is refused registration, so no half-dressed theme can ever be applied. */
   function fail(id, what, detail) {
-    var msg = 'THEME "' + id + '" — ' + what + ': ' + detail;
+    var msg = 'THEME "' + id + '" - ' + what + ': ' + detail;
     problems.push(msg);
     console.error(msg);
   }
@@ -136,7 +136,7 @@
       if (!def[k]) fail(id, 'contract', 'missing ' + k);
     });
 
-    /* tokens: complete or not at all — no partial overrides, no inheritance */
+    /* tokens: complete or not at all - no partial overrides, no inheritance */
     var tk = def.tokens || {};
     var missing = TOKENS.filter(function (t) { return tk[t] === undefined || tk[t] === null || tk[t] === ''; });
     if (missing.length) fail(id, 'incomplete tokens', missing.length + ' missing → ' + missing.join(', '));
@@ -167,7 +167,7 @@
     Object.keys(ic).forEach(function (k) {
       if (typeof ic[k] !== 'string') { fail(id, 'icons', k + ' is not a string'); return; }
       if (/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(ic[k]))
-        fail(id, 'icons', k + ' contains an emoji — icons must be drawn SVG');
+        fail(id, 'icons', k + ' contains an emoji; icons must be drawn SVG');
       if (ic[k] && ic[k].indexOf('<svg') !== 0)
         fail(id, 'icons', k + ' is not an <svg> string');
     });
@@ -226,7 +226,7 @@
     /* ---- helpers, so five themes don't each reinvent them ---- */
     util: {
       /* NOTE: `span` (evenly spaced along a line) used to live here. It was
-         removed on purpose — every house called it, and that is why every
+         removed on purpose - every house called it, and that is why every
          house drew the same row of things. Write the line you actually want. */
       span: function (from, to, i, n) {
         return n <= 1 ? (from + to) / 2 : from + (to - from) * (i / (n - 1));
@@ -237,7 +237,7 @@
         return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a), a: a };
       },
       round: function (n) { return Math.round(n * 10) / 10; },
-      /* deterministic jitter — a wall of frames should not be a perfect grid,
+      /* deterministic jitter - a wall of frames should not be a perfect grid,
          but it must look identical on every render or the page twitches */
       noise: function (seed, i) {
         var x = Math.sin((seed.charCodeAt(0) || 1) * 12.9898 + i * 78.233) * 43758.5453;
@@ -253,7 +253,7 @@
          Twenty-four line-drawn icons on a 24px grid. A theme spreads this
          and overrides whatever it wants to draw in its own hand; Phase 2
          is where the houses diverge. Nothing here is an emoji, and nothing
-         here carries a colour — they all inherit currentColor.          */
+         here carries a colour - they all inherit currentColor.          */
       baseIcons: function (o) {
         var w = (o && o.weight) || 1.6;
         var cap = (o && o.cap) || 'round';

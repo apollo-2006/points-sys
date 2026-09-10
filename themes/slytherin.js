@@ -1,5 +1,5 @@
 /* ==========================================================================
-   SLYTHERIN — the common room, under the Black Lake.
+   SLYTHERIN - the common room, under the Black Lake.
    --------------------------------------------------------------------------
    Old money. Grey stone, green glass, tarnished silver, taupe and tan. Every
    light source is either the green fire or the water overhead; there is no
@@ -14,7 +14,7 @@
      THE ISOMETRIC ROOM
      A cutaway diorama: two back walls meeting at a corner, a floor diamond
      below them, and furniture standing on it. Everything is authored in room
-     coordinates — x runs down-right, y runs down-left, z is up — and
+     coordinates - x runs down-right, y runs down-left, z is up - and
      projected once, so a chair placed at (6,2) is where you expect it.
      ====================================================================== */
   var TW = 44, TH = 22, TZ = 27, N = 10, CX = 452, CY = 250, WALLH = 9;
@@ -25,7 +25,7 @@
     return '<polygon points="' + pts.map(function (p) { return pt(p[0], p[1], p[2]); }).join(' ') +
            '" fill="' + fill + '"' + (extra || '') + '/>';
   }
-  /* shade a hex by a factor — one material, three faces, no hand-mixed colours */
+  /* shade a hex by a factor - one material, three faces, no hand-mixed colours */
   function sh(hex, f) {
     var m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex);
     if (!m) return hex;
@@ -49,7 +49,7 @@
       : [[0, u0, z0], [0, u1, z0], [0, u1, z1], [0, u0, z1]];
     return poly(q, fill, o);
   }
-  /* an arched opening in a wall — the shape gothic windows and fireplaces share */
+  /* an arched opening in a wall - the shape gothic windows and fireplaces share */
   function archOnWall(side, uc, uw, zBase, zTop, fill, stroke, sw) {
     var a = uc - uw / 2, b = uc + uw / 2, zSpring = zTop - uw * (TW / TZ) * 0.5;
     function p(u, z) { return side === 'r' ? pt(u, 0, z) : pt(0, u, z); }
@@ -126,7 +126,7 @@
       o += '<path d="M' + pt(t, 0, 0) + ' L' + pt(t, N, 0) + '" stroke="' + fl + '" stroke-width="1.2"/>';
       o += '<path d="M' + pt(0, t, 0) + ' L' + pt(N, t, 0) + '" stroke="' + fl + '" stroke-width="1.2"/>';
     }
-    /* the front lip of the cutaway — the model sits on a plinth */
+    /* the front lip of the cutaway - the model sits on a plinth */
     o += poly([[N, 0, 0], [N, N, 0], [0, N, 0]], 'none');
     o += '<path d="M' + pt(N, 0, 0) + ' L' + pt(N, N, 0) + ' L' + pt(0, N, 0) +
          '" fill="none" stroke="' + m.cap + '" stroke-width="5" stroke-linejoin="round" opacity=".85"/>';
@@ -356,7 +356,7 @@
       var m = { wallL: '#44443E', wallR: '#3A3A34', course: 'rgba(12,16,12,.4)',
                 floor: '#3A3A34', floorLine: 'rgba(8,12,8,.55)', cap: '#6A6A60' };
       var o = shell(m);
-      /* walls of specimen jars — the coldest room in the castle */
+      /* walls of specimen jars - the coldest room in the castle */
       var jars = ['#3E5A4A', '#4A4A3E', '#3A4A5A', '#5A4A4A', '#2E4A42'];
       for (var i = 0; i < 3; i++) o += shelfUnit(.25 + i * 3.2, .12, 2.8, .8, 6.6, '#2E322C', jars);
       o += shelfUnit(.12, 3.4, .8, 3.0, 6.6, '#2E322C', jars);
@@ -500,7 +500,7 @@
     },
 
     /* Scarlet is the room and gold is the metal, so neither operator may be
-       either. Copper and verdigris — the two things on the mantelpiece that
+       either. Copper and verdigris - the two things on the mantelpiece that
        tarnish. */
     ops: { a: '#E8A0B4', b: '#D9C3A2' },
 
@@ -525,7 +525,7 @@
       emptyMarket: 'Nothing is currently on offer.',
       emptyWagers: 'No wagers standing. Predictable.',
       emptyFeed: 'Nothing recorded today.',
-      toastAwarded: '{what} — recorded to {who}',
+      toastAwarded: '{what} · recorded to {who}',
       toastReverted: 'Struck from the record · {what}',
       toastNothingToUndo: 'There is nothing there to strike.',
       toastLocked: 'requires {item}'
@@ -806,9 +806,9 @@
     ].join('\n'),
 
     /* ======================================================================
-       THE STANDINGS — a cast gold plate on the wall
+       THE STANDINGS - a cast gold plate on the wall
        ====================================================================== */
-    /* Two standards, each in its bearer's own arms — see themes/heraldry.js. */
+    /* Two standards, each in its bearer's own arms - see themes/heraldry.js. */
     scoreboard: function (ctx) { return ORIGIN_HERALDRY.standard(ctx); },
 
 
@@ -817,7 +817,7 @@
        Three of these used to fight each other: a 4000px photograph under a
        pan-and-zoom camera, a flat still, and a drawn isometric scene. The
        photograph won by being first in the branch, and it was a borrowed game
-       render that looked like nothing this house owns. It is a standard now —
+       render that looked like nothing this house owns. It is a standard now -
        see themes/heraldry.js. One click to any room, nothing to fetch.
        ====================================================================== */
     roomView: function (ctx) {

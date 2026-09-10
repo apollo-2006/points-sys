@@ -19,11 +19,11 @@
 <link rel="stylesheet" id="themeFont" href="">
 <!-- The sorting screen shows every house in its own typeface at once, so it
      needs their display faces together. One more managed link, set once and
-     reused — never appended to. -->
+     reused - never appended to. -->
 <link rel="stylesheet" id="pickerFont" href="">
 
 <!-- ==========================================================================
-     THEMES — the contract, then one file per theme.
+     THEMES - the contract, then one file per theme.
      Classic scripts on purpose: they must have registered on
      window.ORIGIN_THEMES before the deferred module below runs.
      Adding a sixth theme is one <script> line here and one new file.
@@ -37,7 +37,7 @@
 <style id="coreCSS">
 
 /* ============================================================
-   CORE — structure only.
+   CORE - structure only.
    There is not one colour, typeface or corner radius in this
    stylesheet. Every one of them is a token, and every token is
    declared in full by the active theme (themes/*.js). If you
@@ -62,14 +62,14 @@
   --radius:4px; --radius-lg:8px; --chip-radius:20px; --border-w:1px;
   --panel-clip:none; --card-clip:none;
 
-  /* set by the engine from theme.ops — never authored in CSS */
+  /* set by the engine from theme.ops - never authored in CSS */
   --op-a:#D9534F; --op-b:#4CAF7D;
   /* motion, set from theme.motion */
   --ease:cubic-bezier(.2,.8,.2,1); --dur:.18s; --dur-enter:.22s;
 
   --shadow:rgba(0,0,0,.7);
 
-  /* The sorting screen is the one surface that belongs to no house — it is
+  /* The sorting screen is the one surface that belongs to no house - it is
      where you are standing before you have one, and it shows all four at
      once, so it cannot borrow any of their palettes. These five are its own,
      and they are the only colours in this file that no theme can reach. */
@@ -98,7 +98,7 @@
    THE SORTING
    One screen, four cards, no scrolling at 390px. Each card paints
    itself from its own house's tokens, which are set inline by the
-   renderer — there is not one house colour in this block.
+   renderer - there is not one house colour in this block.
    ============================================================ */
 #ceremony{position:fixed;inset:0;z-index:400;display:none;overflow:hidden;
   background:var(--cer-bg);padding:max(14px,env(safe-area-inset-top)) 14px 14px;}
@@ -200,7 +200,7 @@ h1,h2,h3{margin:0;font-family:var(--f-display);font-weight:700;
   text-transform:var(--tt-display);letter-spacing:var(--ls-display);}
 
 /* ============================================================
-   Chrome — panels, buttons, inputs
+   Chrome - panels, buttons, inputs
    ============================================================ */
 .panel{
   background:var(--surface);border:1px solid var(--line);
@@ -407,7 +407,7 @@ details[open]>.add-sum{color:var(--accent);border-style:solid;margin-bottom:10px
     padding:6px 2px;flex:1 1 0;min-width:0;}
   .nav-btn .ic{font-size:17px;}
   .nav-btn .kbd{display:none;}
-  /* themed labels run long ("Headmaster's Office") — clip rather than wrap */
+  /* themed labels run long ("Headmaster's Office") - clip rather than wrap */
   .nav-btn .lbl{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 }
 
@@ -594,7 +594,7 @@ details[open]>.add-sum{color:var(--accent);border-style:solid;margin-bottom:10px
 .cm.pin{border-left:2px solid var(--gold);padding-left:9px;}
 
 /* ============================================================
-   Overlays — toast, modal, palette
+   Overlays - toast, modal, palette
    ============================================================ */
 /* Out of the way of the thing you are clicking. These used to sit bottom-centre
    at 440px and stack four deep, which is exactly where the deed board is: award
@@ -750,7 +750,7 @@ details[open]>.add-sum{color:var(--accent);border-style:solid;margin-bottom:10px
           <div id="emblem"></div>
         </div>
         <div class="hud-status">
-          <div class="chip" id="leadChip">—</div>
+          <div class="chip" id="leadChip">Even</div>
           <div class="chip" style="gap:7px;"><span id="syncDot"></span><span id="syncTxt">live</span></div>
           <button class="btn icon" id="themeBtn" data-act="theme"></button>
           <button class="btn icon" id="searchBtn" data-act="palette" title="Search / jump (press K)"></button>
@@ -787,10 +787,10 @@ details[open]>.add-sum{color:var(--accent);border-style:solid;margin-bottom:10px
 </div>
 <script type="module">
 /* ==========================================================================
-   ORIGIN SYSTEM — a two-operator standing economy for real life.
+   ORIGIN SYSTEM - a two-operator standing economy for real life.
    Single file. No build step. Firebase (Firestore + Auth) is the only dep.
    --------------------------------------------------------------------------
-   FIREBASE CONFIG — paste your own project's config below.
+   FIREBASE CONFIG - paste your own project's config below.
    Firebase Console > Project Settings > General > Your apps > SDK config.
    ========================================================================== */
 const firebaseConfig = {
@@ -801,7 +801,7 @@ const firebaseConfig = {
   messagingSenderId: "985175072746",
   appId: "1:985175072746:web:6d1b60323a2c7f2853dc93"
 };
-/* Legacy path — kept on purpose so every point, bet and note ever logged
+/* Legacy path - kept on purpose so every point, bet and note ever logged
    survives the rebuild. Renaming it would start you both from zero. */
 const DOC_PATH = ["apex_tracker", "state"];
 /* ========================================================================== */
@@ -870,7 +870,7 @@ if (DEMO) {
     const pass = $('#loginPassword').value;
     $('#loginErr').textContent = '';
     STORE.signIn(STORE.auth, email, pass)
-      .catch(() => { $('#loginErr').textContent = 'Sign-in failed — check the email and password.'; });
+      .catch(() => { $('#loginErr').textContent = 'Sign-in failed. Check the email and password.'; });
   }
   STORE.onAuthStateChanged(STORE.auth, user => {
     if (user) {
@@ -913,7 +913,7 @@ const PARTIES = ['abir', 'jade'];
      motion  -> --ease / --dur / --dur-enter
 
    Applying a theme touches no state, cancels no timer, and re-renders through
-   the same renderAll() as everything else — so a running focus block and a
+   the same renderAll() as everything else - so a running focus block and a
    half-typed task both survive it.
    ========================================================================== */
 
@@ -926,7 +926,7 @@ if (!REG || !Object.keys(REG.list).length) {
 /* A theme that failed validation never reaches the registry. If any did,
    say so loudly rather than letting a half-dressed house ship. */
 if (REG.problems.length) {
-  console.error('[themes] ' + REG.problems.length + ' problem(s) — those themes were refused.');
+  console.error('[themes] ' + REG.problems.length + ' problem(s). Those themes were refused.');
   if (DEMO || new URLSearchParams(location.search).has('dev')) {
     const bar = document.createElement('pre');
     bar.style.cssText = 'position:fixed;left:0;right:0;top:0;z-index:9999;margin:0;padding:10px 14px;'
@@ -954,7 +954,7 @@ function ICON(key, size, extra) {
   if (!raw) { console.warn('[icon] missing "' + key + '" in theme ' + THEME); return ''; }
   return size ? raw.replace('<svg', '<svg width="' + size + '" height="' + size + '"') : raw;
 }
-/* A house may rename any room — Snape's office and McGonagall's office are the
+/* A house may rename any room - Snape's office and McGonagall's office are the
    same room with the same deeds in it. */
 function placeName(pl) {
   const m = (theme().copy || {}).places;
@@ -982,7 +982,7 @@ function applyTheme(id, opts) {
     const root = document.documentElement;
     root.setAttribute('data-theme', id);
 
-    /* tokens — the complete set, every time; nothing is left over from the
+    /* tokens - the complete set, every time; nothing is left over from the
        theme before because the contract guarantees all of them are present */
     const r = root.style;
     REG.TOKENS.forEach(k => r.setProperty('--' + k, t.tokens[k]));
@@ -1020,7 +1020,7 @@ function applyTheme(id, opts) {
   if (first || reduce || o.instant) { paint(); return; }
 
   /* crossfade: veil in, repaint behind it, veil out. No layout is touched,
-     so nothing shifts — the page underneath is the same size throughout. */
+     so nothing shifts - the page underneath is the same size throughout. */
   if (themeApplying) return;
   themeApplying = true;
   const veil = document.getElementById('themeVeil');
@@ -1063,7 +1063,7 @@ const PLANETS = [
 ];
 
 const NODES = [
-  /* EARTH — the shared daily foundation */
+  /* EARTH - the shared daily foundation */
   { id: 'daily:out_of_bed',    p: 'earth', n: 'Got out of bed',                   pts: 1000, t: 'ritual', o: 'both' },
   { id: 'daily:wake_on_time',  p: 'earth', n: 'Woke up on time (before 11am)',    pts: 2000, t: 'ritual', o: 'both', req: 'daily:out_of_bed' },
   { id: 'daily:sleep_on_time', p: 'earth', n: 'Slept on time (before 1am)',       pts: 2000, t: 'ritual', o: 'both' },
@@ -1072,24 +1072,24 @@ const NODES = [
   { id: 'daily:chores',        p: 'earth', n: 'Chores completed',                 pts: 1500, t: 'ritual', o: 'both', mt: 'SABOTAGE' },
   { id: 'ach:perfect_sleep_week', p: 'earth', n: 'One full week of perfect sleep', pts: 5000, t: 'milestone', o: 'both', cad: 'weekly' },
 
-  /* VENUS — body */
+  /* VENUS - body */
   { id: 'daily:workout',       p: 'venus', n: 'Workout completed',                pts: 2000, t: 'ritual', o: 'both', mt: 'EXTERMINATE' },
   { id: 'ach:pr_gym',          p: 'venus', n: 'Hit a PR in the gym',              pts: 3000, t: 'milestone', o: 'both' },
   { id: 'ach:meals_tracked_week', p: 'venus', n: 'One full week of meals tracked', pts: 5000, t: 'milestone', o: 'both', cad: 'weekly' },
 
-  /* MARS — study & deep work */
+  /* MARS - study & deep work */
   { id: 'daily:studied',       p: 'mars', n: 'Studied / worked productively (2+ hrs)', pts: 2500, t: 'ritual', o: 'both' },
   { id: 'daily:pomodoro',      p: 'mars', n: 'Completed a Focus cycle (50/10)',   pts: 2500, t: 'ritual', o: 'both', mt: 'DEFENSE' },
   { id: 'ach:aced_assignment', p: 'mars', n: 'Aced a major assignment',           pts: 5000, t: 'milestone', o: 'both' },
   { id: 'ach:assignments_on_time', p: 'mars', n: 'Assignments on time all week',  pts: 5000, t: 'milestone', o: 'both', cad: 'weekly' },
 
-  /* CERES — code */
+  /* CERES - code */
   { id: 'quest:abir:leetcode_easy', p: 'ceres', n: 'LeetCode: 2 easy solved',     pts: 1000, t: 'ops', o: 'abir' },
   { id: 'quest:abir:leetcode_med',  p: 'ceres', n: 'LeetCode: 1 medium solved',   pts: 2000, t: 'ops', o: 'abir' },
   { id: 'quest:abir:leetcode_hard', p: 'ceres', n: 'LeetCode: 1 hard solved',     pts: 3000, t: 'ops', o: 'abir' },
   { id: 'quest:abir:git_commits',   p: 'ceres', n: '3–5 Git commits today',       pts: 4000, t: 'ops', o: 'abir', mt: 'DEFENSE' },
 
-  /* EUROPA — reading, language, reflection */
+  /* EUROPA - reading, language, reflection */
   { id: 'quest:jade:criminology',     p: 'europa', n: 'Read criminology textbook (45 min)', pts: 2500, t: 'ops', o: 'jade' },
   { id: 'quest:jade:forensic',        p: 'europa', n: 'Read forensic textbook',             pts: 2000, t: 'ops', o: 'jade' },
   { id: 'quest:jade:career_textbook', p: 'europa', n: 'Read career textbook (45 min, notes = bonus)', pts: 2000, t: 'ops', o: 'jade' },
@@ -1097,7 +1097,7 @@ const NODES = [
   { id: 'quest:jade:french',          p: 'europa', n: 'French practice',                    pts: 2000, t: 'ops', o: 'jade' },
   { id: 'quest:jade:flower_language', p: 'europa', n: 'Flower language',                    pts: 1000, t: 'ops', o: 'jade' },
 
-  /* SATURN — admin, errands, adult-life unlocks */
+  /* SATURN - admin, errands, adult-life unlocks */
   { id: 'quest:abir:organize_room_a', p: 'saturn', n: 'Organize room',            pts: 2000, t: 'ops', o: 'abir' },
   { id: 'quest:jade:organize_room_j', p: 'saturn', n: 'Organize room',            pts: 2000, t: 'ops', o: 'jade' },
   { id: 'quest:jade:cook_meal',       p: 'saturn', n: 'Cook meal (2x this week)', pts: 2500, t: 'ops', o: 'jade' },
@@ -1107,7 +1107,7 @@ const NODES = [
   { id: 'quest:jade:license_j',       p: 'saturn', n: 'License',                  pts: 3000, t: 'milestone', o: 'jade', cad: 'once', req: 'quest:jade:permit_test' },
   { id: 'quest:jade:online_desk_job', p: 'saturn', n: 'Look into online desk job', pts: 3000, t: 'ops', o: 'jade' },
 
-  /* DEIMOS — the Infestation. Everything here subtracts. */
+  /* DEIMOS - the Infestation. Everything here subtracts. */
   { id: 'pen:forgot_tracking',  p: 'deimos', n: 'Forgetting to keep track of points', pts: -5000, t: 'infested', o: 'both' },
   { id: 'pen:slept_in',         p: 'deimos', n: 'Slept in past 9am',                  pts: -5000, t: 'infested', o: 'both' },
   { id: 'pen:stayed_up',        p: 'deimos', n: 'Stayed up past midnight–1am',        pts: -3500, t: 'infested', o: 'both' },
@@ -1120,7 +1120,7 @@ const NODES = [
   { id: 'pen:skipped_skincare', p: 'deimos', n: 'Skipped skincare',                   pts: -1000, t: 'infested', o: 'both' }
 ];
 
-/* Shop prices are Season-1 values × 1.5 — the dollar figures are unchanged,
+/* Shop prices are Season-1 values × 1.5 - the dollar figures are unchanged,
    standing just buys less than it used to. */
 const SHOP = [
   { id: 'shop:apex_coins_a',   o: 'abir', n: 'Apex coin pack · 2150', pts: 30000, note: '$20' },
@@ -1158,7 +1158,7 @@ function defaultState() {
     history: [],
     focus: {},
     /* The only field added to the document: which house each operator wears.
-       Abir is a Gryffindor and Jade is a Slytherin — assigned, not sorted, so
+       Abir is a Gryffindor and Jade is a Slytherin - assigned, not sorted, so
        a fresh document opens straight into the right two houses. Anyone whose
        house is null still gets the sorting screen, and the crest in the header
        reopens it for either of them at any time. */
@@ -1169,7 +1169,7 @@ function defaultState() {
 }
 
 /* The groups were planets before they were rooms. Rename them in place, once,
-   and only where the old name is still sitting there — so a room you renamed
+   and only where the old name is still sitting there - so a room you renamed
    yourself is never overwritten. */
 const ROOM_RENAME = {
   venus:  ['Venus',  'Quidditch Practice', 'Body'],
@@ -1228,7 +1228,7 @@ function mergeState(raw) {
    Season 1 stored flat lists (customDaily / customQuests / hiddenX / boards /
    ideas / todos / scratch). Everything is folded into the v2 model here, once,
    and the old fields are dropped. Points, counts, history and bets are never
-   touched — the leaderboard survives untouched.                                */
+   touched - the leaderboard survives untouched.                                */
 function migrate(s, raw) {
   if (s.schema >= 2 && !raw.customDaily && !raw.boards && !raw.todos && !raw.hiddenDaily) {
     s.schema = 2; return s;
@@ -1324,7 +1324,7 @@ function migrate(s, raw) {
 }
 
 /* ==========================================================================
-   CORE — sync, helpers, economy
+   CORE - sync, helpers, economy
    ========================================================================== */
 let state = defaultState();
 let applying = false;      // rendering a remote snapshot; local writes stand down
@@ -1351,7 +1351,7 @@ const num = n => Math.round(n || 0).toLocaleString();
 const fmt = n => (n > 0 ? '+' : n < 0 ? '−' : '') + Math.abs(Math.round(n || 0)).toLocaleString();
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const uid = p => p + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-/* "2026-08-27" must mean that calendar day where you live — `new Date(str)`
+/* "2026-08-27" must mean that calendar day where you live - `new Date(str)`
    would read it as UTC midnight and land a day early west of Greenwich. */
 function dayDate(v) {
   if (typeof v === 'string') {
@@ -1396,7 +1396,7 @@ const isoDay = d => { const x = new Date(d); return x.getFullYear() + '-' + Stri
 /* ---------------- sync ---------------- */
 let inFlight = 0;
 /* Local edits are debounced into one whole-document write. `pendingSave` only
-   covers the debounce window — once a write is actually issued we go back to
+   covers the debounce window - once a write is actually issued we go back to
    accepting remote snapshots, so an unacknowledged write (a phone with no
    signal, with the offline cache queueing it) can never freeze the other
    person's updates out. */
@@ -1420,7 +1420,7 @@ function flush() {
     console.error('save failed', e);
     inFlight = Math.max(0, inFlight - 1);
     syncDot('off');
-    toast('Could not reach the database — that change is queued.', { kind: 'warn' });
+    toast('Could not reach the database. That change is queued.', { kind: 'warn' });
   });
 }
 window.addEventListener('online', () => syncDot('ok'));
@@ -1659,7 +1659,7 @@ function renderHud() {
   if (creed) creed.textContent = th.tagline;
 
   const tb = $('#themeBtn');
-  if (tb) { tb.innerHTML = ICON('crest', 17); tb.title = th.name + ' — change house'; }
+  if (tb) { tb.innerHTML = ICON('crest', 17); tb.title = th.name + ': change house'; }
   $('#searchBtn').innerHTML = ICON('search', 15);
   $('#settingsBtn').innerHTML = ICON('settings', 15);
   $('#signOutBtn').innerHTML = ICON('signout', 15);
@@ -1671,7 +1671,7 @@ function renderHud() {
   if (!lead) chip.innerHTML = 'Dead even';
   else chip.innerHTML = `<span style="color:${OPC_FOR(lead)}">${ICON('lead', 11)} ${esc(nameOf(lead))}</span> +${num(Math.abs(s.points.abir - s.points.jade))}`;
 
-  /* the header emblem — optional, and may show live state */
+  /* the header emblem - optional, and may show live state */
   const em = $('#emblem');
   if (em) {
     if (typeof th.emblem === 'function') {
@@ -1687,8 +1687,8 @@ function renderHud() {
     } else em.innerHTML = '';
   }
 
-  /* a house that draws its own standings — a nameplate on the wall rather
-     than a progress bar — takes the whole block */
+  /* a house that draws its own standings - a nameplate on the wall rather
+     than a progress bar - takes the whole block */
   if (typeof th.scoreboard === 'function') {
     try {
       $('#ops').innerHTML = th.scoreboard({
@@ -1758,7 +1758,7 @@ const VIEW_COPY = { chart: 'chart', foundry: 'tasks', focus: 'focus',
    STAR CHART
    ========================================================================== */
 /* --------------------------------------------------------------------------
-   The hub scene. Each pack draws its own — a star chart, a castle tower, a
+   The hub scene. Each pack draws its own - a star chart, a castle tower, a
    depth sounding, a colonnade. All the core asks is that every sector is
    reachable: give the clickable group `class="hub-hit"` plus the two data
    attributes below, and the app wires the rest.
@@ -1775,7 +1775,7 @@ function hubContext() {
       .filter(h => dayKey(h.ts) === todayKey() && state.nodes.some(n => n.id === h.key && n.p === id))
       .reduce((a, h) => a + h.delta, 0),
     esc,
-    /* the standard hit target — keeps click wiring identical across packs */
+    /* the standard hit target - keeps click wiring identical across packs */
     hit: (pl, inner, transform) =>
       `<g class="hub-hit${pl.id === route.planet ? ' on' : ''}" data-act="planet" data-p="${esc(pl.id)}"` +
       (transform ? ` transform="${transform}"` : '') + `>${inner}</g>`
@@ -1851,10 +1851,10 @@ function nodeCard(nd) {
     const locked = reqNode && nodeLocked(nd, p);
     const lbl = nd.o === 'both' ? esc(nameOf(p)) : (c ? C('scoreVerbPast') : C('scoreVerb'));
     return `<button class="btn sm ${p === 'abir' ? 'a' : 'b'}" data-act="claim" data-id="${esc(nd.id)}" data-p="${p}"
-        ${locked ? `disabled title="Locked — ${esc(reqNode.n)} first"` : ''}>
+        ${locked ? `disabled title="Locked: ${esc(reqNode.n)} first"` : ''}>
         ${locked ? ICON('lock', 11) + ' ' : ''}${lbl}${c ? ` <span class="claim-n">×${c}</span>` : ''}</button>`
       + (c ? `<button class="btn icon sm" data-act="undo" data-id="${esc(nd.id)}" data-p="${p}"
-          title="${esc(C('scoreVerbPast'))} — undo">${ICON('undo', 13)}</button>` : '');
+          title="Undo ${esc(C('scoreVerbPast')).toLowerCase()}">${ICON('undo', 13)}</button>` : '');
   }).join('');
 
   const anyLocked = owners.some(p => nodeLocked(nd, p));
@@ -1948,7 +1948,7 @@ function drawLinks() {
     const cls = locked ? 'locked' : '';
     let d;
     if (Math.abs(a.top - b.top) < 12) {
-      /* same row — run the line between facing edges */
+      /* same row - run the line between facing edges */
       const left = a.left < b.left;
       const x1 = (left ? a.right : a.left) - gr.left, x2 = (left ? b.left : b.right) - gr.left;
       const y = a.top + a.height / 2 - gr.top, mid = (x1 + x2) / 2;
@@ -2007,17 +2007,17 @@ async function editPlanet(id) {
 }
 function nodeFields(nd) {
   const planetOpts = state.planets.map(p => ({ v: p.id, n: p.name }));
-  const reqOpts = [{ v: '', n: '— none —' }].concat(
+  const reqOpts = [{ v: '', n: 'none' }].concat(
     state.nodes.filter(x => !nd || x.id !== nd.id).map(x => ({ v: x.id, n: (planetById(x.p) || {}).name + ' · ' + x.n })));
   return [
     { k: 'n', label: C('item') + ' name', value: nd ? nd.n : '', ph: 'What you actually do' },
     { k: 'pts', label: C('score'), type: 'number', value: nd ? nd.pts : 1500, hint: 'Negative for a penalty node' },
     { k: 'p', label: C('group'), type: 'select', value: nd ? nd.p : route.planet, options: planetOpts },
     { k: 't', label: C('item') + ' type', type: 'select', value: nd ? nd.t : 'ritual', options: [
-      { v: 'ritual',    n: C('typeRitual')    + ' — ' + C('typeRitualHint') },
-      { v: 'ops',       n: C('typeGoal')      + ' — ' + C('typeGoalHint') },
-      { v: 'milestone', n: C('typeMilestone') + ' — ' + C('typeMilestoneHint') },
-      { v: 'infested',  n: C('typePenalty')   + ' — ' + C('typePenaltyHint') }] },
+      { v: 'ritual',    n: C('typeRitual')    + ' · ' + C('typeRitualHint') },
+      { v: 'ops',       n: C('typeGoal')      + ' · ' + C('typeGoalHint') },
+      { v: 'milestone', n: C('typeMilestone') + ' · ' + C('typeMilestoneHint') },
+      { v: 'infested',  n: C('typePenalty')   + ' · ' + C('typePenaltyHint') }] },
     { k: 'o', label: 'Who can ' + C('scoreVerb').toLowerCase() + ' it', type: 'select', value: nd ? nd.o : 'both', options: [
       { v: 'both', n: 'Both of you' }, { v: 'abir', n: nameOf('abir') }, { v: 'jade', n: nameOf('jade') }] },
     { k: 'cad', label: 'Resets', type: 'select', value: nd ? (nd.cad || 'daily') : 'daily', options: [
@@ -2036,7 +2036,7 @@ async function newNode() {
   });
   route.planet = v.p;
   save(); renderAll();
-  toast(`<b>${esc(v.n)}</b> — ${esc((planetById(v.p) || {}).name)}`, { kind: 'good' });
+  toast(`<b>${esc(v.n)}</b> · ${esc((planetById(v.p) || {}).name)}`, { kind: 'good' });
 }
 async function editNode(id) {
   const nd = nodeById(id); if (!nd) return;
@@ -2060,7 +2060,7 @@ async function editNode(id) {
 }
 
 /* ==========================================================================
-   FOUNDRY — tasks. Built to be faster than the notes app you're not using.
+   FOUNDRY - tasks. Built to be faster than the notes app you're not using.
    ========================================================================== */
 const ME_KEY = 'origin_me';
 let ME = (() => { try { return localStorage.getItem(ME_KEY); } catch (e) { return null; } })();
@@ -2199,7 +2199,7 @@ function taskRow(t) {
     <div class="tk-main">
       <div class="tk-text" data-act="task-inline" data-id="${esc(t.id)}">${esc(t.text)}</div>
       <div class="tk-meta">
-        ${route.list === 'all' || route.list === 'today' ? `<span>${ICON('list', 10)} ${esc(l ? l.name : '—')}</span>` : ''}
+        ${route.list === 'all' || route.list === 'today' ? `<span>${ICON('list', 10)} ${esc(l ? l.name : 'none')}</span>` : ''}
         ${dl ? `<span class="due ${dl.cls}">${ICON('due', 10)} ${esc(dl.txt)}</span>` : ''}
         ${t.repeat ? `<span>${ICON('repeat', 10)} ${esc(t.repeat)}</span>` : ''}
         ${t.pts ? `<span class="pts">${ICON('score', 10)} ${num(t.pts)}</span>` : ''}
@@ -2391,7 +2391,7 @@ async function editList(id) {
 }
 
 /* ==========================================================================
-   FOCUS — a real 50/10 timer wired into the economy
+   FOCUS - a real 50/10 timer wired into the economy
    ========================================================================== */
 const FOCUS_NODE = 'daily:pomodoro';
 function focusOf(p) {
@@ -2460,7 +2460,7 @@ const mmss = ms => {
   const t = Math.max(0, Math.round(ms / 1000));
   return String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0');
 };
-/* light repaint every second — never a re-render, never a database write */
+/* light repaint every second - never a re-render, never a database write */
 function paintFocus() {
   PARTIES.forEach(p => {
     const f = focusOf(p);
@@ -2520,7 +2520,7 @@ function renderFocus() {
         <div class="eyebrow" style="text-align:center;margin-top:10px;max-width:420px;line-height:1.7;">
           ${node && s.autoClaimFocus
             ? `Finishing a block ${esc(C('scoreVerb').toLowerCase())}s <b style="color:var(--accent)">${esc(node.n)}</b> · ${fmt(node.pts)} for ${esc(nameOf(me))}`
-            : `Auto-${esc(C('scoreVerb').toLowerCase())} is off — finishing a block just rings.`}
+            : `Auto-${esc(C('scoreVerb').toLowerCase())} is off. Finishing a block just rings.`}
           <br>This device is <b style="color:${OPC_FOR(me)}">${esc(nameOf(me))}</b> ·
           <button class="btn sm" data-act="switch-me" style="margin-top:6px;">Change ${esc(C('person').toLowerCase())}</button>
         </div>
@@ -2573,7 +2573,7 @@ async function redeem(id) {
     toast(`${esc(nameOf(item.o))} is ${num(cost - (state.points[item.o] || 0))} short.`, { kind: 'warn' }); return;
   }
   const ok = await confirmBox('Redeem “' + item.n + '”?',
-    cost == null ? 'This one is free — it just gets logged.' : num(cost) + ' ' + C('score').toLowerCase() + ' comes off ' + nameOf(item.o) + "'s total.", 'Redeem');
+    cost == null ? 'This one is free. It just gets logged.' : num(cost) + ' ' + C('score').toLowerCase() + ' comes off ' + nameOf(item.o) + "'s total.", 'Redeem');
   if (!ok) return;
   claim(item.id, item.o, cost == null ? 0 : -cost, 'Redeemed: ' + item.n);
 }
@@ -2609,7 +2609,7 @@ async function editShopItem(id) {
 }
 
 /* ==========================================================================
-   CONCLAVE — wagers
+   CONCLAVE - wagers
    ========================================================================== */
 function renderConclave() {
   const open = state.bets.filter(b => b.status === 'open');
@@ -2653,7 +2653,7 @@ async function newBet() {
   const v = await formBox('New wager', [
     { k: 'title', label: "What's the bet?", ph: 'Loser does the dishes for a week' },
     { k: 'stake', label: 'Stake in ' + C('score').toLowerCase(), type: 'number', value: 5000 },
-    { k: 'recurring', label: 'Recurring — respawns after it settles', type: 'check', value: false }
+    { k: 'recurring', label: 'Recurring, respawns after it settles', type: 'check', value: false }
   ], 'Open wager');
   if (!v || !v.title) return;
   const stake = parseInt(v.stake, 10) || 0;
@@ -2699,7 +2699,7 @@ function confetti(color) {
 }
 
 /* ==========================================================================
-   CODEX — log + season analytics
+   CODEX - log + season analytics
    ========================================================================== */
 function raceChart() {
   const DAYS_BACK = 14;
@@ -2848,7 +2848,7 @@ async function endSeason() {
 }
 
 /* ==========================================================================
-   ASIDE — live feed, transmissions, focus glance
+   ASIDE - live feed, transmissions, focus glance
    ========================================================================== */
 function asideFocus() {
   const running = PARTIES.filter(p => focusOf(p).running);
@@ -3035,7 +3035,7 @@ function runPalette(i) {
    --------------------------------------------------------------------------
    One screen, four cards. Each card is painted from its own house's tokens
    and set in its own display face, so the choice is visible rather than
-   described — you are looking at the thing you are picking. Origin System is
+   described - you are looking at the thing you are picking. Origin System is
    offered underneath rather than as a fifth card, because the brief for this
    screen is four houses and four cards is what fits a phone without
    scrolling.
@@ -3073,7 +3073,7 @@ function openCeremony(first) {
   const card = id => {
     const t = REG.list[id], k = t.tokens;
     /* Every value on this card is that house's own token. The card is a
-       working miniature of the house — its ground, its metal, its typefaces,
+       working miniature of the house - its ground, its metal, its typefaces,
        its corner language, its word for a deed and its verb for scoring it. */
     const vars = [
       '--ch-bg:' + k.void, '--ch-surface:' + k.surface, '--ch-line:' + k.line,
@@ -3127,7 +3127,7 @@ function openCeremony(first) {
       <p>${first
         ? 'This one is yours alone. It follows you to every device you sign in on, and it does not change what '
           + esc(nameOf(them)) + ' sees.'
-        : 'Yours alone — ' + esc(nameOf(them)) + ' keeps '
+        : 'Yours alone. ' + esc(nameOf(them)) + ' keeps '
           + (theirs ? esc(theirs.name) : 'whatever they chose') + '.'}</p>
     </div>
     <div class="cer-grid">${houseIds().map(card).join('')}</div>
@@ -3180,8 +3180,8 @@ async function openSettings() {
     { k: 'me', label: 'This device is', type: 'select', value: ME || 'abir', options: PARTIES.map(p => ({ v: p, n: nameOf(p) })),
       hint: 'Decides who the focus timer and task completions score for' },
     { k: 'theme', label: 'Your house', type: 'select', value: THEME,
-      options: THEME_IDS.map(id => ({ v: id, n: REG.list[id].name + ' — ' + REG.list[id].tagline })),
-      hint: 'Yours only — it follows you to any device. The crest in the header opens the full picker.' },
+      options: THEME_IDS.map(id => ({ v: id, n: REG.list[id].name + ' - ' + REG.list[id].tagline })),
+      hint: 'Yours only. It follows you to any device. The crest in the header opens the full picker.' },
     { k: 'work', label: 'Focus block (minutes)', type: 'number', value: s.work },
     { k: 'brk', label: 'Break (minutes)', type: 'number', value: s.brk },
     { k: 'longEvery', label: 'Long break every N blocks (0 = off)', type: 'number', value: s.longEvery },
@@ -3190,7 +3190,7 @@ async function openSettings() {
     { k: 'sound', label: 'Sound on ' + C('score').toLowerCase() + ' changes and timers', type: 'check', value: s.sound },
     { k: 'notify', label: 'Desktop notifications when a timer ends', type: 'check',
       value: (window.Notification && Notification.permission === 'granted') }
-  ], 'Save', store.mode === 'demo' ? 'Sandbox mode — nothing here touches your real data.' : '');
+  ], 'Save', store.mode === 'demo' ? 'Sandbox mode. Nothing here touches your real data.' : '');
   if (!v) return;
   state.names.abir = v.nameA || state.names.abir;
   state.names.jade = v.nameB || state.names.jade;
@@ -3225,7 +3225,7 @@ async function renameParty(p) {
 }
 
 /* ==========================================================================
-   EVENTS — one delegated handler, no inline JS, no eval
+   EVENTS - one delegated handler, no inline JS, no eval
    ========================================================================== */
 const ACTIONS = {
   nav: el => go(el.dataset.v),
@@ -3300,7 +3300,7 @@ const ACTIONS = {
   'bet-del': async el => {
     const b = state.bets.find(x => x.id === el.dataset.id); if (!b) return;
     const ok = await confirmBox('Delete this wager?', b.status === 'resolved'
-      ? C('score') + ' already transferred will NOT be given back — revert it first if you need that.' : '', 'Delete', true);
+      ? C('score') + ' already transferred will NOT be given back. Revert it first if you need that.' : '', 'Delete', true);
     if (!ok) return;
     state.bets = state.bets.filter(x => x.id !== b.id);
     save(); renderAll();
@@ -3431,7 +3431,7 @@ setInterval(() => {
 }, 60000);
 setTimeout(() => { if (!ME) askWhoAmI(); else if (!themeFor(ME)) openCeremony(true); }, 900);
 if (window.__signOut) show($('#signOutBtn'), true);
-if (window.__userEmail) $('#signOutBtn').title = 'Signed in as ' + window.__userEmail + ' — sign out';
+if (window.__userEmail) $('#signOutBtn').title = 'Signed in as ' + window.__userEmail + '. Sign out';
 
 window.__origin = { get state() { return state; }, route, go, save, claim, toast,
   themes: REG.list, applyTheme, chooseTheme, C, ICON,

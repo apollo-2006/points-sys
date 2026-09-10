@@ -11,7 +11,7 @@
 
    Four pieces, and every screen is built from them:
 
-     PENNANT    a hanging banner — flat top, swallowtail cut — carrying a
+     PENNANT    a hanging banner - flat top, swallowtail cut - carrying a
                 charge (the beast) and a legend. This is what an operator is.
      FRAME      a double hairline with bracketed corners and a chevron notched
                 into the top rail. This is what a panel is.
@@ -95,7 +95,7 @@
 
   /* ---- the arms of each house ------------------------------------------
      Cross-house data, so an operator wearing another house's colours is drawn
-     in THEIR arms on your screen — which is the whole point of a scoreboard
+     in THEIR arms on your screen - which is the whole point of a scoreboard
      between two houses. Field, the bright of the field, the metal, and the
      ink the beast is drawn in. */
   H.arms = {
@@ -150,8 +150,8 @@
 
      The old room screen buried the deeds behind a slide-out panel: to award
      something you opened the room, found a pin, opened the board, scrolled,
-     and clicked. Here the seat is one compact rail across the top — arms, the
-     name of the place, and every other place as a plate you can walk to — and
+     and clicked. Here the seat is one compact rail across the top - arms, the
+     name of the place, and every other place as a plate you can walk to - and
      the rest of the screen is the board itself, every deed claimable in one
      click without opening anything. */
   H.roomStandard = function (ctx, cfg) {
@@ -239,7 +239,7 @@
     /* ---------- FRAME: the panel, as a plate with bracketed corners ------ */
     '.hr-frame{position:relative;background:var(--surface);',
     '  border:1px solid var(--line);padding:15px 17px 16px;}',
-    /* the inner hairline — the double rule that makes it read as engraved */
+    /* the inner hairline - the double rule that makes it read as engraved */
     '.hr-frame::before{content:"";position:absolute;inset:4px;pointer-events:none;',
     '  border:1px solid var(--line-soft);}',
     /* corner brackets, drawn once as a background and pinned to all four */
@@ -304,7 +304,7 @@
 
     /* ---------- THE ROOM ------------------------------------------------ */
     '.hr-room{display:block;}',
-    /* the seat: arms, where you are, and everywhere else — one rail */
+    /* the seat: arms, where you are, and everywhere else - one rail */
     '.hr-seat{display:flex;align-items:center;gap:16px;padding:12px 18px 13px;}',
     '.hr-seat-arms{flex:none;margin-top:-26px;margin-bottom:-6px;}',
     '.hr-seat-id{flex:none;}',
@@ -349,7 +349,7 @@
     '.hr-deed-m{font-family:var(--f-label);font-size:9.5px;letter-spacing:var(--ls-label);',
     '  text-transform:var(--tt-label);color:var(--txt-3);}',
     '.hr-deed-req{font-family:var(--f-body);font-size:10.5px;color:var(--warn);opacity:.9;}',
-    /* the claim buttons — the reason the screen exists */
+    /* the claim buttons - the reason the screen exists */
     '.hr-deed-a{display:flex;align-items:center;gap:5px;margin-top:auto;padding-top:4px;}',
     '.hr-claim{flex:1;min-width:0;font-family:var(--f-body);font-size:12px;font-weight:600;',
     '  color:var(--txt);background:var(--surface-2);border:1px solid var(--oc,var(--line));',
@@ -378,7 +378,7 @@
 
     /* ---------- the gilt sweep ------------------------------------------
        One animation, shared. A slow band of the house metal travelling across
-       a surface — the header wordmark wears it, and so does a rank meter as it
+       a surface - the header wordmark wears it, and so does a rank meter as it
        fills. It is the only ambient motion in the app. */
     '@property --hr-sweep{syntax:"<percentage>";inherits:false;initial-value:-40%;}',
     '.hr-gilt{background-image:linear-gradient(100deg,',

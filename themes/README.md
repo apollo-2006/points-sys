@@ -10,13 +10,13 @@ The core app in `../index.html` knows no theme by name. It knows this contract.
 
 > Nothing outside a theme object may hardcode a look, a name, or a piece of art.
 
-The core owns **structure** — grid, spacing, event wiring, state, the economy. A theme owns
+The core owns **structure** - grid, spacing, event wiring, state, the economy. A theme owns
 **everything you can see**. If the core needs a colour it reads a token; if it needs a word it
 calls `C(key)`; if it needs a mark it calls `ICON(key)`.
 
 Enforced, not aspirational: `contract.js` validates every theme at registration and **refuses**
-one that is incomplete. A missing token is a loud failure — console error always, and a red banner
-under `?demo=1` or `?dev=1` — never a silent fall back to somebody else's blue.
+one that is incomplete. A missing token is a loud failure - console error always, and a red banner
+under `?demo=1` or `?dev=1` - never a silent fall back to somebody else's blue.
 
 ## Files
 
@@ -41,21 +41,21 @@ ORIGIN_THEMES.define({
   favicon, themeColor,
   texture,                   // the #sky background layers
   css,                       // this theme's component chrome
-  backdrop(ctx)              // the hub scene — returns SVG
+  backdrop(ctx)              // the hub scene - returns SVG
 });
 ```
 
 ### Tokens
 
 All 49 or none. `contract.js` holds the canonical list; a theme that omits one is refused. There is
-no inheritance and no partial override — the point is that a theme is a complete design, and that
+no inheritance and no partial override - the point is that a theme is a complete design, and that
 switching cannot leave a stray value behind from the theme before.
 
 Worth knowing about a few of them:
 
 | Token | Why it exists |
 | --- | --- |
-| `accent-hi` | the bright end of an accent fill. Not "mix toward white" — an amber goes to honey, not to paper. |
+| `accent-hi` | the bright end of an accent fill. Not "mix toward white" - an amber goes to honey, not to paper. |
 | `tt-label` / `ls-label` / `f-label` | the eyebrow treatment. The original app's `mono, .22em, uppercase` was the loudest tell that a house was a reskin; it is a token now, and Origin is the only theme that keeps it. |
 | `panel-clip` / `card-clip` | the cut-corner language. `none` is a valid, common answer. |
 | `shadow` | what this house's shadows are made of. A warm room does not cast a black shadow. |
@@ -63,14 +63,14 @@ Worth knowing about a few of them:
 ### Copy
 
 Every user-visible string resolves through `C(key)`. `scoreVerb` must be a verb that takes "-ed"
-(the app builds the past tense). `{vars}` interpolate: `toastAwarded: '{what} — awarded to {who}'`.
+(the app builds the past tense). `{vars}` interpolate: `toastAwarded: '{what} - awarded to {who}'`.
 
 `chartFn`…`logFn` are the plain-function tooltips on the nav, so a house's vocabulary can never cost
 you the ability to find a screen.
 
 ### Icons
 
-Inline SVG strings on a 24px grid, inheriting `currentColor`. **No emoji, ever** — the validator
+Inline SVG strings on a 24px grid, inheriting `currentColor`. **No emoji, ever** - the validator
 rejects them. `ORIGIN_THEMES.util.baseIcons()` returns a line-drawn baseline set with `I()` and `F()`
 helpers attached non-enumerably, so `Object.assign({}, B, { … })` copies the icons and not the
 helpers. `markRitual` / `markMilestone` / `markPenalty` are the three node marks.
@@ -83,17 +83,17 @@ Both optional.
 the item it is locked behind. Slytherin runs a serpent along it with its head at the
 locked end. Omit it and you get a dashed rule.
 
-**Never set `stroke-dasharray` on `.focus-ring .fg`** — the app owns that property to
+**Never set `stroke-dasharray` on `.focus-ring .fg`** - the app owns that property to
 carry the timer's progress offset. Setting it in theme CSS silently freezes the dial
 at 100%.
 
 `emblem(ctx)` returns SVG for the header slot, and may show live state. `ctx` carries
-`{lead, gap, progress, dayProgress, a, b, esc}` — so an emblem may turn with the gap
+`{lead, gap, progress, dayProgress, a, b, esc}` - so an emblem may turn with the gap
 between the two totals.
 
 ### The room, and the heraldic kit
 
-`themes/heraldry.js` holds the shared material vocabulary — the thing a house is
+`themes/heraldry.js` holds the shared material vocabulary - the thing a house is
 *made of*, as opposed to the colour it is painted. Four pieces:
 
 | | |
@@ -104,7 +104,7 @@ between the two totals.
 | **rule** | a hairline with a lozenge at its centre. This is a divider. |
 
 `H.arms` carries each house's field, metal, ink and charge, so an operator wearing
-another house's colours is drawn in **their** arms on your screen — which is the
+another house's colours is drawn in **their** arms on your screen - which is the
 whole point of a scoreboard between two houses. A theme calls
 `ORIGIN_HERALDRY.standard(ctx)` for the scoreboard and `roomStandard(ctx, cfg)` for
 the room, and gets both without writing markup.
@@ -122,18 +122,18 @@ Two things worth knowing if you touch it:
   any of it. The old room lost that fight: a flat-view rule set
   `text-transform:uppercase` and `letter-spacing:.1em`, the camera's own rule set
   `font-family:var(--f-display)`, neither overrode the other completely, and the pins
-  came out as Great Vibes — a connecting script — in spaced capitals over stone.
+  came out as Great Vibes - a connecting script - in spaced capitals over stone.
   Nobody wrote that; the cascade did.
 * **A label is never `--f-display`.** A house's display face is chosen to carry a
   heading. At 10px it has to carry legibility instead, and a script cannot.
 
 ## Adding a theme
 
-1. `themes/<id>.js` — one `ORIGIN_THEMES.define({…})` call.
+1. `themes/<id>.js` - one `ORIGIN_THEMES.define({…})` call.
 2. **One** `<script>` line in `index.html`'s head.
 
 That is the entire integration surface. Verified empirically: a sixth theme was added, appeared in
-the picker with no picker edit, applied cleanly, and drew its backdrop — for exactly **1 line added
+the picker with no picker edit, applied cleanly, and drew its backdrop - for exactly **1 line added
 to index.html** and 0 lines changed anywhere else.
 
 ## The three, and what each one actually is
@@ -169,7 +169,7 @@ So a new theme appears in the sorting screen fully dressed, with no edit to the 
 Two things to know if you touch it:
 
 * **`HOUSES` decides which themes get a card.** Anything not in that list is offered as a text
-  link in the footer instead — that is how Origin stays selectable without becoming a fifth card
+  link in the footer instead - that is how Origin stays selectable without becoming a fifth card
   and forcing a scroll on a phone.
 * **Never reuse a core class name.** The mini node mark was originally `.mk`, which is already
   the market-card class in the core stylesheet; it silently inherited the market card's padding
@@ -179,12 +179,12 @@ Two things to know if you touch it:
 
 Two instruments, because a ratio and a hue distance answer different questions.
 
-* **WCAG 2.1 contrast** for text on its background — measured twice: once from the
+* **WCAG 2.1 contrast** for text on its background - measured twice: once from the
   tokens, and once on the **real painted page** in headless Chromium, walking each
   element's ancestors and compositing every background layer (a translucent panel over
   a textured `#sky` is not its literal token value, and gradient fills report
   `backgroundColor: transparent`).
-* **CIEDE2000** for "can you tell these two operators apart" — a luminance ratio says
+* **CIEDE2000** for "can you tell these two operators apart" - a luminance ratio says
   nothing about hue, and that question is entirely about hue.
 
 Operator colours, re-derived per house so that neither collides with the house metal
@@ -197,7 +197,7 @@ or with each other:
 | Origin | `#FF6B5B` | `#4FE0A0` | 7.21 | 12.01 | 6.71 | 11.18 | 111.3 |
 
 All four houses clear 4.5:1 for body copy and 3:1 for large text and meaningful edges
-on every measured element. **Origin does not**, and is left that way on purpose — see
+on every measured element. **Origin does not**, and is left that way on purpose - see
 below.
 
 ## Origin and the legibility bar

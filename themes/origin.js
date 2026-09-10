@@ -1,5 +1,5 @@
 /* ==========================================================================
-   ORIGIN SYSTEM — the control.
+   ORIGIN SYSTEM - the control.
    Every value here is lifted from the pre-refactor stylesheet unchanged. If
    this theme does not render pixel-identical to the app before the theme
    layer existed, the abstraction is leaking and the leak is a bug.
@@ -64,7 +64,7 @@
       typeMilestoneHint: 'big one-off', typePenaltyHint: 'penalty',
       cadDaily: 'DAILY', cadWeekly: 'WEEKLY', cadOnce: 'ONE-OFF',
       brand: 'Origin System', season: 'Season', rank: 'RANK',
-      emptyGroup: 'Nothing charted on this planet yet — add a node.',
+      emptyGroup: 'Nothing charted on this planet yet. Add a node.',
       emptyTasks: 'Nothing queued. Type above and hit enter.',
       emptyLog: 'Nothing logged yet.', emptyMarket: 'Nothing listed.',
       emptyWagers: 'No live wagers.', emptyFeed: 'Nothing claimed yet today.',
@@ -73,7 +73,7 @@
       toastLocked: '↳ needs {item}'
     },
 
-    /* angular, machined — the same language as the old glyph set */
+    /* angular, machined - the same language as the old glyph set */
     icons: Object.assign({}, B, {
       chart: I('<path d="M12 3 21 12l-9 9-9-9Z"/><path d="M12 8.4 15.6 12 12 15.6 8.4 12Z"/>'),
       tasks: I('<rect x="3.6" y="4.4" width="16.8" height="15.2"/><path d="M3.6 9.4h16.8M3.6 14.6h16.8M9 4.4v15.2"/>'),
@@ -154,7 +154,7 @@
       '.hub-hit:hover .pl-body{filter:brightness(1.35);}'
     ].join('\n'),
 
-    /* concentric orbits, a sun, one body per group — unchanged */
+    /* concentric orbits, a sun, one body per group - unchanged */
     backdrop: function (ctx) {
       var W = 1000, H = 280, cx = 500, cy = 138;
       var n = ctx.places.length, orbits = [], bodies = [];
