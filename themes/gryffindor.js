@@ -540,136 +540,56 @@
   };
 
 
-  /* ---- the ogee damask on the hangings --------------------------------- */
-  var DAMASK = 'url("data:image/svg+xml,' + encodeURIComponent(
-    '<svg xmlns="http://www.w3.org/2000/svg" width="72" height="96" viewBox="0 0 72 96">' +
-    '<g fill="none" stroke="#E9B44C" stroke-opacity=".075" stroke-width="1.1">' +
-    '<path d="M36 0C52 16 52 32 36 48S20 80 36 96M36 0C20 16 20 32 36 48S52 80 36 96"/>' +
-    '<path d="M0 48C16 64 16 80 0 96M72 48C56 64 56 80 72 96M0 0C16 16 16 32 0 48M72 0C56 16 56 32 72 48"/></g>' +
-    '<g fill="#E9B44C" fill-opacity=".07">' +
-    '<path d="M36 36c3 4 3 8 0 12c-3-4-3-8 0-12zM36 60c3-4 3-8 0-12c-3 4-3 8 0 12zM24 48c4-3 8-3 12 0c-4 3-8 3-12 0zM48 48c-4-3-8-3-12 0c4 3 8 3 12 0z"/>' +
-    '<circle cx="0" cy="0" r="3"/><circle cx="72" cy="0" r="3"/><circle cx="0" cy="96" r="3"/><circle cx="72" cy="96" r="3"/></g></svg>') + '")';
-
-  /* ---- THE FILM LAYER --------------------------------------------------
-     What makes this read as the films rather than as a red web page: the
-     Great Hall's candles floating over everything, the hearth breathing at
-     the foot of the screen, dark oak and gold leaf for the chrome, and every
-     heading in Roman capitals. Concatenated last so it wins. */
-  var CANDLES = ORIGIN_HERALDRY.candleSky({ seed: 11, n: 36, h: 380 });
-  var FILM = [
-    '#sky::before{content:"";position:absolute;left:0;right:0;top:0;height:420px;',
-    '  background:' + CANDLES + ' center top/1600px auto repeat-x;opacity:.9;',
-    '  -webkit-mask-image:linear-gradient(#000 40%,transparent);mask-image:linear-gradient(#000 40%,transparent);}',
-    '#sky::after{content:"";position:absolute;left:-10%;right:-10%;bottom:-8%;height:62%;',
-    '  background:radial-gradient(ellipse 60% 70% at 50% 100%,rgba(255,138,50,.26),rgba(200,40,20,.08) 50%,transparent 74%);',
-    '  animation:gr-hearth 6.5s ease-in-out infinite;transform-origin:50% 100%;}',
-    '@keyframes gr-hearth{0%,100%{opacity:.78;transform:scaleY(1);}18%{opacity:.95;}',
-    '  33%{opacity:.7;transform:scaleY(1.04);}52%{opacity:1;}71%{opacity:.8;transform:scaleY(.97);}86%{opacity:.92;}}',
-
-    /* the wordmark, struck in gold in the film's own capitals */
-    '.brand-title{font-family:"Cinzel Decorative","Cinzel",serif;font-weight:700;font-size:2.35em;',
-    '  letter-spacing:.02em;line-height:1.05;filter:drop-shadow(0 2px 6px rgba(0,0,0,.7));}',
-    ':root{--gilt-1:#FFF2BE;--gilt-2:#E2B550;--gilt-3:#8E6118;}',
-    '#seasonTag{font-family:var(--f-label);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--txt-2);}',
-    '.creed{font-family:var(--f-label);font-size:10.5px;letter-spacing:.3em;text-transform:uppercase;',
-    '  color:var(--gold);opacity:.9;margin-top:3px;}',
-    '.brand-glyph{background:none !important;box-shadow:none !important;border-radius:0 !important;}',
-    '.brand-glyph img,.brand-glyph svg{width:50px !important;height:auto !important;}',
-
-    /* chrome: dark oak rails with gold leaf, not pills */
-    '#nav{background:linear-gradient(180deg,#2C0D0A,#1A0605);border:1px solid var(--line);border-radius:2px;',
-    '  box-shadow:0 10px 26px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,214,140,.10);padding:4px;}',
-    '.nav-btn{font-family:var(--f-label);font-size:11px;letter-spacing:.14em;text-transform:uppercase;',
-    '  color:var(--txt-2);border-radius:1px;font-weight:600;}',
-    '.nav-btn:hover{color:#FBE9A6;background:rgba(233,180,76,.07);}',
-    '.nav-btn.on{color:#FFEFB8;background:linear-gradient(180deg,#A5181E,#6A0A0F);',
-    '  border:1px solid #D9AE45;box-shadow:inset 0 0 0 1px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,220,150,.28),',
-    '  0 0 18px -6px rgba(217,174,69,.55);text-shadow:0 1px 2px rgba(0,0,0,.6);}',
-    '.btn{font-family:var(--f-label);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;',
-    '  border-radius:2px;border-color:var(--line);font-weight:600;}',
-    '.btn.icon{border-radius:2px;}',
-    '.btn.pri{background:linear-gradient(180deg,#A5181E,#6A0A0F);border:1px solid #D9AE45;color:#FFEFB8;',
-    '  box-shadow:inset 0 1px 0 rgba(255,220,150,.25);}',
-    '.btn.pri:hover:not(:disabled){filter:brightness(1.15);color:#FFF6D6;}',
-    '.chip{font-family:var(--f-label);letter-spacing:.12em;text-transform:uppercase;border-radius:2px;}',
-
-    /* panels: crimson velvet with a gold-leaf edge */
-    '.panel,.hr-frame:not(.hr-std){background:',
-    '  linear-gradient(180deg,rgba(255,200,140,.05),transparent 40%),',
-    '  linear-gradient(170deg,rgba(96,14,20,.92),rgba(50,7,10,.94));}',
-    '.panel-h .t,.day-h,.eyebrow{font-family:var(--f-label);font-size:11px;letter-spacing:.16em;',
-    '  text-transform:uppercase;color:var(--gold);}',
-    '.hr-seat-name{font-size:2.1em;color:#FBE9C0;text-shadow:0 2px 8px rgba(0,0,0,.6);}',
-    '.hr-cart{font-size:10px;}',
-
-    /* deeds: each on its own velvet plate, the points in gold leaf */
-    '.hr-deed{background:linear-gradient(170deg,rgba(90,13,18,.9),rgba(44,6,9,.94));border-color:var(--line-soft);',
-    '  box-shadow:0 8px 20px -10px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,214,140,.07);}',
-    '.hr-deed:hover{background:linear-gradient(170deg,rgba(110,16,22,.94),rgba(54,7,11,.96));}',
-    '.hr-deed.big{border-color:rgba(238,186,48,.7);box-shadow:0 8px 20px -10px rgba(0,0,0,.7),',
-    '  inset 0 0 0 3px rgba(20,4,4,.6),inset 0 0 0 4px rgba(238,186,48,.35);}',
-    '.hr-deed-n{font-family:"EB Garamond",serif;font-size:1.28em;font-weight:500;letter-spacing:0;color:#FBEBCB;}',
-    '.hr-deed-p{font-family:var(--f-display);font-size:13px;color:var(--gold);}',
-    '.hr-deed-m{font-size:9px;letter-spacing:.14em;}',
-    '.hr-claim{font-family:var(--f-label);font-size:10px;letter-spacing:.14em;text-transform:uppercase;',
-    '  background:rgba(0,0,0,.24);border-width:1px;border-color:color-mix(in srgb,var(--oc) 70%,transparent);color:var(--oc);}',
-    '.hr-claim:hover:not(:disabled){background:var(--oc);color:#1A0606;}',
-    '.hr-tool{font-family:var(--f-label);font-size:10px;letter-spacing:.14em;text-transform:uppercase;border-radius:1px;}',
-    '.hr-tool.on{background:linear-gradient(180deg,#A5181E,#6A0A0F);border-color:#D9AE45;color:#FFEFB8;}',
-    /* the castle, lit this house's way. Defining these is what opts a
-       theme in to the drawn places at all. */
-    ':root{--sc-sky1:#0B0918;--sc-sky2:#3E1417;--sc-far:#1C0A10;--sc-near:#0B0305;--sc-lit:#FFC66B;--sc-moon:#F6E9C8;--sc-a:#A5181E;--sc-b:#1F6B44;}',
-    '.hr-std-who{font-size:1.45em;}',
-    '@media(prefers-reduced-motion:reduce){#sky::after{animation:none;}}'
-  ].join('\n');
-
-
   ORIGIN_THEMES.define({
     id: 'gryffindor',
     name: 'Gryffindor',
     tagline: 'Brave · Daring · Courageous',
 
-    /* The common room in the films: crimson hangings, dark oak, and every
-       surface lit warm from the hearth. Scarlet is the cloth, gold the metal. */
+    /* Scarlet and gold, taken off the house page rather than guessed: its
+       sections sit on #6A2B2B over #591E1C, and the arms are gold on scarlet.
+       The canonical pair is #740001 / #D3A625. */
     tokens: {
-      void: '#130405', deep: '#1D0608',
-      surface: 'rgba(70,10,14,0.84)', 'surface-2': 'rgba(233,180,76,0.07)',
-      'surface-hover': 'rgba(233,180,76,0.13)', raised: '#360A0E', toast: '#360A0E',
-      overlay: 'rgba(12,2,3,.86)', track: 'rgba(0,0,0,.45)', input: 'rgba(16,3,4,0.66)',
-      scroll: '#6A1418', shadow: 'rgba(14,2,2,.78)',
-      line: 'rgba(217,174,69,0.34)', 'line-soft': 'rgba(217,174,69,0.17)',
-      'line-hard': 'rgba(240,196,84,0.66)',
-      txt: '#F8ECD4', 'txt-2': '#E3C99C', 'txt-3': '#BC9C72', 'on-accent': '#FFF3DE',
-      accent: '#9E1B1F', 'accent-hi': '#D9AE45', 'accent-dim': '#5C0A0E',
-      'accent-wash': 'rgba(174,20,24,0.26)',
-      gold: '#D9AE45', warn: '#EEBA30', danger: '#EE7A66', ok: '#A9C46E', info: '#D9AE45',
-      milestone: '#EEBA30', penalty: '#EE7A66',
-      'focus-work': '#C22A2E', 'focus-break': '#E6C45A', 'focus-long': '#D9AE45',
+      void: '#1B0A0A', deep: '#2A1011',
+      surface: 'rgba(89,30,28,0.80)', 'surface-2': 'rgba(233,180,76,0.07)',
+      'surface-hover': 'rgba(233,180,76,0.12)', raised: '#3A1614', toast: '#3A1614',
+      overlay: 'rgba(14,4,4,.86)', track: 'rgba(0,0,0,.45)', input: 'rgba(14,5,5,0.6)',
+      scroll: '#6A2B2B', shadow: 'rgba(20,4,4,.72)',
+      line: 'rgba(211,166,37,0.30)', 'line-soft': 'rgba(211,166,37,0.15)',
+      'line-hard': 'rgba(238,186,48,0.58)',
+      txt: '#F6E9D7', 'txt-2': '#D8BC93', 'txt-3': '#AE9070', 'on-accent': '#FFF3DE',
+      accent: '#AE0001', 'accent-hi': '#D3A625', 'accent-dim': '#740001',
+      'accent-wash': 'rgba(174,0,1,0.24)',
+      gold: '#D3A625', warn: '#EEBA30', danger: '#E4614F', ok: '#9EBF63', info: '#D3A625',
+      milestone: '#EEBA30', penalty: '#E4614F',
+      'focus-work': '#AE0001', 'focus-break': '#9EBF63', 'focus-long': '#D3A625',
 
-      'f-display': "'Cinzel',Georgia,serif", 'f-body': "'EB Garamond',Georgia,serif",
-      'f-mono': "'EB Garamond',Georgia,serif",
-      'f-display-scale': '1.12', 'f-ui-scale': '1.0',
-      'tt-display': 'none', 'ls-display': '.03em',
-      'f-label': "'Cinzel',Georgia,serif", 'tt-label': 'uppercase', 'ls-label': '.13em',
+      'f-display': "'Cormorant Garamond',Georgia,serif", 'f-body': "'Lora',Georgia,serif",
+      'f-mono': "'Lora',Georgia,serif",
+      'f-display-scale': '1.34', 'f-ui-scale': '1.0',
+      'tt-display': 'none', 'ls-display': '.01em',
+      'f-label': "'Cormorant SC',Georgia,serif", 'tt-label': 'none', 'ls-label': '.08em',
 
-      radius: '3px', 'radius-lg': '4px', 'chip-radius': '3px', 'border-w': '1px',
+      radius: '4px', 'radius-lg': '7px', 'chip-radius': '20px', 'border-w': '1px',
       'panel-clip': 'none', 'card-clip': 'none'
     },
 
-    /* Cinzel is cut from the same Roman capitals as the lettering on the film
-       title cards and the Hogwarts signage, so headings and labels are set in
-       it. EB Garamond carries the running text at the sizes Cinzel cannot. */
+    /* Caveat - a felt-tip handwriting face - used to carry this entire house,
+       headings and 10px labels alike. It is a nice hand and it is not a school
+       founded in the tenth century. Cormorant is the warm end of the Garamond
+       family: calligraphic, high-contrast, and it has a true small-caps cut,
+       which is what an eyebrow label should be instead of tracked-out capitals. */
     fonts: {
-      display: 'Cinzel', body: 'EB Garamond', mono: 'EB Garamond',
+      display: 'Cormorant Garamond', body: 'Lora', mono: 'Lora',
       googleHref: 'https://fonts.googleapis.com/css2?' +
-                  'family=Cinzel:wght@500;600;700' +
-                  '&family=Cinzel+Decorative:wght@700' +
-                  '&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap'
+                  'family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,600' +
+                  '&family=Cormorant+SC:wght@600;700' +
+                  '&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap'
     },
 
-    /* Each student wears their own house, on every screen: Abir in
-       Gryffindor gold, Jade in Slytherin's pale green-silver. */
-    ops: { a: '#E6B64E', b: '#9FD6B8' },
+    /* Scarlet is the room and gold is the metal, so neither operator may be
+       either. Copper and verdigris - the two things on the mantelpiece that
+       tarnish. */
+    ops: { a: '#E28A4C', b: '#78BBA6' },
 
     copy: {
       chart: 'Common Room', tasks: 'Classrooms', focus: 'Time-Turner',
@@ -737,19 +657,19 @@
       down:  { type: 'triangle', gain: 0.13, seq: [[349, 0], [262, .11]] },
       phase: { type: 'triangle', gain: 0.12, seq: [[440, 0], [523, .12], [659, .24]] }
     },
-    confetti: ['#C22A2E', '#F2C230', '#FBE9A6'],
-    themeColor: '#1D0608',
+    confetti: ['#D22B2B', '#F2C230', '#E28A4C'],
+    themeColor: '#22100E',
     /* the tab wears the house's own arms */
     favicon: 'art/gryffindor-crest.svg',
 
-    /* Crimson hangings: an ogee damask woven in gold, hung in folds, and lit
-       from the hearth below. All drawn, so it is sharp at any size. */
+    /* Lion fur, off the house page, laid under the hearthlight. The weave I
+       drew before was a decent stand-in for a photograph and this is the
+       photograph. */
     texture:
-      'radial-gradient(ellipse 120% 90% at 50% 38%,transparent 46%,rgba(4,0,0,.62) 100%),' +
-      DAMASK + ' 0 0/72px 96px repeat,' +
-      'repeating-linear-gradient(90deg,rgba(0,0,0,.30) 0,rgba(0,0,0,0) 70px,rgba(255,110,70,.035) 120px,rgba(0,0,0,0) 150px,rgba(0,0,0,.30) 210px),' +
-      'radial-gradient(ellipse 80% 46% at 50% 112%,rgba(255,132,48,.30),transparent 72%),' +
-      'linear-gradient(#2A080B,#1B0507 46%,#120304)',
+      'linear-gradient(rgba(28,10,11,.90),rgba(18,6,7,.955)),' +
+      'url(art/gryffindor-ground.webp) center top/cover no-repeat fixed,' +
+      'radial-gradient(ellipse 58% 34% at 50% 104%, rgba(238,186,48,.16), transparent 66%),' +
+      'linear-gradient(#2A1011,#1F0B0C 52%,#160707)',
 
     css: [
       /* ---------- no glass anywhere in this house ---------- */
@@ -978,7 +898,7 @@
       '@media(max-width:880px){.gr-panel{border-left:0;border-top:8px solid #6A3E1C;}}',
       '.gr-panel .pano-tools .btn,.gr-panel .dio-tools .btn{background:rgba(20,8,4,.46);border-color:rgba(255,228,180,.36);color:#FFEBC8;}',
       '.gr-panel .pano-tools .btn.on,.gr-panel .dio-tools .btn.on{background:rgba(210,43,43,.55);border-color:#FFE9B4;color:#FFF4DC;}',
-    ].join('\n') + '\n' + FILM,
+    ].join('\n'),
 
     /* ======================================================================
        THE STANDINGS - a cast gold plate on the wall

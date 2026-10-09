@@ -140,8 +140,8 @@ to index.html** and 0 lines changed anywhere else.
 
 | | Ground | Type | Backdrop | Signature | Focus dial |
 | --- | --- | --- | --- | --- | --- |
-| **Gryffindor** | crimson hangings in a gold ogee damask, lit from the hearth | Cinzel + Cinzel Decorative + EB Garamond | gold lion rampant on scarlet | the Great Hall's floating candles over the page; oak-and-gold chrome | wide candlelit ring |
-| **Slytherin** | black stone in courses under two green lamps | Cinzel + Cinzel Decorative + Cormorant Garamond | silver serpent on green | the Black Lake's light drifting over the stone; square-cut silver chrome | engraved dial |
+| **Gryffindor** | oxblood | Cormorant Garamond + Cormorant SC + Lora | a lion pennant in scarlet and gilt | warm gilt hairlines; the wordmark carries a travelling gold sweep | wide candlelit ring |
+| **Slytherin** | near-black slate | Bodoni Moda + Cormorant SC + Spectral | a serpent pennant in green and silver | cold high-contrast type; engraved hairlines, no bloom | engraved dial |
 | **Origin System** | void | Chakra Petch + Share Tech Mono | the star chart | **the control**, lifted verbatim | the original neon arc |
 
 Each house also owns its own connector, node marks, rank ladder, node-type names,
@@ -187,17 +187,14 @@ Two instruments, because a ratio and a hue distance answer different questions.
 * **CIEDE2000** for "can you tell these two operators apart" - a luminance ratio says
   nothing about hue, and that question is entirely about hue.
 
-Operator colours. Each student wears their **own** house on every screen, so a
-scoreboard between two houses reads as one: Abir in Gryffindor gold, Jade in
-Slytherin's pale green-silver, in both houses' themes. Their standards on the
-scoreboard are painted in their own house's field and metal as well (see
-`H.standard` in `heraldry.js`).
+Operator colours, re-derived per house so that neither collides with the house metal
+or with each other:
 
-| Theme | Abir | Jade | worst ratio A | worst ratio B |
-| --- | --- | --- | --- | --- |
-| Gryffindor | `#E6B64E` gold | `#9FD6B8` green-silver | 8.22 | 9.42 |
-| Slytherin | `#E6B64E` gold | `#9FD6B8` green-silver | 7.84 | 8.98 |
-| Origin | `#FF6B5B` | `#4FE0A0` | 7.21 | 11.18 |
+| Theme | Abir | Jade | A on ground | B on ground | A on panel | B on panel | ΔE A/B |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Gryffindor | `#E28A4C` copper | `#78BBA6` verdigris | 7.23 | 8.57 | 6.63 | 7.86 | 69.2 |
+| Slytherin | `#E893A4` cold rose | `#D8C173` pale gold | 8.60 | 11.09 | 7.91 | 10.21 | 52.9 |
+| Origin | `#FF6B5B` | `#4FE0A0` | 7.21 | 12.01 | 6.71 | 11.18 | 111.3 |
 
 All four houses clear 4.5:1 for body copy and 3:1 for large text and meaningful edges
 on every measured element. **Origin does not**, and is left that way on purpose - see

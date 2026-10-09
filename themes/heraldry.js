@@ -137,9 +137,9 @@
      between two houses. Field, the bright of the field, the metal, and the
      ink the beast is drawn in. */
   H.arms = {
-    gryffindor: { charge: 'lion',    field: '#8E1217', fieldHi: '#B81E24', metal: '#E6B64E', gem: '#D11F2E',
+    gryffindor: { charge: 'lion',    field: '#8E1F1B', fieldHi: '#C4423A', metal: '#E9B44C', gem: '#C7343B',
                   crest: 'art/gryffindor-crest.svg' },
-    slytherin:  { charge: 'serpent', field: '#0E4A2C', fieldHi: '#1F7A4E', metal: '#D4DDDA', gem: '#17A35C',
+    slytherin:  { charge: 'serpent', field: '#09503C', fieldHi: '#12805F', metal: '#DCE7E0', gem: '#2E9E6B',
                   crest: 'art/slytherin-crest.svg' },
     origin:     { charge: 'star',    field: '#1A2036', fieldHi: '#333F63', metal: '#9FB2D8',
                   gem: '#5B78C8' }
@@ -186,22 +186,6 @@
       ' role="img" aria-label="' + esc(o.label || '') + '">' +
       '<defs>' +
         '<clipPath id="' + id + '"><path d="' + GLASS + '"/></clipPath>' +
-        /* the stones: a close heap of faceted gems, each with its own glint */
-        '<pattern id="' + id + 'g" width="4.4" height="3.8" patternUnits="userSpaceOnUse">' +
-          '<rect width="4.4" height="3.8" fill="' + g + '"/>' +
-          '<circle cx="1.1" cy="1" r="1.55" fill="#000" opacity=".28"/>' +
-          '<circle cx="3.3" cy="2.9" r="1.55" fill="#000" opacity=".28"/>' +
-          '<circle cx="1.1" cy="1" r="1.25" fill="' + g + '"/>' +
-          '<circle cx="3.3" cy="2.9" r="1.25" fill="' + g + '"/>' +
-          '<circle cx=".7" cy=".6" r=".42" fill="#fff" opacity=".75"/>' +
-          '<circle cx="2.9" cy="2.5" r=".42" fill="#fff" opacity=".75"/>' +
-        '</pattern>' +
-        '<linearGradient id="' + id + 'v" x1="0" y1="0" x2="1" y2="0">' +
-          '<stop offset="0" stop-color="#fff" stop-opacity=".22"/>' +
-          '<stop offset=".3" stop-color="#fff" stop-opacity="0"/>' +
-          '<stop offset=".78" stop-color="#fff" stop-opacity="0"/>' +
-          '<stop offset="1" stop-color="#fff" stop-opacity=".12"/>' +
-        '</linearGradient>' +
         '<linearGradient id="' + id + 'm" x1="0" y1="0" x2="1" y2="0">' +
           '<stop offset="0" stop-color="' + m + '" stop-opacity=".55"/>' +
           '<stop offset=".38" stop-color="' + m + '"/>' +
@@ -212,18 +196,15 @@
       '<path d="' + GLASS + '" fill="rgba(255,255,255,.05)"/>' +
       '<g clip-path="url(#' + id + ')">' +
         '<rect x="2" y="' + upTop.toFixed(1) + '" width="40" height="' +
-          (52 - upTop).toFixed(1) + '" fill="url(#' + id + 'g)" opacity=".62"/>' +
+          (52 - upTop).toFixed(1) + '" fill="' + g + '" opacity=".4"/>' +
         '<rect x="2" y="' + loTop.toFixed(1) + '" width="40" height="' +
-          (89 - loTop).toFixed(1) + '" fill="url(#' + id + 'g)"/>' +
-        /* the heap is domed, not a level fill */
-        '<ellipse cx="22" cy="' + loTop.toFixed(1) + '" rx="15" ry="2.4" fill="url(#' + id + 'g)"/>' +
+          (89 - loTop).toFixed(1) + '" fill="' + g + '"/>' +
         (p > 0.015 && p < 0.985
           ? '<rect x="21.1" y="46" width="1.8" height="14" fill="' + g + '" opacity=".9"/>' : '') +
         /* the light the gems throw inside the glass */
         '<ellipse cx="22" cy="' + (89 - (89 - loTop) / 2).toFixed(1) + '" rx="17" ry="9" fill="' + g +
           '" opacity=".35"/>' +
       '</g>' +
-      '<path d="' + GLASS + '" fill="url(#' + id + 'v)"/>' +
       '<path d="' + GLASS + '" fill="none" stroke="' + m + '" stroke-width="1.8"' +
         ' stroke-linejoin="round" opacity=".8"/>' +
       /* the posts, then the collars over them */
@@ -237,233 +218,6 @@
       '<rect x="1" y="94.5" width="42" height="5" rx="2" fill="' + m + '" opacity=".9"/>' +
       '<rect x="6" y="99.5" width="32" height="3" rx="1.5" fill="' + m + '" opacity=".6"/>' +
     '</svg>';
-  };
-
-  /* ---- THE CEILING -----------------------------------------------------
-     The Great Hall's floating candles, drawn rather than photographed so they
-     are sharp at any size. Returned as a data URI for a background layer. Each
-     candle flickers and drifts on its own period (CSS inside the SVG runs even
-     when it is used as an image), and positions come off a seeded sequence so
-     the ceiling is the same on every load. Farther candles are smaller, higher
-     and dimmer, which is all the depth the eye needs. */
-  function seeded(seed) {
-    var s = seed >>> 0;
-    return function () { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; };
-  }
-  H.candleSky = function (o) {
-    o = o || {};
-    var W = 1600, Hh = o.h || 360, n = o.n || 34, rnd = seeded(o.seed || 7), out = '';
-    var wax = o.wax || '#F1E4C2', waxLo = o.waxLo || '#BFA877', flame = o.flame || '#FFD58A';
-    for (var i = 0; i < n; i++) {
-      var depth = rnd();                       /* 0 far .. 1 near */
-      var x = (i + .15 + rnd() * .7) / n * W;
-      var y = 26 + (1 - depth) * (Hh * .12) + rnd() * Hh * .42;
-      var s = .45 + depth * .75, h = (20 + rnd() * 18) * s, w = 6.2 * s;
-      var op = (.35 + depth * .65).toFixed(2);
-      var dur = (4.5 + rnd() * 4).toFixed(2), del = (-rnd() * 8).toFixed(2);
-      var fd = (.9 + rnd() * .9).toFixed(2), fdel = (-rnd() * 2).toFixed(2);
-      out += '<g opacity="' + op + '"><g class="b" style="animation-duration:' + dur + 's;animation-delay:' + del + 's">' +
-        '<circle cx="' + x.toFixed(1) + '" cy="' + (y - 3 * s).toFixed(1) + '" r="' + (26 * s).toFixed(1) + '" fill="url(#halo)"/>' +
-        '<rect x="' + (x - w / 2).toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + h.toFixed(1) +
-          '" rx="' + (w * .3).toFixed(1) + '" fill="url(#wax)"/>' +
-        '<path class="f" style="animation-duration:' + fd + 's;animation-delay:' + fdel + 's" d="M' + x.toFixed(1) + ' ' + (y - 11 * s).toFixed(1) +
-          ' c' + (3.2 * s).toFixed(1) + ' ' + (4 * s).toFixed(1) + ' ' + (3.6 * s).toFixed(1) + ' ' + (7.4 * s).toFixed(1) + ' 0 ' + (10 * s).toFixed(1) +
-          ' c-' + (3.6 * s).toFixed(1) + '-' + (2.6 * s).toFixed(1) + '-' + (3.2 * s).toFixed(1) + '-' + (6 * s).toFixed(1) + ' 0-' + (10 * s).toFixed(1) + 'z" fill="url(#flame)"/>' +
-        '</g></g>';
-    }
-    var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + ' ' + Hh + '" width="' + W + '" height="' + Hh + '">' +
-      '<style>.b{animation:b ease-in-out infinite alternate}.f{transform-box:fill-box;transform-origin:50% 100%;' +
-      'animation:f ease-in-out infinite alternate}@keyframes b{to{transform:translateY(7px)}}' +
-      '@keyframes f{0%{transform:scale(1,1);opacity:1}50%{transform:scale(.86,1.14);opacity:.85}100%{transform:scale(1.06,.92);opacity:1}}' +
-      '@media(prefers-reduced-motion:reduce){.b,.f{animation:none}}</style>' +
-      '<defs><radialGradient id="halo"><stop offset="0" stop-color="' + flame + '" stop-opacity=".42"/>' +
-        '<stop offset=".35" stop-color="' + flame + '" stop-opacity=".12"/><stop offset="1" stop-color="' + flame + '" stop-opacity="0"/></radialGradient>' +
-      '<radialGradient id="flame" cx=".5" cy=".7" r=".6"><stop offset="0" stop-color="#FFFBEA"/>' +
-        '<stop offset=".45" stop-color="' + flame + '"/><stop offset="1" stop-color="#E0701C"/></radialGradient>' +
-      '<linearGradient id="wax" x1="0" x2="1"><stop offset="0" stop-color="' + waxLo + '"/>' +
-        '<stop offset=".4" stop-color="' + wax + '"/><stop offset="1" stop-color="' + waxLo + '"/></linearGradient></defs>' +
-      out + '</svg>';
-    return 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")';
-  };
-
-  /* ---- UNDER THE LAKE --------------------------------------------------
-     The light that comes down through the Black Lake and moves on the walls
-     of the Slytherin common room. A caustic net: turbulence is near zero along
-     its ridges, so inverting and thresholding it leaves a net of bright lines. Two of these drift against each other in the
-     theme's CSS, which is what makes it read as water rather than a pattern. */
-  H.causticSky = function (o) {
-    o = o || {};
-    var col = o.color || '0.42 0.9 0.62';
-    var c = col.split(' ');
-    var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="900" height="900" viewBox="0 0 900 900">' +
-      '<filter id="c" x="0" y="0" width="100%" height="100%">' +
-        '<feTurbulence type="turbulence" baseFrequency="' + (o.freq || '.006 .009') + '" numOctaves="2" seed="' + (o.seed || 3) + '" stitchTiles="stitch"/>' +
-        '<feColorMatrix type="matrix" values="0 0 0 0 ' + c[0] + '  0 0 0 0 ' + c[1] + '  0 0 0 0 ' + c[2] + '  -16 0 0 0 1.5"/>' +
-        '<feGaussianBlur stdDeviation="1.2"/>' +
-      '</filter><rect width="900" height="900" filter="url(#c)"/></svg>';
-    return 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")';
-  };
-
-  /* ---- THE PLACES -------------------------------------------------------
-     A band at the top of each screen showing where in the castle you are.
-     These were 880px film stills stretched across the page, which is why the
-     page read as blurred. They are drawn now: silhouettes against a night
-     sky, sharp at any width, coloured entirely from --sc-* custom properties
-     so each house lights the same castle its own way.
-
-       --sc-sky1 / --sc-sky2   the sky, top to horizon
-       --sc-far                the castle on the skyline
-       --sc-near               whatever you are standing in front of
-       --sc-lit                a lit window
-       --sc-moon               the moon, stars and snow
-       --sc-a / --sc-b         the two houses' banner colours */
-  var SW = 1200, SH = 124;
-  function towers(rnd, x0, x1, base, hMin, hMax, fill) {
-    var o = '', x = x0;
-    while (x < x1) {
-      var w = 14 + rnd() * 26, h = hMin + rnd() * (hMax - hMin), top = base - h;
-      o += '<rect x="' + x.toFixed(1) + '" y="' + top.toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + (h + 2).toFixed(1) + '"/>';
-      if (rnd() < .7) {             /* a conical spire, the castle's signature */
-        var sp = w * (1.1 + rnd() * 1.1);
-        o += '<path d="M' + (x - 2).toFixed(1) + ' ' + top.toFixed(1) + 'L' + (x + w / 2).toFixed(1) + ' ' + (top - sp).toFixed(1) +
-             'L' + (x + w + 2).toFixed(1) + ' ' + top.toFixed(1) + 'Z"/>';
-      } else {                      /* or battlements */
-        for (var c = 0; c < w - 4; c += 6) o += '<rect x="' + (x + c).toFixed(1) + '" y="' + (top - 4).toFixed(1) + '" width="3.4" height="4"/>';
-      }
-      x += w + rnd() * 10 - 2;
-      if (rnd() < .45) {            /* a long hall between towers */
-        var hw = 30 + rnd() * 60, hh = hMin * (.45 + rnd() * .3);
-        o += '<rect x="' + x.toFixed(1) + '" y="' + (base - hh).toFixed(1) + '" width="' + hw.toFixed(1) + '" height="' + (hh + 2).toFixed(1) + '"/>';
-        o += '<path d="M' + x.toFixed(1) + ' ' + (base - hh).toFixed(1) + 'L' + (x + hw / 2).toFixed(1) + ' ' + (base - hh - 10).toFixed(1) +
-             'L' + (x + hw).toFixed(1) + ' ' + (base - hh).toFixed(1) + 'Z"/>';
-        x += hw;
-      }
-    }
-    return '<g fill="' + fill + '">' + o + '</g>';
-  }
-  function windows(rnd, x0, x1, y0, y1, n) {
-    var o = '';
-    for (var i = 0; i < n; i++) {
-      var x = x0 + rnd() * (x1 - x0), y = y0 + rnd() * (y1 - y0);
-      o += '<rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="2.2" height="3.4" rx=".8"/>';
-    }
-    return '<g fill="var(--sc-lit)" opacity=".85">' + o + '</g>';
-  }
-  function stars(rnd, n) {
-    var o = '';
-    for (var i = 0; i < n; i++) {
-      o += '<circle cx="' + (rnd() * SW).toFixed(1) + '" cy="' + (rnd() * SH * .6).toFixed(1) + '" r="' + (.4 + rnd() * .8).toFixed(2) +
-           '" opacity="' + (.3 + rnd() * .6).toFixed(2) + '"/>';
-    }
-    return '<g fill="var(--sc-moon)">' + o + '</g>';
-  }
-  var SCENES = {
-    /* the greenhouses, glass lit from inside, the castle behind */
-    foundry: function (rnd) {
-      var o = stars(rnd, 50) + towers(rnd, -20, SW + 20, 96, 26, 54, 'var(--sc-far)') + windows(rnd, 0, SW, 60, 90, 40);
-      var x = 40;
-      while (x < SW) {
-        var w = 150 + rnd() * 70, h = 34 + rnd() * 10, y = SH - h, g = '';
-        g += '<path d="M' + x.toFixed(1) + ' ' + SH + 'V' + (y + 14).toFixed(1) + 'Q' + (x + w / 2).toFixed(1) + ' ' + (y - 16).toFixed(1) + ' ' +
-             (x + w).toFixed(1) + ' ' + (y + 14).toFixed(1) + 'V' + SH + 'Z" fill="var(--sc-lit)" fill-opacity=".16" stroke="var(--sc-near)" stroke-width="3"/>';
-        for (var p = x + 16; p < x + w - 4; p += 16) g += '<path d="M' + p.toFixed(1) + ' ' + SH + 'V' + (y + 4).toFixed(1) + '"/>';
-        g += '<path d="M' + x.toFixed(1) + ' ' + (y + 26).toFixed(1) + 'H' + (x + w).toFixed(1) + '"/>';
-        o += '<g stroke="var(--sc-near)" stroke-width="1.6" fill="none">' + g + '</g>';
-        x += w + 30 + rnd() * 40;
-      }
-      return o;
-    },
-    /* the Astronomy Tower at night, under a full moon */
-    focus: function (rnd) {
-      var o = stars(rnd, 110) +
-        '<circle cx="880" cy="34" r="17" fill="var(--sc-moon)" opacity=".9"/>' +
-        '<circle cx="880" cy="34" r="40" fill="var(--sc-moon)" opacity=".08"/>' +
-        towers(rnd, -20, SW + 20, 116, 22, 46, 'var(--sc-far)') + windows(rnd, 0, SW, 88, 112, 30);
-      /* the tower itself: tall, a gallery near the top, a steep cone */
-      o += '<g fill="var(--sc-near)"><rect x="700" y="50" width="36" height="76"/>' +
-        '<rect x="694" y="62" width="48" height="5"/><rect x="696" y="67" width="44" height="2" opacity=".6"/>' +
-        '<path d="M692 52L718 12L744 52Z"/><rect x="716.6" y="4" width="2.8" height="10"/>' +
-        '<rect x="626" y="82" width="28" height="44"/><path d="M622 84L640 56L658 84Z"/>' +
-        '<rect x="770" y="88" width="24" height="38"/><path d="M766 90L782 66L798 90Z"/></g>' +
-        '<g fill="var(--sc-lit)"><rect x="713" y="78" width="3" height="6" rx="1"/><rect x="721" y="98" width="3" height="6" rx="1"/>' +
-        '<rect x="638" y="100" width="3" height="5" rx="1"/></g>';
-      return o;
-    },
-    /* Hogsmeade in snow: crooked roofs, chimneys, every window lit */
-    market: function (rnd) {
-      var o = stars(rnd, 40) + towers(rnd, 640, SW + 20, 74, 16, 34, 'var(--sc-far)');
-      /* a far row of roofs up the hill, dimmer */
-      var fx = -10, far = '';
-      while (fx < SW) {
-        var fw = 30 + rnd() * 40, fh = 44 + rnd() * 22, fy = SH - fh, fp = 10 + rnd() * 12;
-        far += '<rect x="' + fx.toFixed(1) + '" y="' + fy.toFixed(1) + '" width="' + fw.toFixed(1) + '" height="' + fh.toFixed(1) + '"/>' +
-          '<path d="M' + (fx - 3).toFixed(1) + ' ' + fy.toFixed(1) + 'L' + (fx + fw / 2).toFixed(1) + ' ' + (fy - fp).toFixed(1) + 'L' + (fx + fw + 3).toFixed(1) + ' ' + fy.toFixed(1) + 'Z"/>';
-        fx += fw + rnd() * 14;
-      }
-      o += '<g fill="var(--sc-far)">' + far + '</g>' + windows(rnd, 0, SW, 64, 90, 26);
-      var x = -10, roofs = '', lit = '', snow = '';
-      while (x < SW) {
-        var w = 34 + rnd() * 70, h = 22 + rnd() * 40, y = SH - h, pk = 12 + rnd() * 26, lean = (rnd() - .5) * 12;
-        roofs += '<rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + (h + 2).toFixed(1) + '"/>' +
-          '<path d="M' + (x - 4).toFixed(1) + ' ' + (y + 1).toFixed(1) + 'L' + (x + w / 2 + lean).toFixed(1) + ' ' + (y - pk).toFixed(1) + 'L' + (x + w + 4).toFixed(1) + ' ' + (y + 1).toFixed(1) + 'Z"/>';
-        if (rnd() < .7) roofs += '<rect x="' + (x + w * .7).toFixed(1) + '" y="' + (y - pk * .8).toFixed(1) + '" width="7" height="' + (pk * .7).toFixed(1) + '"/>';
-        snow += '<path d="M' + (x - 5).toFixed(1) + ' ' + (y + 1).toFixed(1) + 'L' + (x + w / 2 + lean).toFixed(1) + ' ' + (y - pk - 1.5).toFixed(1) +
-          'L' + (x + w + 5).toFixed(1) + ' ' + (y + 1).toFixed(1) + 'L' + (x + w + 1).toFixed(1) + ' ' + (y + 4).toFixed(1) +
-          'L' + (x + w / 2 + lean).toFixed(1) + ' ' + (y - pk + 4).toFixed(1) + 'L' + (x - 1).toFixed(1) + ' ' + (y + 4).toFixed(1) + 'Z"/>';
-        for (var k = 0; k < 3; k++) {
-          if (rnd() < .75) lit += '<rect x="' + (x + 8 + k * (w - 22) / 2).toFixed(1) + '" y="' + (y + 8 + rnd() * 10).toFixed(1) +
-            '" width="6" height="8" rx="1"/>';
-        }
-        x += w + (rnd() < .3 ? 14 + rnd() * 20 : rnd() * 5);
-      }
-      o += '<g fill="var(--sc-near)">' + roofs + '</g><g fill="var(--sc-moon)" opacity=".8">' + snow + '</g>' +
-        '<g fill="var(--sc-lit)">' + lit + '</g>';
-      /* falling snow, drifting on two periods */
-      var flakes = '';
-      for (var f = 0; f < 90; f++) {
-        flakes += '<circle cx="' + (rnd() * SW).toFixed(1) + '" cy="' + (rnd() * SH).toFixed(1) + '" r="' + (.6 + rnd() * 1.1).toFixed(2) + '"/>';
-      }
-      o += '<g class="hr-snow" fill="var(--sc-moon)" opacity=".7">' + flakes + '</g>' +
-           '<g class="hr-snow b" fill="var(--sc-moon)" opacity=".7">' + flakes + '</g>';
-      return o;
-    },
-    /* the pitch: the house stands with their banners, the hoops on their poles */
-    conclave: function (rnd) {
-      var o = stars(rnd, 50) + towers(rnd, -20, SW + 20, 84, 14, 34, 'var(--sc-far)') +
-        '<rect x="0" y="112" width="' + SW + '" height="12" fill="var(--sc-near)" opacity=".7"/>';
-      var cols = ['var(--sc-a)', 'var(--sc-b)'], st = '', ban = '';
-      /* the stands: a long low tier of seating ... */
-      st += '<rect x="130" y="' + (SH - 30) + '" width="' + (SW - 260) + '" height="30"/>';
-      /* ... broken by tall towers, each draped in one house's colours */
-      for (var i = 0, x = 150; x < SW - 170; i++, x += 92) {
-        var h = 70 + (i % 3) * 8, y = SH - h, tw = 30;
-        st += '<rect x="' + x + '" y="' + y + '" width="' + tw + '" height="' + h + '"/>' +
-              '<path d="M' + (x - 4) + ' ' + y + 'L' + (x + tw / 2) + ' ' + (y - 30) + 'L' + (x + tw + 4) + ' ' + y + 'Z"/>' +
-              '<rect x="' + (x + tw / 2 - .8) + '" y="' + (y - 40) + '" width="1.6" height="11"/>';
-        ban += '<path d="M' + (x + 4) + ' ' + (y + 3) + 'h22v34l-11 -6l-11 6Z" fill="' + cols[i % 2] + '"/>' +
-               '<path d="M' + (x + tw / 2 + .8) + ' ' + (y - 38) + 'l12 3l-12 3Z" fill="' + cols[i % 2] + '"/>';
-      }
-      o += '<g fill="var(--sc-near)">' + st + '</g>' + ban;
-      /* three hoops a side, on poles of three heights */
-      function hoops(cx, dir) {
-        var g = '', hs = [80, 104, 90];
-        for (var k = 0; k < 3; k++) {
-          var x = cx + dir * k * 26, top = SH - hs[k];
-          g += '<path d="M' + x + ' ' + SH + 'V' + (top + 10) + '"/><circle cx="' + x + '" cy="' + top + '" r="10"/>';
-        }
-        return '<g fill="none" stroke="var(--sc-near)" stroke-width="3">' + g + '</g>';
-      }
-      return o + hoops(46, 1) + hoops(SW - 46, -1);
-    }
-  };
-  H.scene = function (view) {
-    var f = SCENES[view];
-    if (!f) return '';
-    var rnd = seeded(view.length * 131 + view.charCodeAt(0));
-    return '<svg class="hr-scene" viewBox="0 0 ' + SW + ' ' + SH + '" preserveAspectRatio="xMidYMax slice" aria-hidden="true">' +
-      '<defs><linearGradient id="hrSky' + view + '" x1="0" y1="0" x2="0" y2="1">' +
-        '<stop offset="0" stop-color="var(--sc-sky1)"/><stop offset="1" stop-color="var(--sc-sky2)"/></linearGradient></defs>' +
-      '<rect width="' + SW + '" height="' + SH + '" fill="url(#hrSky' + view + ')"/>' + f(rnd) + '</svg>';
   };
 
   /* ---- THE STANDARD ----------------------------------------------------
@@ -501,7 +255,7 @@
           H.hourglass({ p: o.rank.progress, metal: a.metal, gem: a.gem || a.metal,
                         label: pct + ' per cent of the way to ' +
                                ctx.C('rank').toLowerCase() + ' ' + (o.rank.level + 1),
-                        w: 44 }) +
+                        w: 33 }) +
         '</div>' +
       '</div>';
     }).join('');
@@ -755,58 +509,6 @@
     '.hr-mini.more{margin-left:auto;}',
     '.hr-empty{grid-column:1/-1;font-family:var(--f-body);font-size:12.5px;',
     '  color:var(--txt-3);padding:18px 2px;}',
-
-    /* ---------- THE STANDARD, in its bearer's own cloth ---------------
-       --field and --metal are set inline from the student's house, so on
-       either house's screen Abir's standard is scarlet and gold and Jade's is
-       green and silver. That is what makes it a contest between two houses
-       rather than two rows in one house's colours. */
-    '.hr-std{background:',
-    '  radial-gradient(ellipse 60% 120% at 0% 0%,color-mix(in srgb,var(--field) 34%,transparent),transparent 70%),',
-    '  linear-gradient(165deg,color-mix(in srgb,var(--field) 30%,var(--deep)),color-mix(in srgb,var(--field) 10%,var(--deep)));',
-    '  border-color:color-mix(in srgb,var(--metal) 42%,transparent);',
-    '  box-shadow:0 18px 40px -18px var(--shadow),inset 0 1px 0 color-mix(in srgb,var(--metal) 22%,transparent);}',
-    '.hr-std::before{border-color:color-mix(in srgb,var(--metal) 20%,transparent);}',
-    '.hr-std.lead{box-shadow:0 18px 40px -18px var(--shadow),0 0 0 1px var(--metal),',
-    '  0 0 34px -10px color-mix(in srgb,var(--metal) 55%,transparent);}',
-    '.hr-std-arms .hr-crest{width:62px;height:auto;}',
-    '.hr-std-who{color:var(--metal);}',
-    '.hr-std-val{font-size:2.9em;font-weight:700;}',
-    '@supports ((-webkit-background-clip:text) or (background-clip:text)){',
-    '  .hr-std-val{background:linear-gradient(180deg,color-mix(in srgb,var(--metal) 45%,#fff) 8%,',
-    '    var(--metal) 52%,color-mix(in srgb,var(--metal) 62%,#000) 96%);',
-    '    -webkit-background-clip:text;background-clip:text;color:transparent;',
-    '    filter:drop-shadow(0 2px 3px rgba(0,0,0,.55));}}',
-    '.hr-std-glass .hr-glass{filter:drop-shadow(0 0 12px color-mix(in srgb,var(--metal) 26%,transparent))',
-    '  drop-shadow(0 4px 8px var(--shadow));}',
-
-    /* ---------- THE PLACES: drawn scenes over each screen ---------------- */
-    '.place.drawn{height:124px;border-bottom:1px solid var(--line);',
-    '  box-shadow:inset 0 -1px 0 var(--line-soft);}',
-    '.place.drawn::before{display:none;}',
-    '.place.drawn::after{background:linear-gradient(180deg,rgba(0,0,0,.2),transparent 30%,',
-    '  transparent 62%,color-mix(in srgb,var(--void) 80%,transparent) 100%);}',
-    '.hr-scene{position:absolute;inset:0;width:100%;height:100%;display:block;}',
-    '.hr-snow{animation:hr-snow 14s linear infinite;}',
-    '.hr-snow.b{animation-delay:-7s;}',
-    '@keyframes hr-snow{from{transform:translate(0,-124px);}to{transform:translate(-30px,124px);}}',
-    '.place.drawn .place-name{bottom:10px;}',
-    '@media(max-width:620px){.place.drawn{height:92px;}}',
-    '@media(prefers-reduced-motion:reduce){.hr-snow{animation:none;}}',
-
-    /* Roman capitals are wide: on the phone's bottom bar a label drops to
-       Cinzel's narrower small capitals and wraps at its spaces, rather than
-       being cut to 'COMMO...' */
-    '@media(max-width:760px){',
-    '  :root[data-theme] .nav-btn{font-size:7.9px;letter-spacing:-.01em;line-height:1.1;text-transform:none;padding:6px 0;}',
-    '  :root[data-theme] .nav-btn .lbl{white-space:normal;text-overflow:clip;text-align:center;',
-    '    min-height:2.2em;display:flex;align-items:center;justify-content:center;}',
-    '}',
-
-    /* the photographed candle band is retired: the ceiling is drawn now */
-    '.hr-candles{display:none;}',
-    '.hr-seat{padding-top:16px;}',
-    '.hr-seat-arms{margin-top:-8px;}',
 
     '@media(max-width:760px){',
     '  .hr-std{gap:11px;padding:12px 13px 13px;}',

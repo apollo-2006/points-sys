@@ -456,134 +456,56 @@
   };
 
 
-  /* ---- the stone of the walls: courses of blocks, each a little different - */
-  var STONE = 'url("data:image/svg+xml,' + encodeURIComponent(
-    "<svg xmlns='http://www.w3.org/2000/svg' width='384' height='232' viewBox='0 0 384 232'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .55  0 0 0 0 .75  0 0 0 0 .65  0 0 0 .07 0'/></filter><rect width='384' height='232' filter='url(#n)'/><g fill='#9FD6B8'><rect x='-48' y='3' width='116' height='53' fill-opacity='.012'/><rect x='72' y='3' width='132' height='53' fill-opacity='.016'/><rect x='208' y='3' width='100' height='53' fill-opacity='.012'/><rect x='312' y='3' width='84' height='53' fill-opacity='.012'/><rect x='-69' y='61' width='148' height='53' fill-opacity='.028'/><rect x='83' y='61' width='84' height='53' fill-opacity='.02'/><rect x='171' y='61' width='148' height='53' fill-opacity='.034'/><rect x='323' y='61' width='116' height='53' fill-opacity='.028'/><rect x='-40' y='119' width='84' height='53' fill-opacity='.028'/><rect x='48' y='119' width='100' height='53' fill-opacity='.012'/><rect x='152' y='119' width='116' height='53' fill-opacity='.028'/><rect x='272' y='119' width='100' height='53' fill-opacity='.02'/><rect x='376' y='119' width='116' height='53' fill-opacity='.028'/><rect x='-65' y='177' width='84' height='53' fill-opacity='.034'/><rect x='23' y='177' width='116' height='53' fill-opacity='.016'/><rect x='143' y='177' width='148' height='53' fill-opacity='.02'/><rect x='295' y='177' width='100' height='53' fill-opacity='.02'/></g><path fill='none' stroke='#000' stroke-opacity='.55' stroke-width='2.4' d='M0 1H384M70 1V59M206 1V59M310 1V59M14 1V59M0 59H384M81 59V117M169 59V117M321 59V117M57 59V117M0 117H384M46 117V175M150 117V175M270 117V175M374 117V175M110 117V175M0 175H384M21 175V233M141 175V233M293 175V233M13 175V233'/><path fill='none' stroke='#B7E3CC' stroke-opacity='.03' stroke-width='1' d='M0 3.5H384M0 61.5H384M0 119.5H384M0 177.5H384'/></svg>") + '")';
-
-  /* ---- THE FILM LAYER --------------------------------------------------
-     What makes this read as the films rather than as a green web page: the
-     lake's light moving across the stone, silver for every metal, and the
-     same Roman capitals the rest of the castle is signed in. Concatenated
-     last so it wins. */
-  var LAKE_A = ORIGIN_HERALDRY.causticSky({ seed: 5, freq: '.0055 .0085', color: '0.45 0.95 0.68' });
-  var LAKE_B = ORIGIN_HERALDRY.causticSky({ seed: 19, freq: '.007 .0105', color: '0.62 1 0.82' });
-  var FILM = [
-    '#sky::before,#sky::after{content:"";position:absolute;left:-25%;right:-25%;top:-10%;height:90%;',
-    '  mix-blend-mode:screen;will-change:transform;',
-    '  -webkit-mask-image:linear-gradient(#000 20%,transparent 92%);mask-image:linear-gradient(#000 20%,transparent 92%);}',
-    '#sky::before{background:' + LAKE_A + ' 0 0/900px 900px repeat;opacity:.13;',
-    '  animation:sl-lake-a 38s ease-in-out infinite alternate;}',
-    '#sky::after{background:' + LAKE_B + ' 0 0/760px 760px repeat;opacity:.09;',
-    '  animation:sl-lake-b 29s ease-in-out infinite alternate;}',
-    '@keyframes sl-lake-a{from{transform:translate3d(-60px,-20px,0) skewX(-2deg);}to{transform:translate3d(90px,30px,0) skewX(2deg);}}',
-    '@keyframes sl-lake-b{from{transform:translate3d(70px,10px,0) skewX(2deg);}to{transform:translate3d(-80px,-30px,0) skewX(-2deg);}}',
-
-    /* the wordmark, struck in silver in the film's own capitals */
-    '.brand-title{font-family:"Cinzel Decorative","Cinzel",serif;font-weight:700;font-size:2.35em;',
-    '  letter-spacing:.02em;line-height:1.05;filter:drop-shadow(0 2px 6px rgba(0,0,0,.8));}',
-    ':root{--gilt-1:#FFFFFF;--gilt-2:#C9D3D0;--gilt-3:#66736F;}',
-    '#seasonTag{font-family:var(--f-label);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--txt-2);}',
-    '.creed{font-family:var(--f-label);font-size:10.5px;letter-spacing:.3em;text-transform:uppercase;',
-    '  color:var(--gold);opacity:.9;margin-top:3px;}',
-    '.brand-glyph{background:none !important;box-shadow:none !important;border-radius:0 !important;}',
-    '.brand-glyph img,.brand-glyph svg{width:50px !important;height:auto !important;}',
-    'body{font-size:15.5px;font-weight:500;}',
-
-    /* chrome: black stone and engraved silver, square cut */
-    '#nav{background:linear-gradient(180deg,#0B1E15,#050F0A);border:1px solid var(--line);border-radius:0;',
-    '  box-shadow:0 10px 26px rgba(0,0,0,.6),inset 0 1px 0 rgba(200,230,215,.07);padding:4px;}',
-    '.nav-btn{font-family:var(--f-label);font-size:11px;letter-spacing:.15em;text-transform:uppercase;',
-    '  color:var(--txt-2);border-radius:0;font-weight:600;}',
-    '.nav-btn:hover{color:#FFFFFF;background:rgba(201,211,208,.06);}',
-    '.nav-btn.on{color:#F2F7F5;background:linear-gradient(180deg,#1F6B44,#0D3A24);',
-    '  border:1px solid #C9D3D0;box-shadow:inset 0 0 0 1px rgba(0,0,0,.5),inset 0 1px 0 rgba(230,255,240,.18),',
-    '  0 0 18px -6px rgba(111,207,156,.5);text-shadow:0 1px 2px rgba(0,0,0,.7);}',
-    '.btn{font-family:var(--f-label);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;',
-    '  border-radius:0;border-color:var(--line);font-weight:600;}',
-    '.btn.sm,.btn.icon{border-radius:0;}',
-    '.btn.pri{background:linear-gradient(180deg,#1F6B44,#0D3A24);border:1px solid #C9D3D0;color:#F2F7F5;',
-    '  box-shadow:inset 0 1px 0 rgba(230,255,240,.18);}',
-    '.btn.pri:hover:not(:disabled){filter:brightness(1.18);color:#fff;}',
-    '.chip{font-family:var(--f-label);letter-spacing:.12em;text-transform:uppercase;border-radius:0;}',
-
-    /* panels: dark green glass-and-stone with an engraved silver edge */
-    '.panel,.hr-frame:not(.hr-std){background:',
-    '  linear-gradient(180deg,rgba(160,230,200,.04),transparent 40%),',
-    '  linear-gradient(170deg,rgba(10,46,31,.93),rgba(4,20,13,.95));}',
-    '.panel-h .t,.day-h,.eyebrow{font-family:var(--f-label);font-size:11px;letter-spacing:.17em;',
-    '  text-transform:uppercase;color:var(--gold);}',
-    '.hr-seat-name{font-size:2.1em;color:#F0F6F3;text-shadow:0 2px 8px rgba(0,0,0,.7);}',
-    '.hr-cart{font-size:10px;}',
-
-    /* ambitions: each on its own plate, the points in silver */
-    '.hr-deed{background:linear-gradient(170deg,rgba(12,50,34,.92),rgba(4,20,13,.95));border-color:var(--line-soft);',
-    '  box-shadow:0 8px 20px -10px rgba(0,0,0,.8),inset 0 1px 0 rgba(200,240,220,.05);}',
-    '.hr-deed:hover{background:linear-gradient(170deg,rgba(16,64,43,.95),rgba(5,26,17,.96));}',
-    '.hr-deed.big{border-color:rgba(228,236,233,.62);box-shadow:0 8px 20px -10px rgba(0,0,0,.8),',
-    '  inset 0 0 0 3px rgba(2,12,8,.6),inset 0 0 0 4px rgba(228,236,233,.28);}',
-    '.hr-deed-n{font-family:"Cormorant Garamond",serif;font-size:1.34em;font-weight:600;letter-spacing:0;color:#EEF4F1;}',
-    '.hr-deed-p{font-family:var(--f-display);font-size:13px;color:var(--gold);}',
-    '.hr-deed-m{font-size:9px;letter-spacing:.15em;}',
-    '.hr-claim{font-family:var(--f-label);font-size:10px;letter-spacing:.14em;text-transform:uppercase;',
-    '  background:rgba(0,0,0,.28);border-width:1px;border-color:color-mix(in srgb,var(--oc) 70%,transparent);color:var(--oc);}',
-    '.hr-claim:hover:not(:disabled){background:var(--oc);color:#03130D;}',
-    '.hr-tool{font-family:var(--f-label);font-size:10px;letter-spacing:.15em;text-transform:uppercase;border-radius:0;}',
-    '.hr-tool.on{background:linear-gradient(180deg,#1F6B44,#0D3A24);border-color:#C9D3D0;color:#F2F7F5;}',
-    /* the castle, lit this house's way. Defining these is what opts a
-       theme in to the drawn places at all. */
-    ':root{--sc-sky1:#010B08;--sc-sky2:#0F3D2B;--sc-far:#06201A;--sc-near:#010705;--sc-lit:#9FE8BF;--sc-moon:#DCE7E4;--sc-a:#A5181E;--sc-b:#1F6B44;}',
-    '.hr-std-who{font-size:1.45em;}',
-    '@media(prefers-reduced-motion:reduce){#sky::before,#sky::after{animation:none;}}'
-  ].join('\n');
-
-
   ORIGIN_THEMES.define({
     id: 'slytherin',
     name: 'Slytherin',
     tagline: 'Cunning · Ambition · Pride',
 
-    /* The common room in the films sits under the Black Lake: black stone,
-       low green lamps, and the water's light moving on the walls. Green is the
-       cloth, silver the metal, and never a warm tone anywhere. */
+    /* Green and silver, taken off the house page: its sections sit on #07312A
+       over #05201C, and the arms are silver on green. The canonical pair is
+       #1A472A / #AAAAAA, and the metal here is a cold near-white, never gold. */
     tokens: {
-      void: '#020C08', deep: '#03130D',
-      surface: 'rgba(7,36,25,0.84)', 'surface-2': 'rgba(201,211,208,0.06)',
-      'surface-hover': 'rgba(201,211,208,0.12)', raised: '#082A1D', toast: '#082A1D',
-      overlay: 'rgba(1,8,5,.88)', track: 'rgba(0,0,0,.5)', input: 'rgba(2,12,8,0.7)',
-      scroll: '#1A472A', shadow: 'rgba(0,6,3,.84)',
-      line: 'rgba(196,208,204,0.28)', 'line-soft': 'rgba(196,208,204,0.14)',
-      'line-hard': 'rgba(228,236,233,0.6)',
-      txt: '#E6EEEA', 'txt-2': '#B7C9C0', 'txt-3': '#8FA69B', 'on-accent': '#F0F6F3',
-      accent: '#1B5E3B', 'accent-hi': '#C9D3D0', 'accent-dim': '#0E3321',
-      'accent-wash': 'rgba(34,110,70,0.3)',
-      gold: '#C9D3D0', warn: '#CFC08F', danger: '#E07A84', ok: '#6FCF9C', info: '#A9C3B8',
-      milestone: '#E4ECE9', penalty: '#E07A84',
-      'focus-work': '#2E8B57', 'focus-break': '#9FD6B8', 'focus-long': '#C9D3D0',
+      void: '#04140F', deep: '#05201C',
+      surface: 'rgba(7,49,42,0.80)', 'surface-2': 'rgba(220,231,224,0.06)',
+      'surface-hover': 'rgba(220,231,224,0.11)', raised: '#082A24', toast: '#082A24',
+      overlay: 'rgba(2,10,8,.88)', track: 'rgba(0,0,0,.5)', input: 'rgba(3,14,11,0.66)',
+      scroll: '#1A472A', shadow: 'rgba(1,8,6,.82)',
+      line: 'rgba(200,212,206,0.26)', 'line-soft': 'rgba(200,212,206,0.13)',
+      'line-hard': 'rgba(232,239,234,0.55)',
+      txt: '#E8EFEA', 'txt-2': '#B4C4BC', 'txt-3': '#8A9C94', 'on-accent': '#EAF2ED',
+      accent: '#1A472A', 'accent-hi': '#2A623D', 'accent-dim': '#0F2E1B',
+      'accent-wash': 'rgba(26,71,42,0.32)',
+      gold: '#C6D0CA', warn: '#C9B98E', danger: '#D9606C', ok: '#5FBF8E', info: '#9FB8AC',
+      milestone: '#DCE7E0', penalty: '#D9606C',
+      'focus-work': '#1A472A', 'focus-break': '#5FBF8E', 'focus-long': '#C6D0CA',
 
-      'f-display': "'Cinzel',Georgia,serif", 'f-body': "'Cormorant Garamond',Georgia,serif",
-      'f-mono': "'Cormorant Garamond',Georgia,serif",
-      'f-display-scale': '1.12', 'f-ui-scale': '1.0',
-      'tt-display': 'none', 'ls-display': '.04em',
-      'f-label': "'Cinzel',Georgia,serif", 'tt-label': 'uppercase', 'ls-label': '.15em',
+      'f-display': "'Bodoni Moda',Didot,Georgia,serif", 'f-body': "'Spectral',Georgia,serif",
+      'f-mono': "'Spectral',Georgia,serif",
+      'f-display-scale': '1.16', 'f-ui-scale': '1.0',
+      'tt-display': 'none', 'ls-display': '.005em',
+      'f-label': "'Cormorant SC',Georgia,serif", 'tt-label': 'none', 'ls-label': '.1em',
 
-      radius: '1px', 'radius-lg': '2px', 'chip-radius': '1px', 'border-w': '1px',
+      radius: '2px', 'radius-lg': '3px', 'chip-radius': '2px', 'border-w': '1px',
       'panel-clip': 'none', 'card-clip': 'none'
     },
 
-    /* The same Roman capitals as Gryffindor, because it is the same school
-       and the same signage. Cormorant is the colder, sharper Garamond, set a
-       touch heavier than it wants to be so it holds at small sizes. */
+    /* Great Vibes is a wedding-invitation script. Uppercased and tracked out by
+       a stray rule it produced 'QU IDD ITCH', and even set properly it cannot
+       hold a 10px label. Bodoni is the cold, aristocratic, high-contrast face
+       this house was always described as having; Spectral carries the small
+       sizes Cormorant went thin at. */
     fonts: {
-      display: 'Cinzel', body: 'Cormorant Garamond', mono: 'Cormorant Garamond',
+      display: 'Bodoni Moda', body: 'Spectral', mono: 'Spectral',
       googleHref: 'https://fonts.googleapis.com/css2?' +
-                  'family=Cinzel:wght@500;600;700' +
-                  '&family=Cinzel+Decorative:wght@700' +
-                  '&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&display=swap'
+                  'family=Bodoni+Moda:ital,opsz,wght@0,6..96,500;0,6..96,700;1,6..96,500' +
+                  '&family=Cormorant+SC:wght@600;700' +
+                  '&family=Spectral:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap'
     },
 
-    /* Each student wears their own house, on every screen: Abir in
-       Gryffindor gold, Jade in Slytherin's pale green-silver. */
-    ops: { a: '#E6B64E', b: '#9FD6B8' },
+    /* Scarlet is the room and gold is the metal, so neither operator may be
+       either. Copper and verdigris - the two things on the mantelpiece that
+       tarnish. */
+    ops: { a: '#E8A0B4', b: '#D9C3A2' },
 
     copy: {
       places: { deimos: "Snape's Office" },
@@ -652,20 +574,22 @@
       down:  { type: 'triangle', gain: 0.13, seq: [[349, 0], [262, .11]] },
       phase: { type: 'triangle', gain: 0.12, seq: [[440, 0], [523, .12], [659, .24]] }
     },
-    confetti: ['#1B6B45', '#C9D3D0', '#6FCF9C'],
-    themeColor: '#03130D',
+    confetti: ['#1B6B45', '#C9AF8E', '#E6F0EB'],
+    themeColor: '#0B120F',
     /* the tab wears the house's own arms */
     favicon: 'art/slytherin-crest.svg',
 
-    /* Black stone in courses, two low green lamps, and the lake's light
-       coming down from above. All drawn, so it is sharp at any size. */
+    /* Serpent scale. Each cell is two arcs of a circle offset half a step, so
+       the rows interlock the way scales do, over a lake-light wash from above.
+       The house page puts scales behind its hero and the page reads flat
+       without them. */
+    /* Serpent scale, off the house page, under lake light. The pattern I drew
+       before was a decent stand-in for a photograph and this is it. */
     texture:
-      'radial-gradient(ellipse 120% 90% at 50% 40%,transparent 36%,rgba(0,3,1,.78) 100%),' +
-      'radial-gradient(ellipse 26% 34% at 4% 30%,rgba(60,200,120,.13),transparent 70%),' +
-      'radial-gradient(ellipse 26% 34% at 96% 30%,rgba(60,200,120,.13),transparent 70%),' +
-      'linear-gradient(180deg,rgba(40,140,100,.10),transparent 42%),' +
-      STONE + ' 0 0/384px 232px repeat,' +
-      'linear-gradient(#04140C,#020D07 50%,#010804)',
+      'linear-gradient(rgba(4,20,15,.90),rgba(2,12,9,.955)),' +
+      'url(art/slytherin-ground.webp) center top/cover no-repeat fixed,' +
+      'radial-gradient(ellipse 120% 40% at 50% -10%, rgba(42,98,61,.22), transparent 66%),' +
+      'linear-gradient(#06231E,#04140F 56%,#03100C)',
 
     css: [
       /* ---------- no glass anywhere in this house ---------- */
@@ -891,7 +815,7 @@
       '@media(max-width:880px){.sl-panel{border-left:0;border-top:7px solid #4A5250;}}',
       '.sl-panel .pano-tools .btn,.sl-panel .dio-tools .btn{background:rgba(4,10,8,.5);border-color:rgba(195,210,204,.4);color:#DCE8E2;}',
       '.sl-panel .pano-tools .btn.on,.sl-panel .dio-tools .btn.on{background:rgba(27,107,69,.6);border-color:#4FE0A0;color:#EAF0EC;}',
-    ].join('\n') + '\n' + FILM,
+    ].join('\n'),
 
     /* ======================================================================
        THE STANDINGS - a cast gold plate on the wall
