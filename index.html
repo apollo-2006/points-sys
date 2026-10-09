@@ -1564,6 +1564,7 @@ function subscribe() {
     syncThemeToMe({ instant: !booted });        // this device wears ME's house
     renderAll();
     syncDot('ok');
+    if (!pendingSave) sweepAutoPenalties();
   }, err => {
     console.error('listen failed', err);
     syncDot('off');
@@ -1629,6 +1630,92 @@ function undoLast(key, party) {
   save();
   renderAll();
   toast(C('toastReverted', { what: esc(e.reason) }), { kind: 'warn', amount: fmt(-e.delta) });
+}
+/* ---------------- automatic claims ----------------
+   Anything the ledger can prove on its own, so nobody has to remember to log
+   their own failure (or a streak they already earned). Each rule looks at one
+   finished day for one person; the entry is backdated to 23:59 of that day.
+   `state.autoSwept` is the last day judged, so every device agrees and a day
+   is only ever judged once. */
+const did = (entries, key) => entries.some(h => h.key === key && !h.auto);
+const loggedOn = (party, d) => state.history.filter(h => h.party === party && dayKey(h.ts) === dayKey(d));
+function fullWeek(party, d, ritual, milestone) {
+  if (d.getDay() !== 0) return false;
+  const from = weekStart(d);
+  if (state.history.some(h => h.party === party && h.key === milestone && h.ts >= from.getTime() && h.ts <= d.getTime() + 86400000)) return false;
+  for (const x = new Date(from); x <= d; x.setDate(x.getDate() + 1))
+    if (!did(loggedOn(party, x), ritual)) return false;
+  return true;
+}
+const AUTO_RULES = [
+  /* a blank day can't prove anything else, so it only costs this one */
+  { node: 'pen:forgot_tracking',  fires: (party, entries) => !entries.some(h => !h.auto) },
+  { node: 'pen:skipped_skincare', fires: (party, entries) => !did(entries, 'daily:skincare') },
+  { node: 'pen:skipped_workout',  fires: (party, entries) => !did(entries, 'daily:workout') },
+  /* Sunday closes the week: seven days of the ritual is the milestone */
+  { node: 'ach:perfect_sleep_week', blankOk: true, fires: (party, entries, d) => fullWeek(party, d, 'daily:sleep_on_time', 'ach:perfect_sleep_week') },
+  { node: 'ach:meals_tracked_week', blankOk: true, fires: (party, entries, d) => fullWeek(party, d, 'daily:meals', 'ach:meals_tracked_week') }
+];
+const AUTO_BACKFILL_DAYS = 14;   // a month away from the app shouldn't wipe out a season
+function sweepAutoPenalties() {
+  const today = startOfDay(Date.now());
+  const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1);
+  if (!state.autoSwept) { state.autoSwept = dayKey(new Date(yesterday.getTime() - 86400000)); }
+  if (state.autoSwept === dayKey(yesterday)) return;
+
+  const floor = new Date(today); floor.setDate(floor.getDate() - AUTO_BACKFILL_DAYS);
+  const seasonStart = startOfDay(state.season.started || 0);
+  const cur = startOfDay(state.autoSwept); cur.setDate(cur.getDate() + 1);
+  if (cur < floor) cur.setTime(floor.getTime());
+  if (cur < seasonStart) cur.setTime(seasonStart.getTime());
+
+  const hits = [];
+  for (; cur <= yesterday; cur.setDate(cur.getDate() + 1)) {
+    const day = dayKey(cur);
+    ['abir', 'jade'].forEach(party => {
+      const entries = loggedOn(party, cur);
+      const blank = !entries.some(h => !h.auto);
+      AUTO_RULES.forEach(r => {
+        const nd = nodeById(r.node);
+        if (!nd || (nd.o !== 'both' && nd.o !== party)) return;
+        if (entries.some(h => h.key === r.node)) return;          // already logged, by hand or by us
+        if (blank && r.node !== 'pen:forgot_tracking' && !r.blankOk) return;
+        if (!r.fires(party, entries, cur)) return;
+        const ts = new Date(cur); ts.setHours(23, 59, 0, 0);
+        const h = { ts: ts.getTime(), party, delta: nd.pts, reason: nd.n + ' (auto)', key: nd.id, auto: day };
+        const at = state.history.findIndex(x => x.ts < h.ts);
+        state.history.splice(at === -1 ? state.history.length : at, 0, h);
+        state.points[party] = (state.points[party] || 0) + nd.pts;
+        hits.push(h);
+      });
+    });
+  }
+  if (state.history.length > HISTORY_CAP) state.history.length = HISTORY_CAP;
+  state.autoSwept = dayKey(yesterday);
+  save();
+  if (!hits.length) return;
+  renderAll();
+  const total = hits.reduce((a, h) => a + h.delta, 0);
+  const msg = [...new Set(hits.map(h => h.party))].map(p => {
+    const mine = hits.filter(h => h.party === p);
+    const parts = [...new Set(mine.map(h => h.key))].map(k => {
+      const n = mine.filter(h => h.key === k).length;
+      return esc(nodeById(k).n) + (n > 1 ? ' ×' + n : '');
+    });
+    return `<b>${esc(nameOf(p))}</b> · ${parts.join(', ')}`;
+  }).join('<br>');
+  toast(msg, {
+    kind: total < 0 ? 'bad' : 'good', amount: fmt(total),
+    undo: () => {
+      hits.forEach(h => {
+        /* match by value - a remote snapshot may have replaced the objects */
+        const i = state.history.findIndex(x => x.auto === h.auto && x.party === h.party && x.key === h.key);
+        if (i !== -1) { state.history.splice(i, 1); state.points[h.party] -= h.delta; }
+      });
+      save(); renderAll();
+    }
+  });
+  beep(total < 0 ? 'down' : 'up');
 }
 function streak(party) {
   const days = new Set(state.history.filter(h => h.party === party && h.delta > 0).map(h => dayKey(h.ts)));
@@ -3140,6 +3227,15 @@ const PLACES = {
   conclave: 'art/place-quidditch.webp'
 };
 function placeBand(v) {
+  /* a drawn scene if the kit has one for this place and the theme has said
+     how to light it (by defining --sc-sky1): sharp at any width */
+  const lit = getComputedStyle(document.documentElement).getPropertyValue('--sc-sky1').trim();
+  const drawn = lit && window.ORIGIN_HERALDRY && ORIGIN_HERALDRY.scene && ORIGIN_HERALDRY.scene(v);
+  if (drawn) {
+    return `<div class="place drawn">${drawn}
+      <span class="place-name"><span class="hr-cart">${esc(C(VIEW_COPY[v] || v))}</span></span>
+    </div>`;
+  }
   const src = PLACES[v];
   if (!src) return '';
   return `<div class="place" style="--place:url(${src})">
@@ -3643,6 +3739,7 @@ setInterval(() => {
   const t = document.activeElement;
   if (t && /^(INPUT|TEXTAREA)$/.test(t.tagName)) return;
   if ($('#modalWrap').classList.contains('on') || $('#palWrap').classList.contains('on')) return;
+  if (booted) sweepAutoPenalties();
   renderAll();
 }, 60000);
 setTimeout(() => { if (!ME) askWhoAmI(); else if (!themeFor(ME)) openCeremony(true); }, 900);
